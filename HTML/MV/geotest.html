@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverse Geocoding with OpenStreetMap (India)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Reverse Geocoding (Get Location from Coordinates)</h2>
+    <p>Enter Latitude & Longitude to get the location name.</p>
+
+    <input type="text" id="latitude" placeholder="Enter Latitude">
+    <input type="text" id="longitude" placeholder="Enter Longitude">
+    <button onclick="getLocationName()">Get Location</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function getLocationName() {
+            const lat = document.getElementById("latitude").value;
+            const lon = document.getElementById("longitude").value;
+
+            if (!lat || !lon) {
+                document.getElementById("result").innerHTML = "Please enter both latitude and longitude!";
+                return;
+            }
+
+            const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: { "User-Agent": "YourAppName/1.0 (your@email.com)" } // Required
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById("result").innerHTML = `<strong>Location:</strong> ${data.display_name || "Not Found"}`;
+            } catch (error) {
+                document.getElementById("result").innerHTML = "Error retrieving location.";
+                console.error("Error:", error);
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.52" rel="stylesheet" />
+
+
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <div class="container" style="background-color: #E0E0E0 !important; ">
+                <div class="form-group">
+                    <div id="example">
+                        <div class="demo-section">
+                            <div id="lstSaleInvoiceDetail" style="border:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sapSection" style="display: none;">
+
+                <div id="refresh-panel" class="border-top text-center py-2"
+                     style="position:fixed; bottom:48px; left:0; right:0; z-index:1050;">
+                    <div class="col" id="dvLastupdatedTime" style="display: flex; justify-content: center; gap: 5px; margin:2px;color:green">
+                       
+                    </div>
+                    <div class="col" style="display: flex; justify-content: center; gap: 5px;">
+
+                        <button type="submit" id="btnRefresh" class="btn btn-cancel">Refresh</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    let isAllowed = localStorage.getItem("IsAllowedSAP_SIT_Download") === "true";
+
+                    if (isAllowed) {
+                        document.getElementById("sapSection").style.display = "block";
+                    }
+                });
+            </script>
+
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailExpand">
+                <div class="clsTable cls#: ProductID #" style="margin-bottom:5px;padding:0px!important;width:100%!important;">
+
+                    <div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                          <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+
+                  <table><tr><td>
+                  <button id="btnPlantTruckUnloading" class="button submit" style="width:100%;background-color:\\#6FA3E8!important;"
+                                      onclick="window.location.href = 'SITTrucksUpdate.html?GRNID=#: data.GRNID#&GRNIDList=#: data.GRNIDList#&ProductID=#: data.ProductID #&LorryNumber=#: data.LorryNumber #&DANo=#: data.DANo #&OriginalMissingType=#: data.OriginalMissingType #&MTRID=#: data.MTRID #&SourceDepotID=#:data.SourceDepotID#&DestinationDepotID=#:data.DestinationDepotID#'">
+                                      Confirm Arrival
+                              </button>
+                          </td><td> </td>
+
+                      </tr></table>
+                      </div>
+                  </div>
+
+                    <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                        <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                            <strong>Plant Truck No: </strong>#: data.LorryNumber ? data.LorryNumber : "" #
+                        </div>
+                    </div>
+
+                    <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                        <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                            <strong>Driver :</strong>   #: data.DriverMobileNumber ? data.DriverMobileNumber : "" #
+                        #: data.DriverName ? data.DriverName : "" #
+                        </div>
+                    </div>
+                 # if (data.MissingType == "Plant - SIT") { #
+        <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+
+            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                <strong>Delay: </strong>
+                <span class="#: data.DelayInDaysMinusSTDNew > data.StandardTransitDays ? 'blink-red' : '' #">
+                    #: data.DelayInDaysMinusSTDNew ? data.DelayInDaysMinusSTDNew : "" #
+                </span> (Hrs)
+                <strong>Standard Transit Hours: </strong>
+                #: data.StandardTransitDays ? data.StandardTransitDays : "" # (Hrs)
+            </div>
+
+        </div>
+        # } #
+
+
+                    <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                        <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                            <strong>Transporter: </strong>#: data.TransporterName ? data.TransporterName : "" #
+                        </div>
+
+                    </div>
+
+                     <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Product: </strong>#: data.ProductID ? data.ProductID : "" #
+                    </div>
+                    </div>
+
+                    <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                        <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                            <strong>DA : </strong>#: data.DANo ? data.DANo : "" #
+                            <strong>Qty MT: </strong>#: data.DAQty ? data.DAQty : "" #
+                             <strong>Bags: </strong>#: data.QtyMTBags ? data.QtyMTBags : "" #
+                        </div>
+                    </div>
+
+
+                </div>
+    </script>
+
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailCollaps">
+                   <div class="clsTable cls#: ProductID #" style="margin-bottom:2px;padding:0px;border-bottom:5px solid;border-bottom-color: \\#E0E0E0;">
+                       <table style="border-collapse: collapse;" border="0">
+                           <tr>
+                               <td>
+
+
+                                   <div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>DA Date: </strong>#: data.DADate ? kendo.toString(kendo.parseDate(data.DADate), "dd/MM/yyyy HH:mm") : "" #
+                                       </div>
+                                   </div>
+
+                                   <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Delay: </strong>#: data.DelayInDaysMinusSTDNew ? data.DelayInDaysMinusSTDNew : "" #
+                                       </div>
+                                   </div>-->
+
+                                   <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Source Plant/Depot: </strong>#: data.SourceDepotName ? data.SourceDepotName : "" #
+                                       </div>
+                                   </div>
+
+                                   <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Standard Transit Hours: </strong>#: data.StandardTransitDays ? data.StandardTransitDays : "" #
+                                       </div>
+                                   </div>-->
+
+                                   <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Closing Stock of Material: </strong>#: data.ClosingStockOfMaterial ? data.ClosingStockOfMaterial : "" #
+                                       </div>
+                                   </div>
+
+                                   <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Total Closing Stock: </strong>#: data.TotalClosingStock ? data.TotalClosingStock : "" #
+                                       </div>
+                                   </div>
+
+                                   <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                       <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                           <strong>Depot Capacity: </strong>#: data.DepotCapacity ? data.DepotCapacity : "" #
+                                       </div>
+                                   </div>-->
+
+                               </td>
+                           </tr>
+                           <tr><td>
+                <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                <label for="chkIsDedicatedTruck" style="display: inline-flex; align-items: center; padding:5px; cursor: pointer;" onclick="event.stopPropagation();">
+                    <input type="checkbox" id="chkIsDedicatedTruck_#:data.GRNID#"
+                    style="margin:2px;"
+                    onclick="onDedicatedTruckClick(event, this,'#:data.GRNIDList#')"
+                    # if (data.IsDedicatedTruck) { # checked # } #
+                    />
+
+                Is Dedicated Truck
+                </label>
+                </div>
+                </div>
+        </td></tr>
+                       </table>
+                   </div>
+    </script>
+   
+
+
+    <script>
+        $(document).ready(function () {
+            
+            fnSetPageName("SIT Trucks");
+            getSAPLastImportTime('SAPSIT');
+            function setListViewHeight() {
+                var availableHeight = $(window).height()
+                    - $("#header").outerHeight(true)   // subtract header
+                    - $("#refresh-panel").outerHeight(true) // subtract refresh panel
+                    - $("#footer").outerHeight(true)   // subtract footer
+                    - 68; // small padding margin
+
+                $("#lstSaleInvoiceDetail").height(availableHeight);
+            }
+
+
+
+            $("#lstSaleInvoiceDetail").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '/api/PlantTruck/GetSITTruck?UserId=' + getUserID() + '&DepotID=' + getDepotID(),
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        data: function (response) {
+                            return response;
+                        }
+                    },
+                    sort: { field: "DADate", dir: "asc" } // Sort ascending by LorryNumber
+                },
+                template: kendo.template($("#tmpSaleInvoiceDetailCollaps").html()),
+                selectable: "single",
+                change: function (e) { },
+                dataBound: function () {
+                    var listView = $("#lstSaleInvoiceDetail").data("kendoListView");
+
+                    $.each($("#lstSaleInvoiceDetail.k-listview")
+                        .find("div.k-listview-content")
+                        .find("div.k-listview-item"), function (k, i) {
+
+                            var dataItem = listView.dataItem($(i));
+
+                            $(i).kendoExpansionPanel({
+                                title: 'ssss',
+                                subTitle: '',
+                                complete: function (e) {
+                                    let dataItem = listView.dataItem($(e.sender.element));
+                                    var template = kendo.template($("#tmpSaleInvoiceDetailExpand").html());
+                                    e.sender.element.closest(".k-expander")
+                                        .find("div.k-expander-header .k-expander-title")
+                                        .html(template(dataItem));
+
+                                    e.sender.element.closest(".k-expander")
+                                        .find("div.k-expander-header")
+                                        .css({
+                                            'border-bottom': '0px solid',
+                                            'border-bottom-color': '#E0E0E0',
+                                            'padding-bottom': '10px'
+                                        });
+                                }
+                            });
+                            
+                            if (dataItem.IsDedicatedTruck) {
+                                $(i).closest(".k-expander").addClass("dedicated-row");
+                            }
+                        });
+                }
+
+
+                //dataBound: function () {
+                //    $.each($("#lstSaleInvoiceDetail.k-listview").find("div.k-listview-content").find("div.k-listview-item"), function (k, i) {
+                //        $(i).kendoExpansionPanel({
+                //            title: 'ssss',
+                //            subTitle: '',
+                //            complete: function (e) {
+                //                let dataItem = $("#lstSaleInvoiceDetail").data("kendoListView").dataItem($(e.sender.element));
+                //                var template = kendo.template($("#tmpSaleInvoiceDetailExpand").html());
+                //                var data = dataItem;
+                //                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander")
+                //                    .find("div.k-expander-header").find("div.k-expander-title").html(template(data));
+
+                //                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander")
+                //                    .find("div.k-expander-header").css({
+                //                        'border-bottom': '0px solid',
+                //                        'border-bottom-color': '#E0E0E0',
+                //                        'padding-bottom': '10px'
+                //                    });
+                //            }
+                //        });
+                //    });
+                //}
+            });
+
+            setListViewHeight();
+            $(window).resize(setListViewHeight);
+
+            let isAllowed = localStorage.getItem("IsAllowedSAP_SIT_Download") === "true";
+
+            if (isAllowed) {
+                document.getElementById("sapSection").style.display = "block";
+            }
+        });
+
+        const currentUrl = window.location.href;
+        function getDepotID() {
+            return localStorage.getItem("DepotID").toString();
+        }
+        function getUserID() {
+            return localStorage.getItem("userID").toString();
+        }
+
+        function onDedicatedTruckClick(event, checkboxElement, GRNIDList) {
+            event.stopPropagation();
+            //alert(GRNIDList);
+            const isChecked = checkboxElement.checked;
+            const userId = getUserID();
+
+            $.ajax({
+                type: "POST",
+                url: "/api/PlantTruck/UpdateDedicatedTruckStatus",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    GRNIDList: GRNIDList,
+                    IsDedicatedTruck: isChecked,
+                    UserID: userId
+                }),
+                success: function (response) {
+                    alert("Updated successfully:", response.message);
+                    const listView = $("#lstSaleInvoiceDetail").data("kendoListView");
+                    if (listView) {
+                        listView.dataSource.read();
+                        listView.refresh();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Update failed:", xhr.responseJSON?.message || error);
+                }
+            });
+        }
+        function applyDedicatedTruckPermission(grnID) {
+            const isAllowed = localStorage.getItem("IsAllowedDedicatedTruckStatusChange") === "true";
+            // alert(isAllowed);
+            const checkbox = document.getElementById(`chkIsDedicatedTruck_${grnID}`);
+
+            if (checkbox) {
+                checkbox.disabled = !isAllowed;
+            }
+        }
+
+        $("#btnRefresh").on("click", async function () {
+            var $btn = $(this); // ✅ capture 'this' immediately before any await
+
+            let diffMinutes;
+            try {
+                diffMinutes = await getSAPLastImportTime('SAPSIT');
+            } catch (err) {
+                console.error("Error fetching last import time:", err);
+                diffMinutes = 9999;
+            }
+
+            if (diffMinutes <= 10) {
+                alert("Last import was just " + diffMinutes + " minute(s) ago. Please wait before refreshing again.");
+                return;
+            }
+
+            $btn.prop("disabled", true).text("Refreshing...");
+
+            $.ajax({
+                url: "/api/Flow/trigger",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ FlowId: "SAP-SIT-DOWNLOAD" }),
+                success: function (response) {
+                    console.log("Flow Triggered:", response);
+                    var listView = $("#lstSaleInvoiceDetail").data("kendoListView");
+                    if (listView) listView.dataSource.read();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error triggering flow:", error);
+                    alert("Failed to trigger flow.");
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        var listView = $("#lstSaleInvoiceDetail").data("kendoListView");
+                        if (listView) listView.dataSource.read();
+                        $btn.prop("disabled", false).text("Refresh");
+                    }, 60000);
+                }
+            });
+        });
+
+        function getSAPLastImportTime(source) {
+            $("#dvLastupdatedTime").html('');
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    url: "/api/flow/sap-last-import",
+                    type: "GET",
+                    data: { source: source },
+                    success: function (response) {
+                        if (response.status === "Success" || response.Status === "Success") {
+                            $("#dvLastupdatedTime").html(response.whatsAppStyleTime ?? response.WhatsAppStyleTime);
+
+                            // ✅ Handle both camelCase and PascalCase
+                            let rawTime = response.actualTime ?? response.ActualTime;
+                            let actualTime = new Date(rawTime);
+                            let now = new Date();
+                            let diffMinutes = Math.floor((now - actualTime) / 60000);
+
+                            console.log("WhatsApp-style time:", response.whatsAppStyleTime ?? response.WhatsAppStyleTime);
+                            console.log("Actual datetime:", rawTime);
+                            console.log("Difference in minutes:", diffMinutes);
+
+                            resolve(diffMinutes);
+                        } else {
+                            reject(response.message ?? response.Message);
+                        }
+                    },
+                    error: function (xhr) {
+                        reject(xhr.responseText);
+                    }
+                });
+            });
+        }
+
+    </script>
+    <style>
+
+        .k-expander-content {
+            max-width: 600px;
+            padding-bottom: 0px !important;
+            border-bottom: 0px !important;
+        }
+
+        .k-expander-header {
+            padding: 0px !important;
+            text-transform: none;
+            background-color: white !important;
+        }
+
+            .k-expander-header:hover {
+                background-color: unset;
+            }
+
+        .k-expander-title {
+            padding: 0px !important;
+            text-transform: unset;
+        }
+        /* Full pink background for dedicated trucks */
+        .k-expander.dedicated-row,
+        .k-expander.dedicated-row .k-expander-header,
+        .k-expander.dedicated-row .k-expander-content-wrapper {
+            background-color: #fff0f5 !important;
+        }
+
+            /* Remove inner white override */
+            .k-expander.dedicated-row .k-expander-header {
+                background-color: #fff0f5 !important;
+            }
+
+            .k-expander.dedicated-row .k-expander-content-wrapper {
+                background-color: pink !important;
+            }
+        .dedicated-row .clsTable {
+            background-color: #fff0f5 !important;
+        }
+
+
+        /*html, body {
+            overscroll-behavior-y: contain;*/ /* Prevent browser bounce */
+        /*touch-action: pan-x pan-y;*/ /* Allow scrolling but restrict gestures */
+        /*}*/
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

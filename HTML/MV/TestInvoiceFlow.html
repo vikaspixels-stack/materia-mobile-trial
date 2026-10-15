@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice Flow Trigger (Test)</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui,sans-serif;
+            background: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0
+        }
+
+        #btnTrigger {
+            padding: 12px 28px;
+            font-size: 16px;
+            border: none;
+            background: #0078d7;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer
+        }
+
+            #btnTrigger:disabled {
+                background: #aaa;
+                cursor: not-allowed
+            }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            width: 90%;
+            max-width: 680px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            word-break: break-word;
+            font-family: monospace;
+            font-size: 14px
+        }
+    </style>
+</head>
+<body>
+    <button id="btnTrigger">Trigger Invoice Flow (Test)</button>
+    <div id="result"></div>
+
+    <script>
+        $(function () {
+            $("#btnTrigger").on("click", function () {
+                const $btn = $(this).prop("disabled", true).text("Triggering...");
+
+                const payload = {
+                    requestHeader: {
+                        flowId: "SAP-GRN-POST"
+                        //,
+                        //requestId: "43545261250029450",
+                        //partnerSysId: "VCPL",
+                        //timestamp: "2025-10-06T09:23:47Z"
+                    },
+                    parameters: {
+                        "deliveryNumber": "8133204490",
+                        "saleQuantity": 0.0,
+                        "depotCode": "A618",
+                        "truckNumber": "KL06A1234",
+                        "tokenRRNumber": "501529",
+                        "storageLocation": "TL01",
+                        "isGenerateTransMetadata": false
+                    }
+                };
+
+                $.ajax({
+                    url: "/api/FlowGrn/Trigger",   // <-- FlowControllerTest endpoint
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        $("#result").html("<strong>✅ Success</strong><pre>" + JSON.stringify(response, null, 2) + "</pre>");
+                    },
+                    error: function (xhr, status, error) {
+                        $("#result").html("<strong>❌ Error:</strong> " + error + "<pre>" + (xhr.responseText || "") + "</pre>");
+                    },
+                    complete: function () {
+                        $btn.prop("disabled", false).text("Trigger Invoice Flow (Test)");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

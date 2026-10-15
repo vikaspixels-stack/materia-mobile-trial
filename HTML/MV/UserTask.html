@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.23" rel="stylesheet" />
+
+    <style>
+        /* ── Search panel (same look/behaviour as the Loading Slip page) ── */
+        #lsSearchBar {
+            padding: 8px 6px;
+        }
+
+        .ls-search {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+            /*.ls-search input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 9px 34px 9px 34px;*/ /* room for icon (left) + clear (right) */
+            /*border: 1px solid #b0b0b0;
+                border-radius: 6px;
+                font-size: 14px;
+                background: #fff;
+                outline: none;
+            }*/
+            .ls-search input {
+                padding: 2px 34px 2px 34px; /* was 9px top/bottom -> now 5px */
+            }
+
+                .ls-search input:focus {
+                    border-color: #7a7a7a;
+                    box-shadow: 0 0 0 2px rgba(0,0,0,0.06);
+                }
+
+        .ls-search-icon {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #888;
+            pointer-events: none;
+        }
+
+        .ls-search-clear {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            font-size: 20px;
+            line-height: 1;
+            color: #888;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+
+        /*.ls-search-count {
+            max-width: 700px;
+            margin: 4px auto 0;
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+        }*/
+        .ls-search-count {
+            display: none;
+        }
+    </style>
+
+</head>
+<body class="bg-gray">
+
+    <div class="container-fluid">
+        <div id="header">
+            <script src="Scripts/header.js?v=1.3"></script>
+        </div>
+
+        <main>
+            <div class="container">
+                <div id="lsSearchBar">
+                    <div class="ls-search">
+                        <svg class="ls-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input id="txtGridSearch" type="text" placeholder="Search tasks..." autocomplete="off" />
+                        <button id="btnGridSearchClear" type="button" class="ls-search-clear" title="Clear" style="display:none;">&times;</button>
+                    </div>
+                    <div id="lsSearchCount" class="ls-search-count"></div>
+                </div>
+
+                <div class="form-group">
+                    <div id="lstUserTasks" style="border:none;margin-bottom:5px;"></div>
+                </div>
+            </div>
+
+            <div class="col" style="display: flex; justify-content: center; gap: 5px; margin-top: 15px; margin:5px">
+                <button type="button" class="btn btn-cancel" onclick="$('#txtGridSearch').focus();">Search</button>
+                <button type="button" class="btn btn-cancel" onclick="window.location.href='UserDefinedTask.html'">
+                    Add New
+                </button>
+
+                <button type="button" class="btn btn-cancel" onclick="fnRefreshTasks();">Refresh</button>
+            </div>
+
+        </main>
+    </div>
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <script type="text/x-kendo-tmpl" id="tmpUserTask">
+        <div class="clsTable" style="margin-bottom:5px;margin-top:5px;padding:5px;">
+            <!-- Row 1: Type | Status (colored) -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Type: </strong>
+                    #: data.TaskType #
+                </div>
+                <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                    <strong>Status: </strong>
+                    <span style="color: #= data.Status === 'Completed' ? 'green' : data.Status === 'To Do' ? 'red' : data.Status === 'In Progress' ? 'blue' : 'black' #;">
+                        #: data.Status #
+                    </span>
+                </div>
+            </div>
+
+            <!-- Row 2: Requested By | On -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Requested By: </strong>#: data.CreatedBy #
+                </div>
+                <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                    <strong>On: </strong>#: kendo.toString(new Date(data.TaskCreatedOn), "dd/MM/yyyy") #
+                </div>
+            </div>
+
+            <!-- Row 3: Priority | Due On -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Depot: </strong>#: data.Depot #
+                </div>
+                <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                    <strong>Due: </strong>#: kendo.toString(new Date(data.TaskDueOn), "dd/MM/yyyy") #&nbsp;#: data.Priority #
+                </div>
+            </div>
+
+            <!-- Row 4: Completed By | On (only for completed tasks) -->
+            # if (data.Status === 'Completed') { #
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Completed By: </strong>#: data.TaskCompletedBy || '' #
+                </div>
+                <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                    <strong>On: </strong>#: data.TaskCompletedOn ? kendo.toString(new Date(data.TaskCompletedOn), "dd/MM/yyyy") : '' #
+                </div>
+            </div>
+            # } #
+        </div>
+    </script>
+
+    <script>
+        var g_grandTotal = 0;  // total tasks loaded (before search), for the count line
+
+        // Reload the task list from the server (used by the Refresh button)
+        function fnRefreshTasks() {
+            var lv = $("#lstUserTasks").data("kendoListView");
+            if (!lv) return;
+            $("#txtGridSearch").val("");
+            $("#btnGridSearchClear").hide();
+            lv.dataSource.filter([]);
+            lv.dataSource.read();
+        }
+
+        $(document).ready(function () {
+
+            fnSetPageName("User Task");
+
+            $("#lstUserTasks").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/UserTask?userId=' + localStorage.getItem("userID"),
+                            dataType: "json"
+                        }
+                    },
+                    // sort: { field: "SoldToPtName", dir: "asc" },
+                    pageSize: 30,
+                },
+                template: kendo.template($("#tmpUserTask").html()),
+                selectable: "single",
+                height: 650,
+                scrollable: "endless",
+                dataBound: function () {
+                    // Update the "showing X of Y" count.
+                    // With paging, total() = full filtered count (all pages), data() = all loaded rows.
+                    var lv = this;
+                    var term = ($("#txtGridSearch").val() || "").trim();
+                    var filtered = lv.dataSource.total();
+                    if (!term) {
+                        g_grandTotal = filtered; // no search active => this is the grand total
+                    }
+                    $("#lsSearchCount").text(
+                        term
+                            ? "Showing " + filtered + " of " + g_grandTotal
+                            : g_grandTotal + " task(s)"
+                    );
+                },
+                change: function () {
+                    var listView = $("#lstUserTasks").data("kendoListView");
+                    var selectedItem = listView.select();
+                    var dataItem = listView.dataItem(selectedItem);
+                    console.log("dataItem keys:", Object.keys(dataItem.toJSON()));
+                    console.log("dataItem JSON:", JSON.stringify(dataItem.toJSON()));
+
+                    if (dataItem) {
+                        // If UserDefined task, go to the read-only view page
+                        var taskType = (dataItem.TaskType != null ? dataItem.TaskType : dataItem.taskType);
+                        if (String(taskType || '').toLowerCase() === 'userdefined') {
+                            var taskId = (dataItem.TaskID != null ? dataItem.TaskID : dataItem.taskId);
+                            if (!taskId) {
+                                kendo.alert("Missing TaskID for user-defined task.");
+                                return;
+                            }
+                            window.location.href = "ViewTask.html?id=" + encodeURIComponent(taskId);
+                            return;
+                        }
+                        else if (String(taskType || '').toLowerCase() === 'approval-ls handling') {
+                            var taskId = (dataItem.TaskID != null ? dataItem.TaskID : dataItem.taskId);
+                            if (!taskId) {
+                                kendo.alert("Missing TaskID for ls handling task.");
+                                return;
+                            }
+                            window.location.href = "ViewLSHandling.html?id=" + encodeURIComponent(taskId);
+                            return;
+                        }
+                        else if (String(taskType || '').toLowerCase() === 'list approval'
+                            || String(taskType || '').toLowerCase() === 'tl01 approval') {
+                            var taskId = (dataItem.TaskID != null ? dataItem.TaskID : dataItem.taskId);
+                            if (!taskId) {
+                                kendo.alert("Missing TaskID for list approval task.");
+                                return;
+                            }
+                            window.location.href = "ViewListApproval.html?id=" + encodeURIComponent(taskId);
+                            return;
+                        }
+                        // Opening Stock Variance -> dedicated view/approve page.
+                        // Depot is resolved server-side (TranID = DepotID), so only the TaskID is needed.
+                        else if (String(taskType || '').toLowerCase() === 'opening stock variance') {
+                            var taskId = (dataItem.TaskID != null ? dataItem.TaskID : dataItem.taskId);
+                            if (!taskId) {
+                                kendo.alert("Missing TaskID for stock variance task.");
+                                return;
+                            }
+                            window.location.href = "ViewStockVariance.html?id=" + encodeURIComponent(taskId);
+                            return;
+                        }
+                        // Otherwise proceed with TruckNoOverride.html
+                        else {
+                            // Safely handle missing values
+                            var truckNumber = (dataItem.TruckNumber !== undefined && dataItem.TruckNumber !== null) ? dataItem.TruckNumber : '';
+                            var status = (dataItem.Status !== undefined && dataItem.Status !== null) ? dataItem.Status : '';
+
+                            const url = `TruckNoOverride.html` +
+                                `?taskId=${encodeURIComponent(dataItem.TaskID)}` +
+                                `&tranType=${encodeURIComponent(dataItem.TaskType)}` +
+                                `&tranId=${encodeURIComponent(dataItem.TranID)}` +
+                                `&userId=${encodeURIComponent(dataItem.UserID)}` +
+                                `&DAOrSoldTo=${encodeURIComponent(dataItem.DAOrSoldTo)}` +
+                                `&TruckPhotoFileName=${encodeURIComponent(dataItem.TruckPhotoFileName)}` +
+                                `&TruckNumber=${encodeURIComponent(truckNumber)}` +   // Added
+                                `&Status=${encodeURIComponent(status)}`;              // Added
+
+                            window.location.href = url;
+                        }
+
+
+
+                    }
+                }
+            });
+
+            // ── Search panel: filter task cards across the visible text fields ──
+            var searchFields = [
+                "TaskType", "Status", "CreatedBy", "Depot", "Priority",
+                "TruckNumber", "DAOrSoldTo"
+            ];
+
+            function applyGridSearch(term) {
+                var lv = $("#lstUserTasks").data("kendoListView");
+                if (!lv) return;
+                term = (term || "").trim();
+
+                if (!term) {
+                    lv.dataSource.filter([]);          // clear -> show everything
+                } else {
+                    lv.dataSource.filter({
+                        logic: "or",
+                        filters: searchFields.map(function (f) {
+                            return { field: f, operator: "contains", value: term };
+                        })
+                    });
+                }
+                // dataBound updates the count after the filter re-renders
+            }
+
+            var searchTimer = null;
+            $("#txtGridSearch").on("input", function () {
+                var val = this.value;
+                $("#btnGridSearchClear").toggle(val.length > 0);
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function () { applyGridSearch(val); }, 250); // debounce typing
+            });
+
+            $("#btnGridSearchClear").on("click", function () {
+                $("#txtGridSearch").val("").focus();
+                $(this).hide();
+                applyGridSearch("");
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.53" rel="stylesheet" />
+
+
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <div class="container" style="background-color: #E0E0E0 !important; ">
+                <div class="form-group">
+                    <div id="example">
+                        <div class="demo-section">
+                            <div id="lstSaleInvoiceDetail" style="border:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection3.js?v6"></script>
+    </footer>
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailExpand">
+                                                             <div class="clsTable cls#: ProductID #" style="margin-bottom:5px;padding:0px!important;width:100%!important;">
+
+                                                                    <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                        <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                            <table>
+                                                                                <tr><td><button class="button submit" style="width:83px;background-color: \\#6FA3E8!important;"
+                                                                                    onclick="window.location.href = 'HaltedtrucksUpdate.html?GRNID=#: data.GRNID #&MTRID=#: data.MTRID #&OriginalMissingType=#: data.OriginalMissingType #&GRNIDList=#: data.GRNIDList #&Status=#:data.MissingType#';">
+                                                                                    Status
+                                                                                    </button></td>
+                                                                                    <td><button class="button submit btnUnloading" style="width:83px;background-color: \\#6FA3E8!important;"
+                                                                            onclick="window.location.href = 'HaltedtrucksUnload.html?GRNID=#: data.GRNID #&Status=#:data.MissingType#&GRNIDList=#:data.GRNIDList#'">
+                                                                            Unload
+                                                                            </button></td>        <td>        <button  class="button submit btnTPSales" style="width:90px;background-color: \\#6FA3E8!important;"
+                             onclick="window.location.href = 'MobSaleRequestNew2.html?ProductID=#: data.ProductID#&DA=#: data.DANo#&source=tpsales'">
+                            TP Sales
+                            </button></td>
+
+                    <td>
+            <button class="button submit btnDamages" style="width:83px;background-color: \\#6FA3E8!important;"
+                onclick="showDamageSheet('#: data.GRNID #','#: data.MTRID #','#: data.DANo #','#: data.LorryNumber #','#: data.QtyMTBags #','#: data.QtyMT #','#: data.DriverName #','#: data.DriverMobileNumber #','#: data.ProductID #')">
+                Damage
+            </button>
+        </td>
+
+
+                                            </tr></table>
+                                                                        </div>
+                                                                 </div>
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+
+
+                                                                          <strong>Status: </strong>#: data.MissingType ? data.MissingType : "" #
+                                                                         </div>
+
+
+
+                                                                 </div>
+
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                         <strong>Plant Truck No: </strong>#: data.LorryNumber ? data.LorryNumber : "" #
+                                                                     </div>
+
+                                                                 </div>
+
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                         <strong>Driver : </strong>    <strong>Driver :</strong>   #: data.DriverMobileNumber ? data.DriverMobileNumber : "" #
+                    #: data.DriverName ? data.DriverName : "" #
+                                                                     </div>
+
+                                                                 </div>
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                         <strong>Transporter: </strong>#: data.TransporterName ? data.TransporterName : "" #
+                                                                     </div>
+
+                                                                 </div>
+
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                         <strong>Product: </strong>#: data.ProductID ? data.ProductID : "" #
+                                                                     </div>
+
+                                                                 </div>
+
+                                                                 <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                     <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                         <strong>DA : </strong>#: data.DANo ? data.DANo : "" #
+                                                                         <strong>Bal. MT : </strong>#: data.QtyMT ? data.QtyMT : "" #
+                                                                          <strong>Bags : </strong>#: data.QtyMTBags ? data.QtyMTBags : "" #
+                                                                     </div>
+                                                                 </div
+                                                             <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                                 <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                                     <strong>Truck In Time: </strong>#: data.TruckInTime ? kendo.toString(kendo.parseDate(data.TruckInTime), "dd/MM/yyyy HH:mm") : "" #
+                                                                 </div>
+                                                             </div
+
+                                                       <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                                              # if (data.MissingType == "Plant - SIT") { #
+                                                          <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                              <strong>Delay: </strong>#: data.DelayInDaysMinusSTDNew ? data.DelayInDaysMinusSTDNew : "" #(Hrs)
+
+                                                              <strong>Standard Transit Hours: </strong>#: data.StandardTransitDays ? data.StandardTransitDays : "" # (Hrs)
+                                                          </div>
+                                                      # } else { #
+                                                          <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                                              <strong>Last GRN Date: </strong>#: data.LastGRNDate ? kendo.toString(kendo.parseDate(data.LastGRNDate), "dd/MM/yyyy HH:mm") : "" #
+                                                          </div>
+                                                      # } #
+                                                       </div>
+                                                             </div>
+    </script>
+
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailCollaps">
+        <div class="clsTable cls#: ProductID #" style="margin-bottom:2px;padding:0px;border-bottom:5px solid;border-bottom-color: \\#E0E0E0;">
+            <table style="border-collapse: collapse;" border="0">
+                <tr>
+                    <td rowspan=3>
+
+                        <div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>DA Date: </strong>#: data.DADate ? kendo.toString(kendo.parseDate(data.DADate), "dd/MM/yyyy HH:mm") : "" #
+                            <strong>Qty MT: </strong>#: data.DAQty ? data.DAQty : "" #
+                         </div>
+                        </div>
+
+                        <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Delay: </strong>#: data.DelayInDaysMinusSTDNew ? data.DelayInDaysMinusSTDNew : "" #
+                            </div>
+                        </div>-->
+
+                        <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Source Plant/Depot: </strong>#: data.SourceDepotName ? data.SourceDepotName : "" #
+                            </div>
+                        </div>
+
+                        <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Standard Transit Hours: </strong>#: data.StandardTransitDays ? data.StandardTransitDays : "" #
+                            </div>
+                        </div>-->
+
+                        <!--<div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Closing Stock of Material: </strong>#: data.ClosingStockOfMaterial ? data.ClosingStockOfMaterial : "" #
+                            </div>
+                        </div>
+
+                        <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Total Closing Stock: </strong>#: data.TotalClosingStock ? data.TotalClosingStock : "" #
+                            </div>
+                        </div>
+
+                        <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                <strong>Depot Capacity: </strong>#: data.DepotCapacity ? data.DepotCapacity : "" #
+                            </div>
+                        </div>-->
+
+                        <!--# if (data.MissingType != "Plant - SIT") { #
+
+
+                            <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                    <strong>Truck Out Time: </strong>#: data.TruckOutTime ? kendo.toString(kendo.parseDate(data.TruckOutTime), "dd/MM/yyyy HH:mm") : "" #
+                                </div>
+                            </div>
+
+                            <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                    <strong>Turn Around Time: </strong>#: data.TruckTurnAroundDesc ? data.TruckTurnAroundDesc : "" #
+                                </div>
+                            </div>
+                        # } #-->
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </script>
+
+
+
+    <script>
+        $(document).ready(function () {
+            fnSetPageName("Halted Trucks");
+
+            $("#lstSaleInvoiceDetail").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '/api/PlantTruck/GetHaltedTruck?UserId=' + getUserID() + '&DepotID=' + getDepotID(),
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        data: function (response) {
+                            return response;
+                        }
+                    },
+                    sort: { field: "LorryNumber", dir: "asc" }, // Sort ascending by LorryNumber
+                },
+
+                template: kendo.template($("#tmpSaleInvoiceDetailCollaps").html()),
+                selectable: "single",
+                change: function (e) {
+                },
+                dataBound: function () {
+
+
+                    $.each($("#lstSaleInvoiceDetail.k-listview").find("div.k-listview-content").find("div.k-listview-item"), function (k, i) {
+                        //console.log(i);
+                        $(i).kendoExpansionPanel({
+                            title: 'ssss',
+                            subTitle: '',
+                            complete: function (e) {
+                                //console.log();
+                                let dataItem = $("#lstSaleInvoiceDetail").data("kendoListView").dataItem($(e.sender.element));
+                                var template = kendo.template($("#tmpSaleInvoiceDetailExpand").html());
+                                var data = dataItem;
+                                //console.log(template(data));
+                                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander").find("div.k-expander-header").find("div.k-expander-title").html(template(data));
+                                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander").find("div.k-expander-header").css('border-bottom', '0px solid');
+                                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander").find("div.k-expander-header").css('border-bottom-color', '#E0E0E0');
+
+                                e.sender.element.closest("div.k-expander-content-wrapper").closest("div.k-expander").find("div.k-expander-header").css('padding-bottom', '10px');
+                                if (getDepotHandlingType() === "1") {
+                                    e.sender.element
+                                        .closest(".k-expander")
+                                        .find(".btnUnloading, .btnTPSales")
+                                        .prop("disabled", true)
+                                        .css({
+                                            "background-color": "#ccc",
+                                            "cursor": "not-allowed",
+                                            "opacity": "0.6"
+                                        })
+                                        .removeAttr("onclick");
+                                }
+
+
+                            }
+                        });
+                    });
+                    //$("#lstSaleInvoiceDetail").data("kendoListView")
+                    //var data = this.dataSource.view();
+                    //for (var i = 0; i < data.length; i++) {
+                    //    var dataItem = data[i];
+                    //    console.log(dataItem);
+                    //}
+                }
+            });
+
+            setListViewHeight();
+            $(window).resize(setListViewHeight);
+        });
+
+        const currentUrl = window.location.href;
+        function getDepotID() {
+            return localStorage.getItem("DepotID").toString();
+        }
+        function getUserID() {
+            return localStorage.getItem("userID").toString();
+        }
+        function getDepotHandlingType() {
+            return localStorage.getItem("DepotHandlingType");
+        }
+
+        function setListViewHeight() {
+            var availableHeight = $(window).height()
+                - $("#header").outerHeight(true)   // subtract header
+                - $("#footer").outerHeight(true)   // subtract footer
+                - 74; // small padding margin
+
+            $("#lstSaleInvoiceDetail").height(availableHeight);
+        }
+    </script>
+    <style>
+        .k-expander-content {
+            max-width: 600px;
+            padding-bottom: 0px !important;
+            border-bottom: 0px !important;
+        }
+
+        .k-expander-header {
+            padding: 0px !important;
+            text-transform: none;
+            background-color: white !important;
+        }
+
+            .k-expander-header:hover {
+                background-color: unset;
+            }
+
+        .k-expander-title {
+            padding: 0px !important;
+            text-transform: unset;
+        }
+
+        .form-group {
+            margin-bottom: 0px;
+        }
+        /*html, body {
+            overscroll-behavior-y: contain;*/ /* Prevent browser bounce */
+        /*touch-action: pan-x pan-y;*/ /* Allow scrolling but restrict gestures */
+        /*}*/
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ══ Damage / Shortage type selector — bottom sheet ══════════════ -->
+    <!-- ══ Damage / Shortage type selector — compact popup ════════════ -->
+    <!-- Lightweight dismiss overlay (no dark tint) -->
+    <div id="dmgOverlay" onclick="closeDamageSheet()" style="
+         display:none;position:fixed;inset:0;
+         background:transparent;z-index:1000;"></div>
+
+    <div id="dmgSheet" style="
+         display:none;position:fixed;
+         background:#fff;border-radius:8px;
+         padding:10px 10px 8px;z-index:1001;
+         box-shadow:0 4px 18px rgba(0,0,0,0.22);
+         width:170px;">
+        <button onclick="openArrivalDamage('Damage')" style="
+                width:100%;padding:9px 6px;margin-bottom:6px;
+                background:#1565C0;color:#fff;font-size:13px;font-weight:700;
+                border:none;border-radius:5px;cursor:pointer;display:block;">
+            &#9888; Damage (TL01)
+        </button>
+        <button onclick="openArrivalDamage('Shortage')" style="
+                width:100%;padding:9px 6px;margin-bottom:6px;
+                background:#f0a500;color:#fff;font-size:13px;font-weight:700;
+                border:none;border-radius:5px;cursor:pointer;display:block;">
+            &#9866; Shortage (List)
+        </button>
+        <button onclick="closeDamageSheet()" style="
+                width:100%;padding:7px 6px;background:#e0e0e0;
+                color:#555;font-size:12px;font-weight:600;
+                border:none;border-radius:5px;cursor:pointer;display:block;">
+            Cancel
+        </button>
+    </div>
+
+    <script>
+        var _ds = {};   /* damage sheet data store */
+
+        function showDamageSheet(grnid, mtrid, da, truck, balBags, balMT, driverName, driverMobile, productid) {
+            _ds = { grnid:grnid, mtrid:mtrid, da:da, truck:truck,
+                    balBags:balBags, balMT:balMT,
+                    driverName:driverName, driverMobile:driverMobile,
+                    productid:productid };
+
+            var sheet = document.getElementById('dmgSheet');
+            var overlay = document.getElementById('dmgOverlay');
+
+            /* Show offscreen first to measure height */
+            sheet.style.visibility = 'hidden';
+            sheet.style.display = 'block';
+            var sheetH = sheet.offsetHeight;
+            var sheetW = sheet.offsetWidth;
+            sheet.style.visibility = '';
+
+            /* Find the clicked Damage button */
+            var btn = event.currentTarget || event.target;
+            var rect = btn.getBoundingClientRect();
+
+            var vpW = window.innerWidth;
+            var vpH = window.innerHeight;
+            var gap = 4;   /* px gap between button and popup */
+
+            /* Horizontal: align left edge with button; clamp to viewport */
+            var left = Math.min(rect.left, vpW - sheetW - 6);
+            left = Math.max(left, 6);
+
+            /* Vertical: prefer below button; flip above if not enough room */
+            var top;
+            if (rect.bottom + gap + sheetH <= vpH) {
+                top = rect.bottom + gap;          /* below */
+            } else {
+                top = Math.max(rect.top - gap - sheetH, 6);  /* above */
+            }
+
+            sheet.style.left = left + 'px';
+            sheet.style.top = top + 'px';
+
+            overlay.style.display = 'block';
+        }
+
+        function closeDamageSheet() {
+            document.getElementById('dmgSheet').style.display = 'none';
+            document.getElementById('dmgOverlay').style.display = 'none';
+        }
+
+       function openArrivalDamage(type) {
+            closeDamageSheet();
+            window.location.href = 'ArrivalDamage.html'
+                + '?GRNID='        + _ds.grnid
+                + '&MTRID='        + _ds.mtrid
+                + '&DA='           + _ds.da
+                + '&PlantTruck='   + _ds.truck
+                + '&BalBags='      + _ds.balBags
+                + '&BalMT='        + _ds.balMT
+                + '&DriverName='   + _ds.driverName
+                + '&DriverMobile=' + _ds.driverMobile
+                + '&ProductID='    + _ds.productid
+                + '&Type='         + type;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.53" rel="stylesheet" />
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 FILTER PANEL
+            ════════════════════════════════════════════════════════════ -->
+            <div style="background-color:#BDBDBD; border-bottom:2px solid #9E9E9E; padding:10px 10px 8px 10px; margin-bottom:6px;">
+
+                <!-- IST Date/Time display -->
+                <!--<div style="font-size:11px; color:#444; font-weight:600; margin-bottom:6px; text-align:right;">
+                    <span id="lblISTDateTime"></span>
+                </div>-->
+
+                <!-- Date Range -->
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                    <div style="flex:1; min-width:130px;">
+                        <label style="font-size:12px; font-weight:600; margin-bottom:2px; display:block;">From LS Date</label>
+                        <input type="date" id="dtStartDate" class="form-control form-control-sm" />
+                    </div>
+                    <div style="flex:1; min-width:130px;">
+                        <label style="font-size:12px; font-weight:600; margin-bottom:2px; display:block;">To LS Date</label>
+                        <input type="date" id="dtEndDate" class="form-control form-control-sm" />
+                    </div>
+                </div>
+
+                <!-- Filter On Radio Buttons -->
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:12px; font-weight:600; margin-bottom:4px; display:block;">Filter On</label>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rdoFilter" id="rdoAll" value="All" checked>
+                            <label class="form-check-label" style="font-size:13px;" for="rdoAll">All</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rdoFilter" id="rdoGRNPending" value="GRNPending">
+                            <label class="form-check-label" style="font-size:13px;" for="rdoGRNPending">GRN Pending</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="rdoFilter" id="rdoInvoicePending" value="InvoicePending">
+                            <label class="form-check-label" style="font-size:13px;" for="rdoInvoicePending">Invoice Pending</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <div style="display:flex; gap:8px;">
+                    <button class="button submit"
+                            style="flex:1; padding:8px 10px; font-size:13px; white-space:nowrap;"
+                            onclick="fnLoad()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 GRID AREA
+            ════════════════════════════════════════════════════════════ -->
+            <div style="background-color:#E0E0E0; padding:4px;">
+                <div class="form-group">
+                    <div id="example">
+                        <div class="demo-section">
+                            <div id="lstShortageGrid" style="border:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <!-- ── View Photos Modal ─────────────────────────────────── -->
+    <div id="divPhotosModal"
+         style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72);
+                z-index:10000; align-items:center; justify-content:center;">
+        <div style="position:relative; width:96%; max-width:560px; height:88vh;
+                    background:#fff; border-radius:12px; overflow:hidden;
+                    box-shadow:0 8px 40px rgba(0,0,0,0.45); display:flex; flex-direction:column;">
+            <!-- Modal header bar -->
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        padding:10px 14px; background:#2c3e50; color:#fff; flex-shrink:0;">
+                <span style="font-weight:700; font-size:15px;">
+                    <i class="fas fa-camera"></i>&nbsp;View Photos
+                </span>
+                <button onclick="fnClosePhotosModal();"
+                        style="background:none; border:none; color:#fff; font-size:1.6rem;
+                               line-height:1; cursor:pointer; padding:0; opacity:.85;"
+                        title="Close">
+                    &times;
+                </button>
+            </div>
+            <!-- iframe fills remaining height -->
+            <iframe id="ifrPhotos" src="" frameborder="0"
+                    style="flex:1; width:100%; border:none;"></iframe>
+        </div>
+    </div>
+
+    <!--
+        Kendo Template for each shortage record.
+
+        IMPORTANT: data-* attributes are used for lsDate / truckNo / daNo so
+        that values containing spaces, commas, or other special characters are
+        passed safely to fnViewPhotos via the delegated click handler below.
+        Do NOT use inline onclick with these values directly.
+    -->
+    <script type="text/kendo-x-tmpl" id="tmpShortageGridItem">
+        <div class="clsTable cls#: data.LSID #" style="margin-bottom:5px;padding:0px!important;width:100%!important;">
+
+            <!-- View Photos button row -->
+            <div class="clsTableRow" style="display:table-row; width:100%;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell; padding-bottom:6px;">
+                    <button type="button"
+                            class="button submit btnViewPhotos"
+                            style="font-size:12px; padding:6px 10px; white-space:nowrap;"
+                            data-lsid="#: data.LSID #"
+                            data-lsdate="#: data.LSDate #"
+                            data-truckno="#: data.DepotLorryNo #"
+                            data-dano="#: data.DANo #">
+                        <i class="fas fa-camera"></i> View Photos
+                    </button>
+                </div>
+            </div>
+
+            <!-- LS No / LS Date -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>LS No.: </strong>#: data.LSNo #
+                    &nbsp;&nbsp;
+                    <strong>LS Date: </strong>#: data.LSDate #
+                </div>
+            </div>
+
+            <!-- Invoice No / GRN No / GRN Date -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Invoice No.: </strong>
+                    # if (data.InvoiceNo !== "") { #
+                        <span style="color:green;">#: data.InvoiceNo #</span>
+                    # } else { #
+                        <span style="color:rgb(192,57,43);">Pending</span>
+                    # } #
+                    &nbsp;&nbsp;
+                    <strong>GRN No.: </strong>
+                    # if (data.GRNNo !== "") { #
+                        <span style="color:green;">#: data.GRNNo #</span>
+                    # } else { #
+                        <span style="color:rgb(192,57,43);">Pending</span>
+                    # } #
+                    &nbsp;&nbsp;
+                    <strong>GRN Date: </strong>#: data.GRNDate #
+                </div>
+            </div>
+
+            <!-- DA No / Product -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>DA No.: </strong>#: data.DANo #
+                    &nbsp;&nbsp;
+                    <strong>Product: </strong>#: data.ProductID #
+                </div>
+            </div>
+
+            <!-- Truck / Transporter -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Truck No.: </strong>#: data.DepotLorryNo #
+                    &nbsp;&nbsp;
+                    <strong>Transporter: </strong>#: data.TransporterName #
+                </div>
+            </div>
+
+            <!-- Shortage Qty -->
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell; padding-bottom:6px;">
+                    <strong>Shortage Bags: </strong>
+                    # if (data.ListQty > 0) { #
+                        <span style="color:rgb(192,57,43);">#: data.ListQty*20 #</span>
+                    # } else { #
+                        0
+                    # } #
+                    &nbsp;&nbsp;
+                    <strong>MT: </strong>
+                    # if (data.ListQty > 0) { #
+                        <span style="color:rgb(192,57,43);">#: (data.ListQty).toFixed(3) #</span>
+                    # } else { #
+                        0.000
+                    # } #
+                </div>
+            </div>
+
+        </div>
+    </script>
+
+    <script>
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // ── IST helpers ──────────────────────────────────────────────────────
+        // Uses Intl API with timeZone:"Asia/Kolkata" so the correct IST date
+        // is always derived regardless of the device's local timezone.
+        // en-CA locale produces "YYYY-MM-DD" which is trivial to parse/split.
+
+        function getISTParts() {
+            const now = new Date();
+            const datePart = now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+            // datePart = "2026-04-07"
+            const [year, month, day] = datePart.split("-");
+            const timePart = now.toLocaleTimeString("en-GB", {
+                timeZone: "Asia/Kolkata",
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+            return { year, month, day, datePart, timePart };
+        }
+
+        function getISTTodayValue() {
+            return getISTParts().datePart;
+        }
+
+        function getISTFirstOfMonthValue() {
+            const { year, month } = getISTParts();
+            return year + "-" + month + "-01";
+        }
+
+        //function updateISTClock() {
+        //    const { day, month, year, timePart } = getISTParts();
+        //    $("#lblISTDateTime").text(day + "/" + month + "/" + year + "  " + timePart + " IST");
+        //}
+
+        var _shortageTemplate = null;
+
+        function fnLoad() {
+            const depotID = getQueryParam("DepotID") || localStorage.getItem("DepotID") || 0;
+            const startDate = $("#dtStartDate").val();
+            const endDate = $("#dtEndDate").val();
+            const filterOn = $("input[name='rdoFilter']:checked").val() || "All";
+
+            const apiUrl = "/api/ArrivalShortage/GetShortageGrid"
+                + "?DepotID=" + encodeURIComponent(depotID)
+                + "&StartDate=" + encodeURIComponent(startDate)
+                + "&EndDate=" + encodeURIComponent(endDate)
+                + "&FilterOn=" + encodeURIComponent(filterOn);
+
+            const existing = $("#lstShortageGrid").data("kendoListView");
+            if (existing) {
+                existing.destroy();
+                $("#lstShortageGrid").empty();
+            }
+
+            $("#lstShortageGrid").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: { url: apiUrl, dataType: "json" }
+                    },
+                    schema: {
+                        data: "shortages"
+                    },
+                    error: function (e) {
+                        alert("Error loading data: " + (e.errorThrown || "Unknown error"));
+                    }
+                },
+                template: _shortageTemplate,
+                dataBound: function () {
+                    if (this.dataSource.data().length === 0) {
+                        $("#lstShortageGrid").html(
+                            '<div style="text-align:center;padding:20px;color:rgb(102,102,102);">No shortage records found.</div>'
+                        );
+                    }
+                }
+            });
+        }
+
+        function fnViewPhotos(lsid, lsDate, truckNo, daNo) {
+            const url = "ViewPhotos.html?lsId=" + encodeURIComponent(lsid)
+                + "&type=Shortage"
+                + "&lsDate=" + encodeURIComponent(lsDate || "")
+                + "&truckNo=" + encodeURIComponent(truckNo || "")
+                + "&daNo=" + encodeURIComponent(daNo || "");
+            $("#ifrPhotos").attr("src", url);
+            $("#divPhotosModal").css("display", "flex");
+        }
+
+        function fnClosePhotosModal() {
+            $("#divPhotosModal").hide();
+            $("#ifrPhotos").attr("src", "");
+        }
+
+        $(document).ready(function () {
+            _shortageTemplate = kendo.template($("#tmpShortageGridItem").html());
+
+            // IST-safe date defaults — no UTC shift
+            $("#dtStartDate").val(getISTFirstOfMonthValue());
+            $("#dtEndDate").val(getISTTodayValue());
+
+            // Start live IST clock
+            //updateISTClock();
+            //setInterval(updateISTClock, 1000);
+
+            fnSetPageName("Arrival Shortage");
+            fnLoad();
+
+            // Delegated handler — reads data-* attributes safely,
+            // even when truck no / DA no contain spaces or special chars
+            $(document).on("click", ".btnViewPhotos", function () {
+                const lsid = $(this).data("lsid");
+                const lsDate = $(this).data("lsdate");
+                const truckNo = $(this).data("truckno");
+                const daNo = $(this).data("dano");
+                fnViewPhotos(lsid, lsDate, truckNo, daNo);
+            });
+
+            // Close modal on backdrop click
+            document.getElementById("divPhotosModal").addEventListener("click", function (e) {
+                if (e.target === this) fnClosePhotosModal();
+            });
+        });
+    </script>
+
+    <style>
+        .k-expander-content {
+            max-width: 600px;
+            padding-bottom: 0 !important;
+            border-bottom: 0 !important;
+        }
+
+        .k-expander-header {
+            padding: 0 !important;
+            text-transform: none;
+            background-color: white !important;
+        }
+
+            .k-expander-header:hover {
+                background-color: unset;
+            }
+
+        .k-expander-title {
+            padding: 0 !important;
+            text-transform: unset;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-check-input:checked {
+            background-color: rgb(13,110,253);
+            border-color: rgb(13,110,253);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

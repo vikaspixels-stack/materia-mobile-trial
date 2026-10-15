@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kendo UI -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- Kendo Scripts -->
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <!-- App CSS -->
+    <link href="css/materia.css?v=1.28" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7952b3">
+
+    <style>
+        body.bg-app {
+            background: #f3f6f9;
+        }
+
+        /* ---------- 3D info panel ---------- */
+        .panel-3d {
+            position: relative;
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 12px 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.03), 0 1px 1px rgba(16,24,40,0.06), 0 0 0 3px #eef1f4;
+        }
+
+            .panel-3d:before {
+                content: "";
+                position: absolute;
+                inset: 3px;
+                border-radius: 6px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(0,0,0,0.04);
+                pointer-events: none;
+            }
+
+        /* Secondary card */
+        .panel-flat {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(16,24,40,0.06);
+        }
+
+        .stack-8 > * + * {
+            margin-top: 8px;
+        }
+
+        .stack-12 > * + * {
+            margin-top: 12px;
+        }
+
+        .label-strong {
+            font-weight: 600;
+        }
+
+        .value {
+            white-space: pre-wrap;
+        }
+
+        .pairline {
+            display: flex;
+            gap: 24px;
+            align-items: baseline;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        /* Buttons row */
+        .actions-wrap {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-approve {
+            padding: .65rem 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+
+        .btn-photos {
+            padding: .65rem 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 700;
+            border-radius: 10px;
+            background-color: #0d6efd;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+            .btn-photos:hover {
+                background-color: #0b5ed7;
+            }
+    </style>
+</head>
+<body class="bg-app">
+    <!-- Toast host -->
+    <div id="taskToast"></div>
+
+    <div class="container-fluid">
+        <!-- HEADER -->
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main class="container mt-3 mb-4">
+            <!-- ===== Top Info Container ===== -->
+            <div class="panel-3d stack-8 mb-3">
+                <div><span class="label-strong">Type:</span> <span id="TaskType">—</span></div>
+                <div><span class="label-strong">Depot:</span> <span id="Depot">—</span></div>
+
+                <!-- LS No. and Date on same line -->
+                <div class="pairline">
+                    <div><span class="label-strong">LS No.:</span> <span id="LSNO">—</span></div>
+                    <div><span class="label-strong">Date:</span> <span id="TranDate">—</span></div>
+                </div>
+
+                <div><span class="label-strong">Sale Truck No.:</span> <span id="DepotLorryNo">—</span></div>
+                <div><span class="label-strong">Dealer:</span> <span id="SoldToParty">—</span></div>
+                <div>
+                    <span class="label-strong">Product:</span> <span id="ProductID">—</span>
+                    &nbsp;&nbsp;&nbsp;
+                    <span class="label-strong">Qty:</span> <span id="TotalQty">—</span>
+                </div>
+            </div>
+
+            <!-- ===== Second Container: Task details ===== -->
+            <div class="panel-flat stack-12 mb-3">
+                <div>
+                    <span class="label-strong">Task Title:</span>
+                    <div id="TaskTitle" class="value mt-1">—</div>
+                </div>
+
+                <div>
+                    <span class="label-strong">Reason:</span>
+                    <div id="taskNotes" class="value mt-1">—</div>
+                </div>
+
+                <div id="error" class="text-danger" style="display:none;" aria-live="polite"></div>
+            </div>
+
+            <!-- ===== View Photos button (separate row, above action buttons) ===== -->
+            <div class="d-flex justify-content-center mb-3">
+                <button id="btnViewPhotos" type="button" class="btn-photos">View Photos</button>
+            </div>
+
+            <!-- ===== Approve / Cancel buttons ===== -->
+            <div class="actions-wrap">
+                <button id="btnApprove" type="button" class="button submit btn-approve">Approve</button>
+                <button type="button" onclick="window.history.back();" class="btn btn-secondary">CANCEL</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+    </footer>
+
+    <script>var taskToast;
+        var tranId  = null;
+        var taskId  = null;
+        var lsType  = null; // "Damage" or "Shortage"
+
+        $(document).ready(function () {
+            if (typeof fnSetPageName === "function") {
+                fnSetPageName("List Approval");
+            }
+
+            taskToast = $("#taskToast").kendoNotification({
+                stacking: "down",
+                autoHideAfter: 3000,
+                position: { pinned: true, top: 20, right: 20 },
+                templates: [
+                    { type: "success", template: "<div class='k-notification-wrap'><span class='k-icon k-i-check'></span> #= message #</div>" },
+                    { type: "error",   template: "<div class='k-notification-wrap'><span class='k-icon k-i-warning'></span> #= message #</div>" }
+                ]
+            }).data("kendoNotification");
+
+            const params = new URLSearchParams(window.location.search);
+            taskId = Number(params.get("id"));
+
+            if (!Number.isFinite(taskId) || taskId <= 0) {
+                showError("Missing or invalid task id.");
+                return;
+            }
+
+            // Load details from the ListApproval endpoint
+            $.getJSON("/api/UserTaskListApproval", { taskId: taskId })
+                .done(function (data) {
+                    const rec = Array.isArray(data) ? (data[0] || {}) : data;
+
+                    const taskTypeRaw = rec.TaskType ?? rec.taskType ?? "";
+                    $("#TaskType").text(taskTypeRaw || "—");
+
+                    // Determine Damage or Shortage from task type
+                    const tl = taskTypeRaw.toLowerCase();
+                    if (tl.includes("list")) {
+                        lsType = "Shortage";
+                    } else if (tl.includes("tl01") || tl.includes("damage")) {
+                        lsType = "Damage";
+                    } else {
+                        lsType = "Damage"; // fallback
+                    }
+
+                    $("#Depot").text(rec.Depot ?? rec.depot ?? "—");
+                    $("#LSNO").text(rec.LSNO ?? rec.lsno ?? "—");
+
+                    const rawDate = rec.TranDate ?? rec.tranDate;
+                    $("#TranDate").text(rawDate ? fmtIST(rawDate) : "—");
+
+                    $("#DepotLorryNo").text(rec.DepotLorryNo ?? rec.depotLorryNo ?? "—");
+                    $("#SoldToParty").text(rec.SoldToParty ?? rec.soldToParty ?? "—");
+                    $("#ProductID").text(rec.ProductID ?? rec.productID ?? "—");
+
+                    const qty = rec.TotalQty ?? rec.totalQty;
+                    $("#TotalQty").text(qty != null ? Number(qty).toLocaleString("en-IN") : "—");
+
+                    $("#TaskTitle").text(rec.TaskTitle ?? rec.taskTitle ?? " ");
+                    $("#taskNotes").text(rec.TaskNotes ?? rec.taskNotes ?? " ");
+
+                    // Capture TranID (LSID)
+                    tranId = rec.TranID ?? rec.tranID ?? rec.TranId ?? rec.tranId ?? null;
+                })
+                .fail(function (xhr) {
+                    const msg = (xhr.responseJSON && (xhr.responseJSON.title || xhr.responseJSON.message))
+                        || xhr.responseText || xhr.statusText || "Failed to load details.";
+                    showError(msg);
+                });
+
+            // View Photos
+            $("#btnViewPhotos").on("click", function () {
+                if (!tranId) { return showError("LSID not available yet."); }
+                window.location.href = "ViewPhotos.html?lsId=" + encodeURIComponent(tranId)
+                    + "&type=" + encodeURIComponent(lsType || "Damage");
+            });
+
+            // Approve
+            $("#btnApprove").on("click", function () {
+                if (!tranId) { return showError("LSID not available."); }
+                approve(tranId, taskId);
+            });
+        });
+
+        function fmtIST(dtStr) {
+            try {
+                const d = new Date(dtStr);
+                if (isNaN(d.getTime())) return String(dtStr);
+                return d.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+            } catch { return String(dtStr); }
+        }
+
+        function showError(msg) {
+            $("#error").text(msg).show();
+            if (taskToast) taskToast.show({ message: msg }, "error");
+        }
+
+        function approve(lsId, tskId) {
+            const userId = localStorage.getItem("userID");
+            if (!userId) { return showError("User ID not found in local storage."); }
+
+            const $btn = $("#btnApprove");
+            $btn.prop("disabled", true).data("orig", $btn.html())
+                .html("<span class='spinner-border spinner-border-sm'></span> Approving...");
+
+            $.ajax({
+                url: "/api/UserTaskListApproval/Approve",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ lsId: lsId, taskId: tskId, userId: parseInt(userId) })
+            })
+            .done(function () {
+                if (taskToast) taskToast.show({ message: "Approved successfully." }, "success");
+                setTimeout(function () { window.history.back(); }, 800);
+            })
+            .fail(function (xhr) {
+                const msg = (xhr.responseJSON && (xhr.responseJSON.title || xhr.responseJSON.message))
+                    || xhr.responseText || xhr.statusText || "Approval failed.";
+                showError(msg);
+            })
+            .always(function () {
+                const orig = $btn.data("orig");
+                $btn.prop("disabled", false).html(orig || "Approve");
+            });
+        }</script>
+</body>
+</html>

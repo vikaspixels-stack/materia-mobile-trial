@@ -1,0 +1,1909 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link href="css/materia.css?v=1.23" rel="stylesheet" />
+
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+
+    <meta name="theme-color" content="#7952b3">
+
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+</head>
+<body class="bg-off-white">
+
+    <!--<input id="ddlProduct1" style="width: 100%;" />-->
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+        <main>
+            <div class="bg-warning" id="dvWarning" style="padding:5px;min-height:80px;display:none">
+                <div id="dvImageMessage" style="display:none">
+
+                </div>
+                <div id="dvAwayMessage">
+                </div>
+                <div id="dvTruckNumberMessage">
+
+                </div>
+                <div id="dvTruckNoOverrideMessage">
+
+                </div>
+            </div>
+            <div class="container">
+                <table style="width:100%">
+
+                    <tr>
+                        <td valign="top">
+                            <input type="hidden" id="hdnSaleRequestID" value="0" />
+                            <input type="hidden" id="hdnFileBase64" value="" />
+                            <input type="hidden" id="hdnFileExtension" value="" />
+                            <div class="camera-container" style="margin-top:5px">
+                                <button id="openCameraButton" class="button submit" style="width:80%">Capture Truck Photo</button>
+                            </div>
+                            <div class="data-container" style="display:none" id="dvResult">
+                                <p style="margin-bottom:0px;display:none"><strong>🚗 Registration No:</strong> <span id="registration_number"></span></p>
+                                <p id="metadata"></p>
+                            </div>
+                            <div id="dvProcessing"></div>
+                            <div style="text-align:center;display:none" id="dvbtnTruckNoOverride">
+                                <button class="button verify" style="width:80%" id="btnTruckNoOverride">TruckNo Override</button>
+                                <button class="button verify" style="width: 80%;display:none" id="btnTruckNoOverrideRefresh">Refresh TruckNo</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="image-container">
+
+                                <img id="preview" src="../img/placeholder.png" alt="Image">
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div>
+                                <!--<div class="data-container" style="display:none" id="dvResult">
+                                    <p style="margin-bottom:0px;display:none"><strong>🚗 Registration No:</strong> <span id="registration_number"></span></p>
+                                    <p id="metadata"></p>
+                                </div>-->
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="container" style="margin-top:20px">
+
+
+                <div class="form-group">
+                    <table class="clsDealer" border="0" cellpadding="5" cellspacing="5" width="100%">
+                        <tbody>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Truck Number : </div>
+                                        <input id="txtTruckNumber" type="text" readonly="readonly" style="padding:13px;border:none;height:96%;" maxlength="14" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Dealer Name : </div>
+                                        <div style="width:100%;">
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        <td id="dvDealerName" style="width:95%;height:40px;">
+                                                            <div id="dvDealer" style="padding:5px 10px;min-width:330px; max-width: 330px!important; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                        </td>
+                                                        <td style="width: 5%; padding-right: 5px; padding-left: 10px;">
+                                                            <button class="clsbtnProduct clsbtnDealer" style="border:none;background-color:transparent;" onclick="_clearCombobox(this,'dvDealer');">
+                                                                <i class="fa fa-remove" style="font-size:14px"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Driver Name : </div>
+                                        <input id="txtDriverName" type="text" style="padding:13px;border:none;height:96%;" maxlength="250" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Driver Mobile : </div>
+                                        <input id="txtDriverMobile" type="number" style="border:none;padding:0px 10px;height:100%;" maxlength="10" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <!--<tr style="display:none">
+                                <td style="width:100%;">
+                                    <div class="container12" style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;">
+                                        <div class="label12">OTP :</div>
+
+                                        <button onclick="sendOTP()" id="btnSendOTP" class="button submit" style="padding: 5px 10px;">Send OTP</button>
+
+                                        <input id="txtOTP" type="text" maxlength="4" style="width:80px; border:none; padding:0px 10px; height:100%; display:none;" />
+
+                                        <button onclick="verifyOTP()" id="btnVerifyOTP" class="button submit" style="padding: 5px 10px; display:none;">Verify OTP</button>
+
+                                        <button onclick="resendOTP()" id="btnReSendOTP" class="button submit" style="padding: 5px 10px; display:none;">Resend OTP</button>
+
+                                        <span id="otpTimer" style="font-weight:bold; color:green; display:none;"></span>
+
+                                        <span id="otpStatus" style="font-weight:bold; margin-left:10px;"></span>
+
+                                        <input type="hidden" id="hiddenOTP" />
+                                    </div>
+
+                                </td>
+                            </tr>-->
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Transporter Type :</div>
+                                        <div style="padding-top:13px;padding-left:10px;">
+                                            <div style="display: inline-block; margin-right: 20px;">
+                                                <label>
+                                                    <input type="radio" id="chkSelf" name="rdUserGroup" value="D" style="width:auto!important;">
+                                                    Self
+                                                </label>
+                                            </div>
+                                            <div style="display:inline-block;">
+                                                <label>
+                                                    <input type="radio" id="chkMarketTruck" name="rdUserGroup" value="M" style="width:auto!important;">
+                                                    Market Truck
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="background-color:aliceblue;width:100%;">
+                                    <table border="1px" cellpadding="5" cellspacing="5" width="100%" style="border-color:darkseagreen">
+                                        <tr>
+                                            <td width="60%" align="left">
+                                                Product Name
+                                            </td>
+                                            <td width="40%" align="left">
+                                                Bags
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="container13">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:25px">
+                                                                    <span id="product1-check" class="icon-container"></span>
+                                                                </td>
+                                                                <td id="dvProductTouch1" style="display: flex; align-items: center;flex-grow: 1">
+
+                                                                    <div id="dvProduct1" class="clsProduct"
+                                                                         style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="quantity-container" style="display: flex; align-items: center;">
+                                                    <input id="txtQuantity1" style="width:70px">
+                                                    <span id="quantity1-check" class="icon-container" style="margin-left:3px;"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                <div class="container13">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:25px">
+                                                                    <span id="product2-check" class="icon-container"></span>
+                                                                </td>
+                                                                <td id="dvProductTouch2" style="display: flex; align-items: center; flex-grow: 1">
+
+                                                                    <div id="dvProduct2" class="clsProduct"
+                                                                         style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="quantity-container" style="display: flex; align-items: center; flex-grow: 1">
+                                                    <input id="txtQuantity2" style="width:70px">
+                                                    <span id="quantity2-check" class="icon-container" style="margin-left:3px;"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                <div class="container13">
+                                                    <table>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="width:25px">
+                                                                    <span id="product3-check" class="icon-container"></span>
+                                                                </td>
+                                                                <td id="dvProductTouch3" style="display: flex; align-items: center;">
+                                                                    <div id="dvProduct3" class="clsProduct"
+                                                                         style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="quantity-container" style="display: flex; align-items: center;">
+                                                    <input type="number" id="txtQuantity3" style="width:70px">
+                                                    <span id="quantity3-check" class="icon-container" style="margin-left:3px;"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="error-message" style="display:none">Not Verified</p>
+
+                <div class="button-group">
+                    <button class="button disabled" disabled id="btnVerifyOrder">VERIFY ORDER</button>
+                    <input id="txtOTP" type="text" placeholder="Enter Truck OTP" maxlength="4" style="padding: 13px; border: solid 3px #34A853; height: 96%; width: 150px; display:none " oninput="handleOTPInput(this.value)" />
+                    <button class="button disabled" disabled id="btnSubmit" onclick="fnSubmit()">SUBMIT</button>
+                </div>
+                <div style="height:30px;"></div>
+            </div>
+        </main>
+    </div>
+
+
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <style>
+        /* Compact anchored dropdowns (replaces the old full-screen Kendo windows) */
+        .ms-dropdown {
+            position: fixed;
+            z-index: 11000;
+            background: #fff;
+            border: 1px solid #b0b0b0;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden; /* the inner list scrolls, not the shell */
+        }
+        /* Scrollable list area; vertical scrollbar only, never horizontal */
+        .ms-dd-list {
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .ms-dd-product {
+            max-height: 150px;
+        }
+        /* ~2-3 products, then scroll */
+        .ms-dd-dealer {
+            max-height: 300px;
+        }
+        /* room for ~8-10 dealers, then scroll */
+        /* Full-width dropdown: keep items on one line where possible; the list never
+           scrolls horizontally, so anything too long still wraps rather than overflow */
+        .ms-dropdown .k-listview-item,
+        .ms-dropdown .k-listview-item * {
+            white-space: nowrap;
+            word-break: normal;
+        }
+
+        .ms-dd-search {
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+            .ms-dd-search input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 5px 8px;
+            }
+    </style>
+
+    <div id="kwDealerName" class="ms-dropdown" style="display:none;">
+        <div class="ms-dd-search">
+            <input id="txtDealerName" type="text" placeholder="Search dealer..." />
+        </div>
+        <div id="lstDealerName" class="ms-dd-list ms-dd-dealer"></div>
+    </div>
+
+    <div id="kwProduct1" class="ms-dropdown" style="display:none;">
+        <div id="lstProduct1" class="ms-dd-list ms-dd-product"></div>
+    </div>
+
+    <div id="kwProduct2" class="ms-dropdown" style="display:none;">
+        <div id="lstProduct2" class="ms-dd-list ms-dd-product"></div>
+    </div>
+
+    <div id="kwProduct3" class="ms-dropdown" style="display:none;">
+        <div id="lstProduct3" class="ms-dd-list ms-dd-product"></div>
+    </div>
+
+    <script type="text/kendo-x-tmpl" id="tmpDealer">
+        <div style="border-bottom: 1px solid lightgrey;padding:5px;">
+            <div style="display:table-cell;padding: 5px 10px;width:85px;">#: data.SoldToPt #</div>
+            <div style="display:table-cell;padding: 5px 10px;">#: data.Customer #</div>
+        </div>
+    </script>
+
+    <script type="text/kendo-x-tmpl" id="tmpProduct">
+        <div style="border-bottom: 1px solid lightgrey;padding:5px;">
+            <div style="display:table-cell;padding: 5px 10px;width:140px;">#: data.ProductID #</div>
+            <div style="display:table-cell;padding: 5px 10px;">#: data.ProductDesc #</div>
+        </div>
+    </script>
+
+    <script>var Product1, Product2, Product3 = undefined;
+        //const BASE_LAT = 9.9252;
+        //const BASE_LON = 78.1198;
+        //Madurai
+
+        var BASE_LAT = parseFloat(localStorage.getItem("DepotLatitude"));
+        var BASE_LON = parseFloat(localStorage.getItem("DepotLongitude"));
+
+        // ── Dealer / product scoping state ──────────────────────────────────────
+        var g_productUrl = null;               // dealer-scoped products endpoint (set when a dealer is chosen)
+        var g_maxBags = { 1: 0, 2: 0, 3: 0 };  // max allowed bags per product slot (from the dealer's order)
+
+        function getSelectedSoldToCode() {
+            var h = $('#dvDealer').html() || '';
+            return (h.indexOf(' | ') === -1) ? '' : h.split(' | ')[0].trim();
+        }
+
+        function isDealerSelected() {
+            return getSelectedSoldToCode() !== '';
+        }
+
+        // (Re)bind a product listview to the dealer-scoped endpoint, or to empty if no dealer yet.
+        function reloadProductList(sel) {
+            var lv = $(sel).data("kendoListView");
+            if (!lv) return;
+            if (!g_productUrl) {
+                lv.setDataSource(new kendo.data.DataSource({ data: [] }));
+                return;
+            }
+            lv.setDataSource(new kendo.data.DataSource({
+                transport: { read: { url: g_productUrl, dataType: "json" } },
+                sort: { field: "RowNum", dir: "asc" }
+            }));
+        }
+
+        // Apply the per-slot bag cap to a quantity box (called when a product is chosen).
+        function applyQtyMax(n) {
+            var w = $("#txtQuantity" + n).data("kendoNumericTextBox");
+            if (!w) return;
+            var maxB = g_maxBags[n] || 0;
+            w.max(maxB > 0 ? maxB : 100000);
+            var v = w.value();
+            if (maxB > 0 && v != null && v > maxB) {
+                alert("Quantity for this product cannot exceed the available order quantity of " + maxB + " bag(s).");
+                w.value(maxB);
+            }
+        }
+
+        // Validate a quantity box against its slot cap (called on change).
+        function _validateQty(n, widget) {
+            var w = widget || $("#txtQuantity" + n).data("kendoNumericTextBox");
+            if (!w) return;
+            var maxB = g_maxBags[n] || 0;
+            var v = w.value();
+            if (maxB > 0 && v != null && v > maxB) {
+                alert("Quantity for this product cannot exceed the available order quantity of " + maxB + " bag(s).");
+                w.value(maxB);
+            }
+        }
+
+        // ── Dropdown helpers (anchored panels instead of full-screen windows) ──
+        function _closeAllDropdowns() {
+            $('.ms-dropdown').css('display', 'none');
+        }
+
+        // Show a dropdown panel anchored to its label; opens below if there is room, else above.
+        function openDropdown(panelSel, anchorEl, listSel) {
+            _closeAllDropdowns();
+
+            var $panel = $(panelSel);
+            var $list = $(listSel);
+
+            // Clear any cap left over from a previous open so the CSS default applies again
+            $list.css('max-height', '');
+
+            var rect = anchorEl.getBoundingClientRect();
+            var vw = window.innerWidth, vh = window.innerHeight, margin = 6;
+
+            // Width: use the full available screen width so items don't wrap
+            var width = vw - 2 * margin;
+
+            // Render hidden first so we can measure its height
+            $panel.css({ display: 'block', width: width + 'px', left: '0px', top: '0px', visibility: 'hidden' });
+            var ph = $panel.outerHeight();
+
+            // Horizontal: full width, just pinned inside the screen
+            var left = margin;
+
+            // Vertical: open on whichever side has more room.
+            var spaceBelow = vh - rect.bottom - margin;
+            var spaceAbove = rect.top - margin;
+            var top;
+
+            if (ph <= spaceBelow) {
+                top = rect.bottom + 2;                 // fits below
+            } else if (ph <= spaceAbove) {
+                top = rect.top - ph - 2;               // fits above
+            } else {
+                // Neither side fits the full list -> use the bigger side and let the list scroll.
+                // Cap the LIST (the shell is overflow:hidden, so the list is what scrolls).
+                var overhead = ph - $list.outerHeight();   // search box + borders, etc.
+                if (spaceBelow >= spaceAbove) {
+                    $list.css('max-height', Math.max(60, spaceBelow - overhead - 4) + 'px');
+                    top = rect.bottom + 2;
+                } else {
+                    $list.css('max-height', Math.max(60, spaceAbove - overhead - 4) + 'px');
+                    top = margin;                          // pinned to top, grows down to the label
+                }
+            }
+
+            $panel.css({ left: left + 'px', top: top + 'px', visibility: 'visible' });
+
+            // Highlight the first row, same as before
+            if (listSel) {
+                $(listSel + ' .k-listview-item:first').css({
+                    "font-weight": "bold",
+                    "background-color": "#f0f8ff"
+                });
+            }
+        }
+
+        function closeDropdown(panelSel) {
+            $(panelSel).css('display', 'none');
+        }
+
+
+
+
+        $(document).ready(function () {
+
+            $("#txtQuantity1").kendoNumericTextBox({
+                format: "n0",       // no decimals
+                min: 0,
+                max: 100000,
+                step: 1,
+                spinners: false,
+                change: function () { _validateQty(1, this); }
+            });
+
+            $("#txtQuantity2").kendoNumericTextBox({
+                format: "n0",
+                min: 0,
+                max: 100000,
+                step: 1,
+                spinners: false,
+                change: function () { _validateQty(2, this); }
+            });
+
+            $("#txtQuantity3").kendoNumericTextBox({
+                format: "n0",
+                min: 0,
+                max: 100000,
+                step: 1,
+                spinners: false,
+                change: function () { _validateQty(3, this); }
+            });
+
+
+            $("#dvDealerName").kendoTouch({
+                tap: function (e) {
+                    openDropdown('#kwDealerName', document.getElementById('dvDealerName'), '#lstDealerName');
+                }
+            });
+
+            $("#dvProductTouch1").kendoTouch({
+                tap: function (e) {
+                    if (!isDealerSelected()) { alert('Please select a dealer first.'); return; }
+                    DealerData = undefined;
+                    openDropdown('#kwProduct1', document.getElementById('dvProductTouch1'), '#lstProduct1');
+                }
+            });
+
+            $("#dvProductTouch2").kendoTouch({
+                tap: function (e) {
+                    if (!isDealerSelected()) { alert('Please select a dealer first.'); return; }
+                    DealerData = undefined;
+                    openDropdown('#kwProduct2', document.getElementById('dvProductTouch2'), '#lstProduct2');
+                }
+            });
+
+            $("#dvProductTouch3").kendoTouch({
+                tap: function (e) {
+                    if (!isDealerSelected()) { alert('Please select a dealer first.'); return; }
+                    DealerData = undefined;
+                    openDropdown('#kwProduct3', document.getElementById('dvProductTouch3'), '#lstProduct3');
+                }
+            });
+
+            $("#txtDealerName").keyup(function () {
+                var value = $(this).val();
+                var listView = $("#lstDealerName").data("kendoListView");
+
+                if (value) {
+                    listView.dataSource.filter({
+                        //field: "Customer",   // Change this to the actual field name in your data
+                        //operator: "contains",
+                        //value: value
+
+                        logic: "or",
+                        filters: [
+                            { field: "SoldToPt", operator: "contains", value: value },
+                            { field: "Customer", operator: "contains", value: value }
+                        ]
+                    });
+
+                    //logic: "and" | "or",
+                    //    filters: [
+                    //        { field: "field1", operator: "eq", value: "value1" },
+                    //        { field: "field2", operator: "contains", value: "value2" }
+                    //    ]
+                } else {
+                    // Clear filter if input is empty
+                    listView.dataSource.filter({});
+                }
+            });
+
+            $("#lstDealerName").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/DealerWithOrders?DepotID=' + localStorage.getItem("DepotID"),
+                            dataType: "json"
+                        }
+                    }, sort: { field: "Customer", dir: "asc" }
+                },
+                template: kendo.template($("#tmpDealer").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstDealerName").data("kendoListView").dataItem(selectedItems);
+                    $(".clsbtnDealer").show();
+                    $("#btnVerifyOrder").removeClass("disabled").addClass("VERIFY").removeAttr("disabled");
+
+
+
+                    $('#dvDealer').html(dataItem.SoldToParty);
+                    closeDropdown("#kwDealerName");
+
+                    // Dealer chosen -> scope product lists to this dealer's valid orders
+                    var soldToCode = getSelectedSoldToCode();
+                    g_productUrl = '../api/ProductsWithOrders?DepotID=' + localStorage.getItem("DepotID")
+                                 + '&SoldToPtCode=' + encodeURIComponent(soldToCode);
+
+                    // reset any previous product selection + quantity caps
+                    Product1 = Product2 = Product3 = undefined;
+                    $('#dvProduct1,#dvProduct2,#dvProduct3').html('');
+                    g_maxBags = { 1: 0, 2: 0, 3: 0 };
+                    [1, 2, 3].forEach(function (n) {
+                        var w = $("#txtQuantity" + n).data("kendoNumericTextBox");
+                        if (w) { w.max(100000); }
+                    });
+
+                    reloadProductList("#lstProduct1");
+                    reloadProductList("#lstProduct2");
+                    reloadProductList("#lstProduct3");
+                }
+            });
+
+            $("#lstProduct1").kendoListView({
+                dataSource: { data: [] },   // empty until a dealer is selected
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct1").data("kendoListView").dataItem(selectedItems);
+                    Product1 = dataItem.ProductID;
+                    $(".clsbtnProduct1").show();
+                    // alert(dataItem.ProductIDwithDesc);
+                    if (dataItem.ProductIDwithDesc === 'SELECT' || dataItem.ProductIDwithDesc === 'Select') {
+                        $('#dvProduct1').html('');
+                    } else {
+                        $('#dvProduct1').html(dataItem.ProductIDwithDesc);
+                    }
+                    g_maxBags[1] = Number(dataItem.MaxOrderBags) || 0;
+                    applyQtyMax(1);
+                    closeDropdown("#kwProduct1");
+
+                    _listProductAppend(1);
+                }
+            });
+
+
+
+            $("#lstProduct2").kendoListView({
+                dataSource: { data: [] },   // empty until a dealer is selected
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct2").data("kendoListView").dataItem(selectedItems);
+                    Product2 = dataItem.ProductID;
+                    $(".clsbtnProduct2").show();
+                    if (dataItem.ProductIDwithDesc === 'SELECT' || dataItem.ProductIDwithDesc === 'Select') {
+                        $('#dvProduct2').html('');
+                    } else {
+                        $('#dvProduct2').html(dataItem.ProductIDwithDesc);
+                    }
+                    g_maxBags[2] = Number(dataItem.MaxOrderBags) || 0;
+                    applyQtyMax(2);
+                    closeDropdown("#kwProduct2");
+                    _listProductAppend(2);
+                }
+            });
+
+
+            $("#lstProduct3").kendoListView({
+                dataSource: { data: [] },   // empty until a dealer is selected
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct3").data("kendoListView").dataItem(selectedItems);
+                    Product3 = dataItem.ProductID;
+                    $(".clsbtnProduct3").show();
+                    if (dataItem.ProductIDwithDesc === 'SELECT' || dataItem.ProductIDwithDesc === 'Select') {
+                        $('#dvProduct3').html('');
+                    } else {
+                        $('#dvProduct3').html(dataItem.ProductIDwithDesc);
+                    }
+                    g_maxBags[3] = Number(dataItem.MaxOrderBags) || 0;
+                    applyQtyMax(3);
+                    closeDropdown("#kwProduct3");
+                    _listProductAppend(3);
+                }
+            });
+
+
+            // The dealer / product pickers are now anchored dropdowns (see openDropdown).
+            // Close any open dropdown when tapping outside it or its label.
+            $(document).on('mousedown touchstart', function (e) {
+                if ($(e.target).closest('.ms-dropdown, #dvDealerName, #dvProductTouch1, #dvProductTouch2, #dvProductTouch3').length === 0) {
+                    _closeAllDropdowns();
+                }
+            });
+
+            // A dropdown is anchored to a fixed spot; if the screen rotates/resizes, just close it.
+            $(window).on('resize orientationchange', _closeAllDropdowns);
+
+        });
+
+        function delay(callback, ms) {
+            var timer = 0;
+            return function () {
+                var context = this, args = arguments;
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    callback.apply(context, args);
+                }, ms || 0);
+            };
+        }
+
+        // After a product is picked, keep the OTHER two lists scoped to the same
+        // dealer's valid-order products (previously this hit /api/DealerMob/ProductIDWise,
+        // which returned the full product master and broke dealer scoping).
+        function _listProductAppend(ListViewNo) {
+            if (!g_productUrl) return;
+
+            if (ListViewNo == 1) {
+                reloadProductList("#lstProduct2");
+                reloadProductList("#lstProduct3");
+            } else if (ListViewNo == 2) {
+                reloadProductList("#lstProduct1");
+                reloadProductList("#lstProduct3");
+            } else if (ListViewNo == 3) {
+                reloadProductList("#lstProduct1");
+                reloadProductList("#lstProduct2");
+            }
+        }
+
+        function _clearCombobox(e, param) {
+            if (param == 'dvDealer') {
+                $("#lstDealerName").data("kendoListView").clearSelection();
+                $("#dvDealer").html('');
+                $(e).hide();
+
+                // Dealer cleared -> drop product scope, selections and qty caps
+                g_productUrl = null;
+                Product1 = Product2 = Product3 = undefined;
+                $("#dvProduct1, #dvProduct2, #dvProduct3").html('');
+                g_maxBags = { 1: 0, 2: 0, 3: 0 };
+                [1, 2, 3].forEach(function (n) {
+                    var w = $("#txtQuantity" + n).data("kendoNumericTextBox");
+                    if (w) { w.max(100000); }
+                    var lv = $("#lstProduct" + n).data("kendoListView");
+                    if (lv) { lv.setDataSource(new kendo.data.DataSource({ data: [] })); }
+                });
+            } else if (param == 'dvProduct1') {
+                $("#lstProduct1").data("kendoListView").clearSelection();
+                $("#dvProduct1").html('');
+                $(e).hide();
+            } else if (param == 'dvProduct2') {
+                $("#lstProduct2").data("kendoListView").clearSelection();
+                $("#dvProduct2").html('');
+                $(e).hide();
+            } else if (param == 'dvProduct3') {
+                $("#lstProduct3").data("kendoListView").clearSelection();
+                $("#dvProduct3").html('');
+                $(e).hide();
+            }
+        }
+
+        document.getElementById("openCameraButton").addEventListener("click", function () {
+            HideShowNotification('HIDE');
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+            fileInput.capture = "environment";
+
+            fileInput.addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const fileName = file.name;
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+                    $("#hdnFileExtension").val(fileExtension);
+
+                    const reader = new FileReader();
+                    reader.onloadend = function () {
+                        const base64String = reader.result.split(',')[1];
+                        $("#hdnFileBase64").val(base64String);
+                        (async () => {
+                            await compressAndUpload(file);
+                            CreateOrderAfterImageCapture();
+                            $("#dvbtnTruckNoOverride").show();
+                            $("#btnTruckNoOverride").show();
+                            $("#btnTruckNoOverrideRefresh").hide();
+
+                            // Other synchronous steps
+                            vehicleImageAnalyse(file);
+                            extractMetadata(file);
+                            readDatetime(file);
+
+                            $(".data-container").show();
+                            $("#btnVerifyOrder").removeClass("disabled").addClass("verify").removeAttr("disabled");
+
+                        })();
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            fileInput.click();
+        });
+
+        function readImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const img = document.getElementById('preview');
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function extractMetadata(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event) {
+                const exifData = EXIF.readFromBinaryFile(event.target.result);
+
+                const latitude = exifData?.GPSLatitude ? convertToDecimal(exifData.GPSLatitude, exifData.GPSLatitudeRef).toFixed(2) : "N/A";
+                const longitude = exifData?.GPSLongitude ? convertToDecimal(exifData.GPSLongitude, exifData.GPSLongitudeRef).toFixed(2) : "N/A";
+                const dateTime = exifData?.DateTimeOriginal ? formatDateTime(exifData.DateTimeOriginal) : "N/A";
+                //  const isRealImage = (latitude !== "N/A" && longitude !== "N/A") ? "✅ Real Image" : "❌ Fake Image (No GPS Data)";
+                /*<br>📍 <b>Location:</b> ${latitude}, ${longitude}*/
+                /*  `📅 <b>Date/Time:</b> ${dateTime}<br>*/
+                document.getElementById("metadata").innerHTML =
+                    `📅 <b>Date/Time:</b><br> <span id="image_datetime"></span>    <br>
+                                    <div style="display:none"> <b>🌍 Dist. from Depot:</b> <span id="distance_from_depot"></span>
+                                    <br>📝 <b>Image Authenticity:</b> <span id="image_authenticity"></span></div>`;
+
+                if (latitude !== "N/A" && longitude !== "N/A") {
+                    calculateDistance(latitude, longitude);
+                }
+
+            };
+        }
+
+        function convertToDecimal(coord, ref) {
+            const decimal = coord[0] + (coord[1] / 60) + (coord[2] / 3600);
+            return (ref === "S" || ref === "W") ? -decimal : decimal;
+        }
+
+        function calculateDistance(lat1, lon1) {
+            const R = 6371000;
+            const lat1Rad = lat1 * Math.PI / 180;
+            const lon1Rad = lon1 * Math.PI / 180;
+            const lat2Rad = BASE_LAT * Math.PI / 180;
+            const lon2Rad = BASE_LON * Math.PI / 180;
+
+            const dLat = lat2Rad - lat1Rad;
+            const dLon = lon2Rad - lon1Rad;
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = (R * c);
+            const distanceKM = (R * c) / 1000;
+
+            //// Show in alert
+            //alert(
+            //    `Depot Coordinates: ${BASE_LAT}, ${BASE_LON}\n` +
+            //    `Mobile Coordinates: ${lat1}, ${lon1}\n` +
+            //    `Distance: ${distance.toFixed(2)} meters`
+            //);
+
+
+            document.getElementById("distance_from_depot").innerText = `${distanceKM.toFixed(2)} km.`;
+            //if (distance > 6000000) {
+            //    $("#dvWarning").show();
+            //    playWarning();
+            //    $("#dvAwayMessage").html("<b> You are currently away from the depot.</b>");
+            //    speakText("You are away from the depot");
+            //    $("#dvAwayMessage").show();
+            //}
+            let depotId = parseInt(localStorage.getItem("DepotID"), 10);
+            let threshold;
+
+            if (depotId === 1430) {
+                threshold = 100;
+            } else {
+                threshold = 100;
+            }
+
+            if (distance > threshold) {
+                $("#dvWarning").show();
+                playWarning();
+                $("#dvAwayMessage").html("<b>You are currently away from the depot.</b>");
+                speakText("You are away from the depot");
+                $("#dvAwayMessage").show();
+            }
+        }
+
+
+
+        function compressAndUpload(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+
+                    img.onload = function () {
+                        const canvas = document.createElement("canvas");
+                        const ctx = canvas.getContext("2d");
+                        canvas.width = 700;
+                        canvas.height = 700;
+                        ctx.drawImage(img, 0, 0, 700, 700);
+
+                        canvas.toBlob(async function (blob) {
+                            document.getElementById("preview").src = URL.createObjectURL(blob);
+                            const formData = new FormData();
+                            formData.append("image", blob, "compressed_image.jpg");
+
+                            try {
+                                document.getElementById("registration_number").innerText = "Processing...";
+                                document.getElementById("dvProcessing").innerText = "Registration Number Processing...";
+
+                                const response = await fetch("/api/VehicleNumberExtractor/license-plate", {
+                                    method: "POST",
+                                    body: formData
+                                });
+
+                                const data = await response.json();
+                                document.getElementById("dvProcessing").innerText = "";
+                                document.getElementById("registration_number").innerText = " " + data.registration_number;
+                                var cleanTruckNo = sanitizeTruckNumber(data.registration_number);
+                                $("#txtTruckNumber").val(cleanTruckNo);
+                                //$("#txtTruckNumber").val(data.registration_number);
+
+                                if (data.registration_number.includes("unable to")) {
+                                    $("#dvTruckNumberMessage").html("<b>" + data.registration_number + "</b>");
+                                }
+                            } catch (error) {
+                                console.error("Error:", error);
+                                document.getElementById("registration_number").innerText = "Error extracting registration number.";
+                            } finally {
+                                resolve(); // <- this tells the await to continue
+                            }
+                        }, "image/jpeg", 1.0);
+                    };
+
+                    img.onerror = () => reject(new Error("Image failed to load"));
+                };
+
+                reader.onerror = () => reject(new Error("File could not be read"));
+            });
+        }
+
+
+
+        async function vehicleImageAnalyse(file) {
+            var formData = new FormData();
+            formData.append('image', file);
+
+            $.ajax({
+                url: '/api/VehicleImageAnalyse/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    console.log('API Response:', response);
+                    $("#image_authenticity").html(response.analysis_result);
+                    var message = response.analysis_result;
+                    let probabilityMatch = message.match(/(\d+(?:\.\d+)?)%/);
+                    let probability = probabilityMatch ? parseFloat(probabilityMatch[1]) : null;
+                    if (
+
+                        message.includes("The photo was captured from a screen") ||
+                        message.includes("The photo was likely captured from a screen") ||
+                        (probability !== null && probability <= 90)
+
+
+                    ) {
+                        //playWarning();
+                        $("#dvWarning").show();
+                        speakText("This is not a real time image");
+                        $("#dvImageMessage").html("<b>This is not a real-time image.</b>");
+                        $("#dvImageMessage").show();
+                        $("#dvAwayMessage").show();
+                    }
+
+                    //alert('Analysis Result: ' + response.analysis_result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Error uploading image: ' + xhr.responseText);
+                }
+            });
+        }
+        async function readDatetime(file) {
+            var formData = new FormData();
+            formData.append('image', file);
+
+            $.ajax({
+                url: '/api/VehicleNumberExtractor/datetime',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    // ✅ Guard: the API may not return a Date/Time for every image.
+                    var dt = (response && response.Metadata) ? response.Metadata["Date/Time"] : null;
+                    $("#image_datetime").html(dt ? formatDateTime(dt) : "");
+                    //alert(response.Metadata);
+                    //alert(response.Metadata["Date/Time"]);
+                    // console.log(response);
+                    //alert('Analysis Result: ' + response.analysis_result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Error uploading image: ' + xhr.responseText);
+                }
+            });
+        }
+
+
+        function formatDateTime(dateTime) {
+            // ✅ Guard against undefined / unexpected formats so a missing
+            //    EXIF/Metadata date never throws "Cannot read properties of undefined".
+            if (!dateTime || typeof dateTime !== 'string' || dateTime.indexOf(' ') === -1) {
+                return "";
+            }
+
+            const [date, time] = dateTime.split(' ');
+            const [year, month, day] = date.split(':');
+            const [hours, minutes] = time.split(':');
+
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        function fnSubmit() {
+            ////var vTranDate = $("#image_date_time").text();
+            //var vDepotID = 1440; //1496;
+            //var vTruckPhotoFileName = "jpg";
+            //var vTruckNumber = $("#registration_number").text();
+            //var vSoldToParty = $('#dvDealer').html().split(' | ')[1];
+            //var vSoldToPartyID = $('#dvDealer').html().split(' | ')[0];
+            //var vDriverName = $("#txtDriverName").val();
+            //var vDriverMobileNo = $("#txtDriverMobile").val();
+            //var vTransporterType = $("input[name=rdUserGroup]:checked").val();
+            //var vCreatedBy = 1;
+            //var vProductID1 = $('#dvProduct1').html().split(' | ')[0];
+            //var vProductID2 = $('#dvProduct2').html().split(' | ')[0];
+            //var vProductID3 = $('#dvProduct3').html().split(' | ')[0];
+            //var vQuantity1 = "0" + $("#txtQuantity1").val();
+            //var vQuantity2 = "0" + $("#txtQuantity2").val();
+            //var vQuantity3 = "0" + $("#txtQuantity3").val();
+            var vSaleRequestID = $("#hdnSaleRequestID").val();
+            //alert(vSaleRequestID);
+
+            var salesrequest = {
+                SaleRequestID: vSaleRequestID
+            }
+            //alert(JSON.stringify(salesrequest));
+            var strMessage = "";
+            var ajaxRequest = $.ajax({
+                url: '/api/SaveSalesRequest/SaveSalesRequest',
+                type: 'POST',
+                data: JSON.stringify(salesrequest),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (result) {
+                    //alert("result " + result);
+                    strMessage = result;
+                    //alert("strMessage " + strMessage);
+                    //alert("MobSaleRequestDetails.html?SaleRequestID=" + strMessage);
+                    //window.location.href = "Loadingslip.html?SaleRequestID=" + strMessage;
+                    //window.location.href = "LoadingSlipApproval.html?DepotID=" + localStorage.getItem("DepotID");
+                    window.location.href = "LoadingSlipApproval2.html?SalesRequestID=" + strMessage;
+                    //    if (strMessage == "-1") {
+                    //        ShowErrorAlert("This Company '" + $("#txtCCDCompanyName").val() + "' already exists ");
+                    //    }
+                    //    else {
+                    //        ShowErrorAlert(' Error in Updating Company Details ');
+                    //    }
+                },
+                error: function (jqXHR, textStatus, err) {
+                    //ShowErrorAlert(' Error in Saving : ' + err);
+                }
+            });
+        }
+
+
+        //$('#btnVerifyOrder').click(function () {
+        //    $('#quantity1-check').html('');
+        //    $('#quantity2-check').html('');
+        //    $('#quantity3-check').html('');
+
+
+        //    var vProductID1 = $('#dvProduct1').html().split(' | ')[0];
+        //    var vProductID2 = $('#dvProduct2').html().split(' | ')[0];
+        //    var vProductID3 = $('#dvProduct3').html().split(' | ')[0];
+        //    var vQuantity1 = "0" + $("#txtQuantity1").val();
+        //    var vQuantity2 = "0" + $("#txtQuantity2").val();
+        //    var vQuantity3 = "0" + $("#txtQuantity3").val();
+
+        //    var salesrequest = {
+        //        ProductID1: vProductID1,
+        //        ProductID2: vProductID2,
+        //        ProductID3: vProductID3,
+        //        TotalQty1: vQuantity1,
+        //        TotalQty2: vQuantity2,
+        //        TotalQty3: vQuantity3
+        //    };
+
+        //    var depotID = 1440;
+        //    var soldToPtCode = $('#dvDealer').html().split(' | ')[0];
+
+        //    if (!depotID || !soldToPtCode) {
+        //        alert('Dealer selection is Mandatory');
+        //        return;
+        //    }
+
+        //    // Validate if at least one product is selected
+        //    if (vProductID1 === "" && vProductID2 === "" && vProductID3 === "") {
+        //        alert('Minimum one Product selection is Mandatory');
+        //        return;
+        //    }
+
+
+        //    var requestData = {
+        //        DepotID: depotID,
+        //        SoldToPtCode: soldToPtCode
+        //    };
+
+        //    $.ajax({
+        //        url: '/api/SalesRequest/VerifyOrder',
+        //        method: 'POST',
+        //        contentType: 'application/json',
+        //        data: JSON.stringify(requestData),
+        //        success: function (data) {
+        //            if (data && data.length > 0) {
+        //                var mismatchFound = false;
+
+        //                if (vProductID1 !== "" && vQuantity1 !== "00" && vQuantity1 !== "") {
+        //                    data.forEach(function (order) {
+        //                        const orderQtyInBags = order.OrderQuantity * 20;
+        //                        const totalQty = parseFloat(salesrequest.TotalQty1);
+
+        //                        if (totalQty > 0 && order.ProductID === salesrequest.ProductID1 && (totalQty === orderQtyInBags || totalQty < orderQtyInBags)) {
+        //                            $('#quantity1-check').html('<span class="green-tick">✔</span>');
+        //                        } else {
+        //                            $('#quantity1-check').html('<span class="red-cross">❌</span>');
+        //                            mismatchFound = true;
+        //                        }
+        //                    });
+        //                } else {
+        //                    $('#quantity1-check').html('');
+        //                }
+
+
+        //                if (vProductID2 !== "" && vQuantity2 !== "00" && vQuantity2 !== "") {
+        //                    data.forEach(function (order) {
+        //                        const orderQtyInBags = order.OrderQuantity * 20;
+        //                        const totalQty = parseFloat(salesrequest.TotalQty2);
+
+        //                        if (totalQty > 0 && order.ProductID === salesrequest.ProductID2 && (totalQty === orderQtyInBags || totalQty < orderQtyInBags)) {
+        //                            $('#quantity2-check').html('<span class="green-tick">✔</span>');
+        //                        } else {
+        //                            $('#quantity2-check').html('<span class="red-cross">❌</span>');
+        //                            mismatchFound = true;
+        //                        }
+        //                    });
+        //                } else {
+        //                    $('#quantity2-check').html('');
+        //                }
+
+
+        //                if (vProductID3 !== "" && vQuantity3 !== "00" && vQuantity3 !== "") {
+        //                    data.forEach(function (order) {
+        //                        const orderQtyInBags = order.OrderQuantity * 20;
+        //                        const totalQty = parseFloat(salesrequest.TotalQty3);
+
+        //                        if (totalQty > 0 && order.ProductID === salesrequest.ProductID3 && (totalQty === orderQtyInBags || totalQty < orderQtyInBags)) {
+        //                            $('#quantity3-check').html('<span class="green-tick">✔</span>');
+        //                        } else {
+        //                            $('#quantity3-check').html('<span class="red-cross">❌</span>');
+        //                            mismatchFound = true;
+        //                        }
+        //                    });
+        //                } else {
+        //                    $('#quantity3-check').html('');
+        //                }
+
+        //            } else {
+        //                alert('No orders found for the given Depot ID and Dealer Name.');
+        //            }
+        //        },
+        //        error: function (xhr, status, error) {
+        //            console.error('Error retrieving data: ' + error);
+        //            alert('Error retrieving data: ' + error);
+        //        }
+        //    });
+        //});
+
+        $('#btnVerifyOrder').click(function () {
+            var $btn = $(this);
+            $btn.prop('disabled', true).text('Processing...');
+
+            var vhdnSaleRequestID = $("#hdnSaleRequestID").val();
+            var vDepotID = localStorage.getItem("DepotID");
+            //var vTruckNumber = $("#registration_number").text();
+            var vTruckNumber = $("#txtTruckNumber").val();
+            //alert($("#txtTruckNumber").val());
+            var vSoldToParty = $('#dvDealer').html()?.split(' | ')[1] || "";
+            var vSoldToPartyID = $('#dvDealer').html()?.split(' | ')[0] || "";
+            var vDriverName = $("#txtDriverName").val();
+            var vDriverMobileNo = $("#txtDriverMobile").val();
+            var vTransporterType = $("input[name=rdUserGroup]:checked").val();
+            var vCreatedBy = localStorage.getItem("userID");
+            var vProductID1 = $('#dvProduct1').html()?.split(' | ')[0] || "";
+            var vProductID2 = $('#dvProduct2').html()?.split(' | ')[0] || "";
+            var vProductID3 = $('#dvProduct3').html()?.split(' | ')[0] || "";
+            var vQuantity1 = $("#txtQuantity1").val() || "0";
+            var vQuantity2 = $("#txtQuantity2").val() || "0";
+            var vQuantity3 = $("#txtQuantity3").val() || "0";
+            var vTruckPhotoBase64 = $("#hdnFileBase64").val();
+            var vTruckPhotoFileName = "1" + ($("#hdnFileExtension").val() || "jpg");
+
+            if (!vDepotID || !vSoldToParty || !vSoldToPartyID) {
+                alert('Dealer selection is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vDriverName) {
+                alert('Driver Name is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vDriverMobileNo.match(/^\d{10}$/)) {
+                alert('Enter a valid 10-digit Mobile Number.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vTransporterType) {
+                alert('Transporter type selection is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vTruckNumber) {
+                alert('Truck Number is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vProductID1 && !vProductID2 && !vProductID3) {
+                alert('Minimum one Product selection is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+
+            if ((vProductID1 && vQuantity1 === "0") ||
+                (vProductID2 && vQuantity2 === "0") ||
+                (vProductID3 && vQuantity3 === "0")) {
+                alert('Enter quantity for the selected product(s).');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            if (!vTruckPhotoBase64) {
+                alert('Truck Photo upload is mandatory.');
+                $btn.prop('disabled', false).text('Verify Order');
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+            const validOrderId = orderId && !isNaN(orderId) ? Number(orderId) : null;
+            var vSource = urlParams.get("source");
+            var vDA = urlParams.get("DA");
+            const vOrderNumber = urlParams.get('orderNumber');
+            //alert(vSource);
+
+            //var verifyOrderParam = {
+            //    SaleRequestID: vhdnSaleRequestID,
+            //    DepotID: vDepotID,
+            //    TruckPhotoBase64: vTruckPhotoBase64,
+            //    TruckPhotoFileName: vTruckPhotoFileName,
+            //    TruckNumber: vTruckNumber,
+            //    SoldToParty: vSoldToParty,
+            //    SoldToPartyID: vSoldToPartyID,
+            //    DriverName: vDriverName,
+            //    DriverMobileNo: vDriverMobileNo,
+            //    TransporterType: vTransporterType,
+            //    CreatedBy: vCreatedBy,
+            //    ProductID1: vProductID1,
+            //    TotalQty1: vQuantity1,
+            //    ProductID2: vProductID2,
+            //    TotalQty2: vQuantity2,
+            //    ProductID3: vProductID3,
+            //    TotalQty3: vQuantity3,
+            //    OrderID: validOrderId
+            //};
+
+            var verifyOrderParam = {
+                SaleRequestID: vhdnSaleRequestID,
+                DepotID: vDepotID,
+                TruckPhotoBase64: vTruckPhotoBase64,
+                TruckPhotoFileName: vTruckPhotoFileName,
+                TruckNumber: vTruckNumber,
+                SoldToParty: vSoldToParty,
+                SoldToPartyID: vSoldToPartyID,
+                DriverName: vDriverName,
+                DriverMobileNo: vDriverMobileNo,
+                TransporterType: vTransporterType,
+                CreatedBy: vCreatedBy
+            };
+
+            let apiUrl = "/api/SalesRequestNew/VerifyOrder";
+
+            if (vSource === "tpsales") {
+                // TPSales → only Product1  + DA
+                apiUrl = "/api/SalesRequestNew/VerifyOrderTPSales";
+                verifyOrderParam.DA = vDA;
+                verifyOrderParam.ProductID1 = vProductID1;
+                verifyOrderParam.TotalQty1 = vQuantity1;
+            }
+            else if (validOrderId) {
+
+                // validOrderId → only Product1 + validOrderId
+                apiUrl = "/api/SalesRequestNew/VerifyOrderPendingOrder";
+                verifyOrderParam.OrderNumber = vOrderNumber;
+                verifyOrderParam.ProductID1 = vProductID1;
+                verifyOrderParam.TotalQty1 = vQuantity1;
+            }
+
+            else {
+                // Normal →  all 3 products
+                verifyOrderParam.ProductID1 = vProductID1;
+                verifyOrderParam.TotalQty1 = vQuantity1;
+                verifyOrderParam.ProductID2 = vProductID2;
+                verifyOrderParam.TotalQty2 = vQuantity2;
+                verifyOrderParam.ProductID3 = vProductID3;
+                verifyOrderParam.TotalQty3 = vQuantity3;
+            }
+
+            $.ajax({
+                // url: "/api/SalesRequestNew/VerifyOrder",
+                url: apiUrl,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(verifyOrderParam),
+                success: function (response) {
+                    console.log("API Response:", response);
+
+                    if (response?.response?.SaleRequestID) {
+                        $("#hdnSaleRequestID").val(response.response.SaleRequestID);
+                    }
+
+                    function updateIcons(index, res) {
+                        const salesOrderVerified = res[`SalesOrderVerified${index}`];
+                        const stockVerified = res[`StockVerified${index}`];
+
+                        const productIconSpan = document.getElementById(`product${index}-check`);
+                        const quantityIconSpan = document.getElementById(`quantity${index}-check`);
+
+                        //fetch productId & quantity using earlier logic
+                        const productId = $(`#dvProduct${index}`).html()?.split(' | ')[0] || "";
+                        const quantity = $(`#txtQuantity${index}`).val() || "0";
+
+                        if (!productIconSpan || !quantityIconSpan) {
+                            console.warn(`Icon span(s) not found for index ${index}`);
+                            return;
+                        }
+
+                        // Clear icons
+                        productIconSpan.innerHTML = "";
+                        quantityIconSpan.innerHTML = "";
+
+                        // Apply basic styling for alignment
+                        productIconSpan.style.display = "flex";
+                        productIconSpan.style.alignItems = "center";
+                        quantityIconSpan.style.display = "flex";
+                        quantityIconSpan.style.alignItems = "center";
+
+                        if (salesOrderVerified === false && productId !== "") {
+                            productIconSpan.innerHTML = `<span class="red-cross">❌</span>`;
+                        }
+
+                        if (salesOrderVerified === true && stockVerified === true) {
+                            quantityIconSpan.innerHTML = `<span class="green-tick">✔</span>`;
+                            sendDriverOTP();
+                            $("#btnVerifyOrder").hide();
+                            $("#txtOTP").show();
+                            // $("#btnSubmit").removeClass("disabled").addClass("submit").removeAttr("disabled");
+                            disableControls();
+                        }
+
+                        // If stock verification failed, show only red box icon at quantity
+                        if (stockVerified === false && parseFloat(quantity) > 0) {
+                            quantityIconSpan.innerHTML = `
+                                             <span class="red-cross">❌</span>`;
+                        }
+
+                        console.log(`Updated: product${index} (SalesOrderVerified=${salesOrderVerified}), quantity${index} (StockVerified=${stockVerified})`);
+                    }
+
+
+                    updateIcons(1, response.response);
+                    updateIcons(2, response.response);
+                    updateIcons(3, response.response);
+
+                    $btn.prop('disabled', false).text('Verify Order');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Error occurred: " + xhr.responseText);
+                    $btn.prop('disabled', false).text('Verify Order');
+                }
+            });
+        });
+
+        function playWarning() {
+            const warningSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+            warningSound.volume = 0.25; // Volume range is from 0.0 (mute) to 1.0 (full volume) ~50–60 dB
+            warningSound.play().catch(e => console.error("Playback failed:", e));
+        }
+        function speakText(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'en-IN'; // Indian English accent
+            utterance.rate = 0.95; // Slightly slower for clarity
+            window.speechSynthesis.speak(utterance);
+        }
+
+        $('#btnTruckNoOverride').on('click', function () {
+            $(this).hide(); // Hide the button
+            //$('#lblTruckNoOverrideOTP').show();
+            //$('#txtTruckNoOverrideOTP').val('');
+            //$('#txtTruckNoOverrideOTP').show().focus();
+            var vdepotId = localStorage.getItem("DepotID");
+            var vsaleRequestNo = $('#hdnSaleRequestID').val();
+            var vrequestedByName = localStorage.getItem("Name");
+            //alert(vrequestedByName);
+            var vdepotName = localStorage.getItem("DepotName");
+            $.ajax({
+                url: '/api/SalesRequestNew/TruckNumberOverrideEmail',
+                type: 'GET',
+                data: {
+                    depotId: vdepotId,
+                    saleRequestNo: vsaleRequestNo,
+                    requestedBy: vrequestedByName,
+                    depotName: vdepotName
+                },
+                success: function (response) {
+                    $("#btnTruckNoOverrideRefresh").show();
+                },
+                error: function (xhr, status, error) {
+                    // Handle error
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+
+        $('#btnTruckNoOverrideRefresh').on('click', function () {
+            var $btn = $(this);
+            var vsaleRequestNo = $('#hdnSaleRequestID').val();
+
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: '/api/SalesRequestNew/TruckNumberOverrideRefresh',
+                type: 'GET',
+                data: {
+                    saleRequestNo: vsaleRequestNo
+                },
+                success: function (response) {
+                    if (response) {
+
+                        if (response.OverrideTruckNoUpdateBy === null || response.OverrideTruckNoUpdateOn === null) {
+
+                            speakText("Truck Number override is pending.");
+                            $("#dvTruckNoOverrideMessage").html("<b>Truck Number override is pending.</b>");
+                            HideShowNotification('SHOW');
+                            $("#dvTruckNoOverrideMessage").show();
+
+
+                        } else if (response.TruckNumber) {
+                            $('#txtTruckNumber').val(response.TruckNumber);
+                            $("#dvTruckNoOverrideMessage").html("");
+                            $("#dvTruckNoOverrideMessage").hide();
+                            $("#btnTruckNoOverrideRefresh").hide();
+                        } else {
+                            alert("No Truck Number returned.");
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: " + xhr.responseText);
+                },
+                complete: function () {
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+
+
+
+        $(document).ready(function () {
+            fnSetPageName("Sales Request");
+        });
+
+
+        function HideShowNotification(param) {
+            if (param == 'HIDE') {
+                $("#dvWarning").hide();
+                $("#dvImageMessage").empty();
+                $("#dvAwayMessage").empty();
+                $("#dvTruckNumberMessage").empty();
+                $("#dvTruckNoOverrideMessage").empty();
+            }
+            else {
+                $("#dvWarning").show();
+            }
+        }
+
+
+        function CreateOrderAfterImageCapture() {
+            var vhdnSaleRequestID = $("#hdnSaleRequestID").val();
+            //alert(vhdnSaleRequestID);
+            var vDepotID = localStorage.getItem("DepotID");
+            var vCreatedBy = localStorage.getItem("userID");
+            var vTruckNumber = $("#txtTruckNumber").val();
+            var vTruckPhotoBase64 = $("#hdnFileBase64").val();
+            var vTruckPhotoFileName = "1" + ($("#hdnFileExtension").val() || "jpg");
+            // alert(vCreatedBy);
+            var verifyOrderParam = {
+                SaleRequestID: vhdnSaleRequestID,
+                DepotID: vDepotID,
+                CreatedBy: vCreatedBy,
+                TruckPhotoBase64: vTruckPhotoBase64,
+                TruckPhotoFileName: vTruckPhotoFileName,
+                TruckNumber: vTruckNumber
+            }
+            //   alert(verifyOrderParam);
+            $.ajax({
+                url: "/api/SalesRequestNew/CreateOrderAfterImageCapture",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(verifyOrderParam),
+                success: function (response) {
+                    //alert(response.SaleRequestID);
+                    console.log("API Response:", response);
+
+                    if (response?.SaleRequestID) {
+                        $("#hdnSaleRequestID").val(response.SaleRequestID);
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Error occurred: " + xhr.responseText);
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            // alert(localStorage.getItem("userID"));
+            // Get orderId from the query string
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+            const orderNumber = urlParams.get('orderNumber');
+            const qty = urlParams.get('qty');
+            const productId = urlParams.get('ProductID');
+            const source = urlParams.get('source');
+            let vurl = `../api/PendingOrder/GetByOrderNumber?orderNumber=${encodeURIComponent(orderNumber)}`;
+            if (orderId) {
+                $.ajax({
+                    url: vurl,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        //alert();
+                        console.log("Order Data:", data);
+                        $("#dvProduct1").text(data.ProductID);
+                        $("#txtQuantity1").data("kendoNumericTextBox").value(qty);
+                        $('#dvDealer').html(data.SoldToPtCode + " | " + data.SoldToPtName);
+                        const tdDealer = document.getElementById('dvDealerName');
+                        if (tdDealer) {
+                            tdDealer.style.pointerEvents = 'none';
+                            tdDealer.style.opacity = '0.5';
+                            tdDealer.style.backgroundColor = '#f0f0f0';
+
+                        }
+                        const dvProduct = document.getElementById('dvProduct1');
+                        if (dvProduct) {
+                            dvProduct.style.pointerEvents = 'none';
+                            dvProduct.style.opacity = '0.5';
+                            dvProduct.style.backgroundColor = '#f0f0f0';
+
+                        }
+                        document.getElementById("dvProductTouch1").style.pointerEvents = "none";
+                        $("#txtQuantity2, #txtQuantity3").prop("disabled", true);
+                        // disable the Kendo Touch
+                        var touchWidget = $("#dvProductTouch2").data("kendoTouch");
+                        if (touchWidget) {
+                            touchWidget.destroy(); // completely removes touch bindings
+                        }
+
+                        // optionally gray out the div
+                        $("#dvProduct2").css({
+                            "opacity": "0.5",
+                            "cursor": "not-allowed"
+                        });
+
+                        var touchWidget = $("#dvProductTouch3").data("kendoTouch");
+                        if (touchWidget) {
+                            touchWidget.destroy(); // completely removes touch bindings
+                        }
+
+                        // optionally gray out the div
+                        $("#dvProduct3").css({
+                            "opacity": "0.5",
+                            "cursor": "not-allowed"
+                        });
+
+                        //// Example: display data in the page (customize as needed)
+                        //$("#orderNumber").text(data.OrderNumber);
+                        //$("#soldTo").text(data.SoldToPtName);
+                        //$("#orderDate").text(new Date(data.OrderDate).toLocaleDateString());
+                        //$("#productId").text(data.ProductID);
+                        //$("#quantity").text(data.OrderQuantity);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching order:", error);
+                    }
+                });
+            } else {
+                console.warn("No orderId found in URL.");
+            }
+            if (productId) {
+                // alert(productId);
+                $("#dvProduct1").text(productId);
+            }
+            if (source == 'tpsales') {
+                $("#txtQuantity2, #txtQuantity3").prop("disabled", true);
+                // disable the Kendo Touch
+                var touchWidget = $("#dvProductTouch2").data("kendoTouch");
+                if (touchWidget) {
+                    touchWidget.destroy(); // completely removes touch bindings
+                }
+
+                // optionally gray out the div
+                $("#dvProduct2").css({
+                    "opacity": "0.5",
+                    "cursor": "not-allowed"
+                });
+
+                var touchWidget = $("#dvProductTouch3").data("kendoTouch");
+                if (touchWidget) {
+                    touchWidget.destroy(); // completely removes touch bindings
+                }
+
+                // optionally gray out the div
+                $("#dvProduct3").css({
+                    "opacity": "0.5",
+                    "cursor": "not-allowed"
+                });
+
+
+            }
+
+        });
+
+        function disableControls() {
+            $('#openCameraButton').removeClass('submit').addClass('disabled').prop('disabled', true);
+            $('#btnTruckNoOverride').removeClass('verify').addClass('disabled').prop('disabled', true);
+            const tdDealer = document.getElementById('dvDealerName');
+            if (tdDealer) {
+                tdDealer.style.pointerEvents = 'none';
+                tdDealer.style.opacity = '0.5';
+                tdDealer.style.backgroundColor = '#f0f0f0';
+
+            }
+            const xBtn = document.querySelector('.clsbtnDealer');
+            if (xBtn) {
+                xBtn.disabled = true; // Disable click
+                xBtn.style.pointerEvents = 'none'; // Ensure clicks are blocked
+                xBtn.style.opacity = '0.5'; // Optional: dim appearance
+            }
+            $('#txtDriverName').prop('disabled', true);
+            $('#txtDriverName').css('background-color', '#f0f0f0');
+            $('#txtDriverMobile').prop('disabled', true);
+            $('#chkSelf').prop('disabled', true);
+            $('#chkMarketTruck').prop('disabled', true);
+
+            // Disable quantity input 1
+            document.getElementById("txtQuantity1").disabled = true;
+
+            // Disable quantity input 2
+            document.getElementById("txtQuantity2").disabled = true;
+
+            // Disable quantity input 3
+            document.getElementById("txtQuantity3").disabled = true;
+
+            // Disable product selection area (make it unclickable)
+            document.getElementById("dvProductTouch1").style.pointerEvents = "none";
+            document.getElementById("dvProductTouch2").style.pointerEvents = "none";
+            document.getElementById("dvProductTouch3").style.pointerEvents = "none";
+
+            // Optional: Add opacity to show it's disabled
+            document.getElementById("dvProductTouch1").style.opacity = "0.6";
+            document.getElementById("dvProductTouch2").style.opacity = "0.6";
+            document.getElementById("dvProductTouch3").style.opacity = "0.6";
+
+
+        }
+
+
+        function sendDriverOTP() {
+            var vTruckNumber = $("#registration_number").text();
+            var vDriverMobileNo = $("#txtDriverMobile").val();
+            var vSaleRequestID = $("#hdnSaleRequestID").val();
+
+            var allProductIDs = [];
+            var allQuantities = [];
+
+            // Check Product 1
+            if ($("#quantity1-check .green-tick").text().trim() === "✔") {
+                var productId1 = $('#dvProduct1').html()?.split(' | ')[0] || "";
+                var qty1 = $("#txtQuantity1").val().trim();
+                if (productId1 && qty1) {
+                    allProductIDs.push(productId1);
+                    allQuantities.push(qty1);
+                }
+            }
+
+            // Check Product 2
+            if ($("#quantity2-check .green-tick").text().trim() === "✔") {
+                var productId2 = $('#dvProduct2').html()?.split(' | ')[0] || "";
+                var qty2 = $("#txtQuantity2").val().trim();
+                if (productId2 && qty2) {
+                    allProductIDs.push(productId2);
+                    allQuantities.push(qty2);
+                }
+            }
+
+            // Check Product 3
+            if ($("#quantity3-check .green-tick").text().trim() === "✔") {
+                var productId3 = $('#dvProduct3').html()?.split(' | ')[0] || "";
+                var qty3 = $("#txtQuantity3").val().trim();
+                if (productId3 && qty3) {
+                    allProductIDs.push(productId3);
+                    allQuantities.push(qty3);
+                }
+            }
+
+            if (allProductIDs.length === 0 || allQuantities.length === 0) {
+                alert("Please select at least one product with ✔ and provide quantity.");
+                return;
+            }
+
+            const data = {
+                saleRequestID: vSaleRequestID,
+                mobileNumber: vDriverMobileNo,
+                truckNo: vTruckNumber,
+                item: allProductIDs.join(','),
+                bags: allQuantities.join(',')
+            };
+
+            $.ajax({
+                url: "/api/OTP/SendSalesRequestOtp",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    console.log("OTP:", response.otp);
+                    console.log("SMS Results:", response.status);
+                    sessionStorage.setItem("TruckOTP", response.otp);
+                },
+                error: function (xhr) {
+                    console.log("Error:", xhr.responseText);
+                    alert("Error sending OTP: " + xhr.responseText);
+                }
+            });
+        }
+
+
+
+        //function sendDriverOTP() {
+        //    var vTruckNumber = $("#registration_number").text();
+        //    var vDriverMobileNo = $("#txtDriverMobile").val();
+        //    var vSaleRequestID = $("#hdnSaleRequestID").val();
+
+        //    var vQuantity1 = $("#txtQuantity1").val();
+        //    var vQuantity2 = $("#txtQuantity2").val();
+        //    var vQuantity3 = $("#txtQuantity3").val();
+
+        //    var vProductID1 = $('#dvProduct1').html()?.split(' | ')[0] || "";
+        //    var vProductID2 = $('#dvProduct2').html()?.split(' | ')[0] || "";
+        //    var vProductID3 = $('#dvProduct3').html()?.split(' | ')[0] || "";
+
+        //    var allProductIDs = [vProductID1, vProductID2, vProductID3].filter(p => p.trim() !== "").join(',');
+        //    var allQuantities = [vQuantity1, vQuantity2, vQuantity3].filter(q => q.trim() !== "").join(',');
+
+
+        //    const data = {
+        //        saleRequestID: vSaleRequestID,
+        //        mobileNumber:vDriverMobileNo,
+        //        truckNo: vTruckNumber,
+        //        item: allProductIDs,
+        //        bags: allQuantities
+        //    };
+        //    $.ajax({
+        //        url: "/api/OTP/SendSalesRequestOtp",
+        //        type: "POST",
+        //        contentType: "application/json",
+        //        data: JSON.stringify(data),
+        //        success: function (response) {
+        //            console.log("OTP:", response.otp);
+        //            console.log("SMS Results:", response.status);
+
+        //            sessionStorage.setItem("TruckOTP", response.otp);
+
+        //        },
+        //        error: function (xhr) {
+        //            console.log("Error:", xhr.responseText);
+        //            alert("Error sending OTP: " + xhr.responseText);
+        //        }
+        //    });
+        //}
+
+
+        function validateOTP(enteredOTP)
+        {
+            $("#btnSubmit").removeClass("disabled").addClass("submit").removeAttr("disabled");
+            /*
+            const trimmedOTP = enteredOTP.trim();
+            const storedOTP = sessionStorage.getItem("TruckOTP");
+
+            if (!storedOTP) {
+                alert("No OTP was previously stored.");
+                return;
+            }
+
+            if (/^\d{4}$/.test(trimmedOTP)) {
+                if (trimmedOTP === storedOTP) {
+                    // alert("OTP is valid!");
+                    $("#btnSubmit").removeClass("disabled").addClass("submit").removeAttr("disabled");
+                    // Continue with next steps
+                } else {
+                    alert("Invalid OTP. Please try again.");
+                }
+            } else {
+                alert("Please enter a 4-digit numeric OTP.");
+            }*/
+        }
+
+        function handleOTPInput(input) {
+            const enteredOTP = input.trim();
+            if (enteredOTP.length === 4) {
+                validateOTP(enteredOTP);
+            }
+        }
+        function sanitizeTruckNumber(val) {
+            return val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        }</script>
+</body>
+</html>

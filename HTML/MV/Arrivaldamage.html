@@ -1,0 +1,1271 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Arrival Damage</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <link href="css/materia.css?v=1.23" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7952b3">
+
+    <!-- SignalR client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <style>
+        html, body {
+            overflow: hidden;
+            font-size: 14px;
+            background: #f0f0f0;
+        }
+
+        .page-body {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 6px;
+        }
+
+        /* ── Info rows ── */
+        .field-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 5px 12px;
+            gap: 6px;
+        }
+
+        .f-label {
+            font-weight: 700;
+            color: #444;
+            font-size: 13px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .f-value {
+            font-size: 13px;
+            font-weight: 400;
+            color: #222;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ── Section header ── */
+        .section-hdr {
+            background: #5a6268;
+            color: #fff;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* ── Qty rows ── */
+        .qty-row {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 5px 12px;
+            gap: 8px;
+        }
+
+        .qty-label {
+            font-weight: 700;
+            color: #444;
+            font-size: 13px;
+            width: 82px;
+            flex-shrink: 0;
+        }
+
+        .qty-input {
+            width: 90px;
+            height: 30px;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            flex-shrink: 0;
+            -moz-appearance: textfield;
+        }
+
+            .qty-input::-webkit-outer-spin-button,
+            .qty-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .qty-input:focus {
+                outline: none;
+                border-color: #34A853;
+            }
+
+        .mt-label-txt {
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .mt-readonly {
+            width: 90px;
+            height: 30px;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #1a7a38;
+            background: #f5fdf7;
+            flex-shrink: 0;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        /* ── Photo rows ── */
+        .photo-row {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-bottom: 1px solid #ececec;
+            padding: 3px 12px;
+            gap: 8px;
+        }
+
+        .btn-cam {
+            flex: 1;
+            max-width: 58%;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            background-color: #34A853;
+            color: #fff;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+        }
+
+            .btn-cam:active {
+                opacity: 0.82;
+            }
+
+            .btn-cam.captured {
+                background-color: #1e7e34;
+            }
+
+        .thumb-box {
+            width: 52px;
+            height: 52px;
+            flex-shrink: 0;
+            border: 1px dashed #b0b0b0;
+            border-radius: 5px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+            position: relative;
+            cursor: pointer;
+        }
+
+            .thumb-box .placeholder-icon {
+                color: #ccc;
+                font-size: 20px;
+                pointer-events: none;
+            }
+
+            .thumb-box img {
+                width: 52px;
+                height: 52px;
+                object-fit: cover;
+                display: none;
+                border-radius: 5px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                transform-origin: right center;
+                position: relative;
+                z-index: 10;
+            }
+
+                .thumb-box img.zoomed {
+                    transform: scale(4);
+                    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+                    z-index: 200;
+                }
+
+        /* ── OTP section ── */
+        .otp-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 5px 12px;
+            gap: 8px;
+        }
+
+        .otp-input {
+            width: 120px;
+            padding: 7px 8px;
+            border: 2px solid #34A853;
+            border-radius: 4px;
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+            .otp-input:focus {
+                outline: none;
+            }
+
+        .btn-otp {
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            background-color: #34A853;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+            .btn-otp:disabled {
+                background-color: #93c9a3;
+                cursor: not-allowed;
+            }
+
+        .btn-otp-cancel {
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            background-color: #6c757d;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #otpStatus {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        #otpTimer {
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a7a38;
+        }
+
+        /* ── Action bar ── */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            padding: 8px 12px 4px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 13px;
+            background-color: #34A853;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .btn-save:disabled {
+                background-color: #93c9a3;
+                cursor: not-allowed;
+            }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 13px;
+            background: #6c757d;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #dvWarning {
+            padding: 8px 10px;
+            display: none;
+        }
+
+        /* ── Toast ── */
+        .toast-msg {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 11px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+            .toast-msg.success {
+                background: #34A853;
+            }
+
+            .toast-msg.error {
+                background: #d93025;
+            }
+
+            .toast-msg.show {
+                opacity: 1;
+            }
+
+        /* ── RPA Status Panel ── */
+        #rpaStatusPanel {
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: 70px;
+            z-index: 2000;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .rpa-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #fff;
+            margin-right: 6px;
+        }
+
+        .rpa-pending {
+            background: #757575;
+        }
+
+        .rpa-running {
+            background: #0277bd;
+        }
+
+        .rpa-succeeded {
+            background: #2e7d32;
+        }
+
+        .rpa-failed {
+            background: #b00020;
+        }
+
+        .rpa-cancelled {
+            background: #6d4c41;
+        }
+
+        .rpa-mono {
+            font-family: monospace;
+            font-size: 11px;
+            color: #555;
+        }
+
+        .rpa-result-row {
+            margin-top: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .rpa-result-item {
+            font-size: 12px;
+            color: #333;
+        }
+
+            .rpa-result-item strong {
+                color: #1a7a38;
+            }
+    </style>
+</head>
+<body>
+    <div class="container-fluid" style="padding:0;">
+
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <div id="toastMsg" class="toast-msg"></div>
+            <div class="bg-warning" id="dvWarning"><div id="dvWarningMessage"></div></div>
+
+            <div class="page-body" id="pageBody">
+
+                <!-- ══ Row 1: DA · Truck · Balance ══ -->
+                <div class="field-row" style="margin-top:6px;border-top:1px solid #e0e0e0;">
+                    <span class="f-label">DA :</span>
+                    <span class="f-value" id="spanDANo"></span>
+                    <span class="f-label" style="margin-left:10px;">Truck :</span>
+                    <span class="f-value" id="spanPlantTruck"></span>
+                    <span class="f-label" style="margin-left:10px;">Bal :</span>
+                    <span class="f-value" id="spanBal"></span>
+                </div>
+
+                <!-- ══ Row 2: Driver · Mobile ══ -->
+                <div class="field-row">
+                    <span class="f-label">Driver :</span>
+                    <span class="f-value" id="spanDriverName"></span>
+                    <span class="f-label" style="margin-left:10px;">Mobile :</span>
+                    <span class="f-value" id="spanDriverMobile"></span>
+                </div>
+
+                <!-- ══ Damage Bags Details ══ -->
+                <div class="section-hdr" style="margin-top:6px;">
+                    <i class="fa fa-edit"></i> Damage Bags Details
+                </div>
+
+                <!-- TL01 qty — visible only in Damage mode -->
+                <div class="qty-row" id="rowTL01">
+                    <span class="qty-label">TL01 Bags :</span>
+                    <input id="txtTL01Bags" class="qty-input" type="number"
+                           inputmode="decimal" step="0.01" min="0"
+                           oninput="convertToMT('TL01')" />
+                    <span class="mt-label-txt">MT :</span>
+                    <span id="mtTL01" class="mt-readonly"></span>
+                </div>
+
+                <!-- LIST qty — visible only in Shortage mode -->
+                <div class="qty-row" id="rowLIST">
+                    <span class="qty-label">LIST Bags :</span>
+                    <input id="txtListBags" class="qty-input" type="number"
+                           inputmode="decimal" step="0.01" min="0"
+                           oninput="convertToMT('LIST')" />
+                    <span class="mt-label-txt">MT :</span>
+                    <span id="mtLIST" class="mt-readonly"></span>
+                </div>
+
+                <!-- ══ TL01 PHOTOS (5) — Damage mode ══ -->
+                <div class="section-hdr" id="hdrTLPhotos">
+                    <i class="fa fa-camera"></i> TL01 Photos
+                </div>
+                <div id="tlPhotoSection">
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnTL1" data-label="Photo of all bags" onclick="openCamera('TL',1)"><i class="fa fa-camera"></i> Photo of all bags</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoTL1"></i><img id="prevTL1" src="" alt="" /></div>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnTL2" data-label="Batch No. Photo" onclick="openCamera('TL',2)"><i class="fa fa-camera"></i> Batch No. Photo</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoTL2"></i><img id="prevTL2" src="" alt="" /></div>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnTL3" data-label="Manufactured Date Photo" onclick="openCamera('TL',3)"><i class="fa fa-camera"></i> Manufactured Date Photo</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoTL3"></i><img id="prevTL3" src="" alt="" /></div>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnTL4" data-label="Truck with Number Plate" onclick="openCamera('TL',4)"><i class="fa fa-camera"></i> Truck with Number Plate</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoTL4"></i><img id="prevTL4" src="" alt="" /></div>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnTL5" data-label="Driver Acceptance Signature" onclick="openCamera('TL',5)"><i class="fa fa-camera"></i> Driver Acceptance Signature</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoTL5"></i><img id="prevTL5" src="" alt="" /></div>
+                    </div>
+                </div>
+
+                <!-- ══ LIST PHOTOS (5) — Shortage mode ══ -->
+                <div class="section-hdr" id="hdrListPhotos">
+                    <i class="fa fa-camera"></i> List Photos
+                </div>
+                <div id="listPhotoSection">
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnLIST1" data-label="Shortage Bags Photo" onclick="openCamera('LIST',1)"><i class="fa fa-camera"></i> Shortage Bags Photo</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoLIST1"></i><img id="prevLIST1" src="" alt="" /></div>
+                    </div>
+                    <div class="photo-row">
+                        <button class="btn-cam" id="btnLIST2" data-label="Driver Acceptance Signature" onclick="openCamera('LIST',2)"><i class="fa fa-camera"></i> Driver Acceptance Signature</button>
+                        <div class="thumb-box"><i class="fa fa-image placeholder-icon" id="icoLIST2"></i><img id="prevLIST2" src="" alt="" /></div>
+                    </div>
+                </div>
+
+                <!-- ══ OTP — Driver Confirmation ══ -->
+                <div class="section-hdr" style="margin-top:6px;">
+                    <i class="fa fa-mobile"></i> Driver Confirmation (OTP)
+                </div>
+
+                <div class="otp-row">
+                    <button class="btn-otp" id="btnSendOTP" onclick="fnSendOTP()">
+                        <i class="fa fa-paper-plane"></i>&nbsp;Send OTP
+                    </button>
+                    <input id="txtOTP" class="otp-input" type="tel" maxlength="4"
+                           placeholder="••••" style="display:none;"
+                           oninput="if(this.value.length===4) fnVerifyOTP()" />
+                    <button class="btn-otp" id="btnVerifyOTP" onclick="fnVerifyOTP()" style="display:none;">
+                        Verify
+                    </button>
+                    <button class="btn-otp" id="btnResendOTP" onclick="fnResendOTP()" style="display:none;" disabled>
+                        Resend
+                    </button>
+                    <button class="btn-otp-cancel" id="btnOTPCancel" onclick="fnCancelOTP()" style="display:none;">
+                        Cancel
+                    </button>
+                </div>
+                <div class="otp-row" style="padding-top:4px;padding-bottom:4px;gap:12px;">
+                    <span id="otpTimer" style="display:none;"></span>
+                    <span id="otpStatus"></span>
+                </div>
+
+                <!-- ══ Hidden fields ══ -->
+                <input type="hidden" id="hiddenOTP" />
+                <input type="hidden" id="hdnGRNID" />
+                <input type="hidden" id="hdnMTRID" />
+                <input type="hidden" id="hdnDANo" />
+                <input type="hidden" id="hdnMode" />
+                <input type="hidden" id="hdnProductID" />
+                <input type="hidden" id="hdnTL1Base64" /><input type="hidden" id="hdnTL1Ext" />
+                <input type="hidden" id="hdnTL2Base64" /><input type="hidden" id="hdnTL2Ext" />
+                <input type="hidden" id="hdnTL3Base64" /><input type="hidden" id="hdnTL3Ext" />
+                <input type="hidden" id="hdnTL4Base64" /><input type="hidden" id="hdnTL4Ext" />
+                <input type="hidden" id="hdnTL5Base64" /><input type="hidden" id="hdnTL5Ext" />
+                <input type="hidden" id="hdnLIST1Base64" /><input type="hidden" id="hdnLIST1Ext" />
+                <input type="hidden" id="hdnLIST2Base64" /><input type="hidden" id="hdnLIST2Ext" />
+                <input type="hidden" id="hdnLIST3Base64" /><input type="hidden" id="hdnLIST3Ext" />
+                <input type="hidden" id="hdnLIST4Base64" /><input type="hidden" id="hdnLIST4Ext" />
+                <input type="hidden" id="hdnLIST5Base64" /><input type="hidden" id="hdnLIST5Ext" />
+
+                <!-- ══ SAVE / CANCEL ══ -->
+                <div class="action-bar">
+                    <button class="btn-save" id="btnSave" onclick="fnSave()" disabled>SAVE</button>
+                    <button class="btn-cancel" onclick="fnCancelPage()">CANCEL</button>
+                </div>
+
+            </div><!-- /page-body -->
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <!-- ══ RPA Status Panel — fixed above footer ══ -->
+    <div id="rpaStatusPanel" class="card shadow-sm">
+        <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div style="flex:1;">
+                    <div class="fw-bold">
+                        <span id="rpaStatusBadge" class="rpa-badge rpa-pending">Pending</span>
+                        <span id="rpaStatusText" class="text-muted" style="font-size:12px;">Waiting…</span>
+                    </div>
+                    <div class="rpa-mono text-muted mt-1">
+                        Txn: <span id="rpaTxnId">-</span>
+                    </div>
+                    <!-- GRN / Invoice result fields — hidden until RPA returns them -->
+                    <div class="rpa-result-row" id="rpaResultRow" style="display:none;">
+                        <div class="rpa-result-item" id="rpaGRNWrap" style="display:none;">
+                            GRN: <strong id="rpaGRN">-</strong>
+                        </div>
+                        <div class="rpa-result-item" id="rpaGRNTsWrap" style="display:none;">
+                            GRN Time: <strong id="rpaGRNTs">-</strong>
+                        </div>
+                        <div class="rpa-result-item" id="rpaInvWrap" style="display:none;">
+                            Invoice Doc: <strong id="rpaInvDocNo">-</strong>
+                        </div>
+                    </div>
+                    <div id="rpaTitle" class="small mt-1" style="font-size:12px;"></div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btnHideRpaPanel">Hide</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Bootstrap Toast — RPA notifications ══ -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:3000">
+        <div id="rpaToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">RPA Status</strong>
+                <small class="text-muted" id="rpaToastTime">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="rpaToastBody">…</div>
+        </div>
+    </div>
+
+    <script>var gMode = 'Damage';
+        var otpResendCount = 0;
+        var otpTimerID = null;
+
+        function showToast(msg, type) {
+            var t = $('#toastMsg');
+            t.text(msg).removeClass('success error show').addClass(type);
+            setTimeout(function () { t.addClass('show'); }, 10);
+            setTimeout(function () { t.removeClass('show'); }, 3000);
+        }
+
+        $(document).ready(function () {
+            
+            var p = new URLSearchParams(window.location.search);
+            gMode = p.get('Type') || 'Damage';
+
+            if (typeof fnSetPageName === 'function')
+                fnSetPageName(gMode === 'Shortage' ? 'Arrival Shortage' : 'Arrival Damage');
+
+            $('#hdnGRNID').val(p.get('GRNID') || '');
+            $('#hdnMTRID').val(p.get('MTRID') || '');
+            $('#hdnDANo').val(p.get('DA') || '');
+            console.log('DepotID:', localStorage.getItem('DepotID'));
+            console.log('DANo:', $('#hdnDANo').val());
+            $('#hdnMode').val(gMode);
+            $('#hdnProductID').val(p.get('ProductID') || '');
+
+            $('#spanDANo').text(p.get('DA') || '');
+            $('#spanPlantTruck').text(p.get('PlantTruck') || '');
+            $('#spanDriverName').text(p.get('DriverName') || '');
+            $('#spanDriverMobile').text(p.get('DriverMobile') || '');
+
+            var balBags = p.get('BalBags') || '';
+            var balMT = p.get('BalMT') || '';
+            var bagWord = balBags === '1' ? 'Bag' : 'Bags';
+            $('#spanBal').text(balBags ? balBags + ' ' + bagWord + ' / ' + balMT + ' MT' : '—');
+
+            applyMode();
+            document.querySelectorAll('.btn-cam').forEach(function (btn) {
+                btn.dataset.origLabel = btn.textContent.trim();
+            });
+            sizePageBody();
+            $(window).on('resize', sizePageBody);
+
+            $(document).on('click touchend', function (e) {
+                if (!$(e.target).closest('.thumb-box').length) collapseAllThumbs();
+            });
+
+            $('#btnHideRpaPanel').on('click', function () {
+                $('#rpaStatusPanel').hide();
+            });
+        });
+
+        function applyMode() {
+            if (gMode === 'Damage') {
+                $('#rowTL01, #hdrTLPhotos, #tlPhotoSection').show();
+                $('#rowLIST, #hdrListPhotos, #listPhotoSection').hide();
+            } else {
+                $('#rowTL01, #hdrTLPhotos, #tlPhotoSection').hide();
+                $('#rowLIST, #hdrListPhotos, #listPhotoSection').show();
+            }
+        }
+
+        function sizePageBody() {
+            var h = window.innerHeight
+                - ($('#header').outerHeight(true) || 0)
+                - ($('#footer').outerHeight(true) || 0);
+            $('#pageBody').css('height', Math.max(h, 200) + 'px');
+        }
+
+        function convertToMT(type) {
+            var bags = parseFloat(
+                type === 'TL01' ? $('#txtTL01Bags').val() : $('#txtListBags').val()
+            ) || 0;
+            $(type === 'TL01' ? '#mtTL01' : '#mtLIST').text(bags > 0 ? (bags / 20).toFixed(3) : '');
+        }
+
+        function openCamera(prefix, index) {
+            var fi = document.createElement('input');
+            fi.type = 'file'; fi.accept = 'image/*'; fi.capture = 'environment';
+            fi.addEventListener('change', function (e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                $('#hdn' + prefix + index + 'Ext').val(file.name.split('.').pop().toLowerCase() || 'jpg');
+                compressAndStore(file, prefix, index);
+            });
+            fi.click();
+        }
+
+        function compressAndStore(file, prefix, index) {
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                var img = new Image(); img.src = e.target.result;
+                img.onload = function () {
+                    var c = document.createElement('canvas');
+                    c.width = c.height = 700;
+                    c.getContext('2d').drawImage(img, 0, 0, 700, 700);
+                    c.toBlob(function (blob) {
+                        var prevImg = document.getElementById('prev' + prefix + index);
+                        var icon = document.getElementById('ico' + prefix + index);
+                        prevImg.src = URL.createObjectURL(blob);
+                        prevImg.style.display = 'block';
+                        if (icon) icon.style.display = 'none';
+                        if (!prevImg._zoomOk) { attachZoom(prevImg); prevImg._zoomOk = true; }
+                        var br = new FileReader();
+                        br.onloadend = function () {
+                            $('#hdn' + prefix + index + 'Base64').val(br.result.split(',')[1]);
+                            var btn = document.getElementById('btn' + prefix + index);
+                            btn.classList.add('captured');
+                            var orig = btn.dataset.origLabel;
+                            btn.innerHTML = '<i class="fa fa-check-circle"></i> ' + (orig || ('Photo ' + index)) + ' ✔';
+                        };
+                        br.readAsDataURL(blob);
+                    }, 'image/jpeg', 0.9);
+                };
+            };
+        }
+
+        function attachZoom(imgEl) {
+            imgEl.addEventListener('mouseenter', function () { collapseAllThumbs(); imgEl.classList.add('zoomed'); });
+            imgEl.addEventListener('mouseleave', function () { imgEl.classList.remove('zoomed'); });
+            imgEl.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var was = imgEl.classList.contains('zoomed');
+                collapseAllThumbs();
+                if (!was) imgEl.classList.add('zoomed');
+            });
+        }
+
+        function collapseAllThumbs() {
+            document.querySelectorAll('.thumb-box img.zoomed').forEach(function (el) { el.classList.remove('zoomed'); });
+        }
+
+        function fnGenOTP() {
+            return String(Math.floor(1000 + Math.random() * 9000));
+        }
+
+        function fnSendOTP() {
+            var mobile = '+91 99466 69482';
+            //var mobile = '+91 80891 91418';
+            if (!mobile) {
+                showToast('Driver mobile number not available.', 'error');
+                return;
+            }
+            var otp = fnGenOTP();
+            sessionStorage.setItem('ArrDmgOTP', otp);
+            $('#hiddenOTP').val(otp);
+            otpResendCount = 0;
+
+            var bags = gMode === 'Damage'
+                ? ($('#txtTL01Bags').val() || '0')
+                : ($('#txtListBags').val() || '0');
+
+            $.ajax({
+                url: '/api/OTP/SendSalesRequestOtp',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    mobileNumber: mobile,
+                    truckNo: $('#spanPlantTruck').text().trim(),
+                    item: gMode,
+                    bags: bags
+                }),
+                success: function (res) {
+                    if (res && res.otp) {
+                        sessionStorage.setItem('ArrDmgOTP', String(res.otp));
+                        $('#hiddenOTP').val(String(res.otp));
+                    }
+                },
+                error: function () { }
+            });
+
+            fnShowOTPEntry('OTP sent to driver\'s mobile.', '#1a7a38');
+            fnStartCountdown(60);
+        }
+
+        function fnResendOTP() {
+            if (otpResendCount >= 3) {
+                showToast('Maximum 3 resends reached.', 'error');
+                $('#btnResendOTP').prop('disabled', true);
+                return;
+            }
+            otpResendCount++;
+            fnSendOTP();
+            fnSetStatus('OTP resent (' + otpResendCount + '/3).', '#f0a500');
+        }
+
+        function fnVerifyOTP() {
+            var entered = $('#txtOTP').val().trim();
+            var stored = sessionStorage.getItem('ArrDmgOTP') || $('#hiddenOTP').val();
+            if (!/^\d{4}$/.test(entered)) {
+                fnSetStatus('Enter a valid 4-digit OTP.', '#d93025'); return;
+            }
+            if (entered === stored) {
+                clearInterval(otpTimerID);
+                $('#txtOTP').prop('disabled', true);
+                $('#btnVerifyOTP, #btnResendOTP, #btnOTPCancel').hide();
+                $('#otpTimer').hide();
+                fnSetStatus('✔ OTP verified. You may now save.', '#1a7a38');
+                $('#btnSave').prop('disabled', false);
+            } else {
+                fnSetStatus('Invalid OTP. Please try again.', '#d93025');
+                $('#txtOTP').val('').focus();
+            }
+        }
+
+        function fnCancelOTP() {
+            clearInterval(otpTimerID);
+            sessionStorage.removeItem('ArrDmgOTP');
+            $('#hiddenOTP').val('');
+            $('#txtOTP').val('').hide();
+            $('#btnVerifyOTP, #btnResendOTP, #btnOTPCancel').hide();
+            $('#otpTimer').hide().text('');
+            $('#otpStatus').text('');
+            $('#btnSendOTP').show();
+            fnClearAllPhotos();
+            showToast('Cancelled. All photos cleared.', 'error');
+        }
+
+        function fnShowOTPEntry(statusMsg, color) {
+            $('#btnSendOTP').hide();
+            $('#txtOTP').show().val('').focus();
+            $('#btnVerifyOTP').show();
+            $('#btnResendOTP').show().prop('disabled', true);
+            $('#btnOTPCancel').show();
+            fnSetStatus(statusMsg, color);
+        }
+
+        function fnSetStatus(msg, color) {
+            $('#otpStatus').text(msg).css('color', color || '#333');
+        }
+
+        function fnStartCountdown(secs) {
+            clearInterval(otpTimerID);
+            $('#otpTimer').show().text('Resend in ' + secs + 's');
+            otpTimerID = setInterval(function () {
+                secs--;
+                if (secs <= 0) {
+                    clearInterval(otpTimerID);
+                    $('#otpTimer').hide().text('');
+                    if (otpResendCount < 3) $('#btnResendOTP').prop('disabled', false);
+                } else {
+                    $('#otpTimer').text('Resend in ' + secs + 's');
+                }
+            }, 1000);
+        }
+
+        function fnClearAllPhotos() {
+            ['TL', 'LIST'].forEach(function (pfx) {
+                for (var i = 1; i <= 5; i++) {
+                    var prevImg = document.getElementById('prev' + pfx + i);
+                    var icon = document.getElementById('ico' + pfx + i);
+                    var btn = document.getElementById('btn' + pfx + i);
+                    if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+                    if (icon) { icon.style.display = ''; }
+                    if (btn) {
+                        btn.classList.remove('captured');
+                        var orig = btn.dataset.origLabel;
+                        if (orig) btn.innerHTML = '<i class="fa fa-camera"></i> ' + orig;
+                    }
+                    $('#hdn' + pfx + i + 'Base64').val('');
+                    $('#hdn' + pfx + i + 'Ext').val('');
+                }
+            });
+            $('#btnSave').prop('disabled', true);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // RPA SignalR / Polling helpers
+        // ══════════════════════════════════════════════════════════
+
+        var rpaHubConnection = null;
+        var rpaPollTimer = null;
+
+        function genTxnId() {
+            var g = crypto.randomUUID().replace(/-/g, '').slice(0, 16).toUpperCase();
+            var d = new Date();
+            var y = d.getUTCFullYear();
+            var m = String(d.getUTCMonth() + 1).padStart(2, '0');
+            var day = String(d.getUTCDate()).padStart(2, '0');
+            return 'TXN-' + y + '-' + m + '-' + day + '-' + g;
+        }
+
+        function rpaStatusClass(status) {
+            switch (status) {
+                case 'Running': return 'rpa-running';
+                case 'Succeeded': return 'rpa-succeeded';
+                case 'Failed': return 'rpa-failed';
+                case 'Cancelled': return 'rpa-cancelled';
+                default: return 'rpa-pending';
+            }
+        }
+
+        function renderRpa(update) {
+            $('#rpaStatusPanel').show();
+
+            var st = update.status || 'Pending';
+            $('#rpaStatusBadge')
+                .text(st)
+                .removeClass('rpa-pending rpa-running rpa-succeeded rpa-failed rpa-cancelled')
+                .addClass(rpaStatusClass(st));
+
+            $('#rpaStatusText').text(update.runStatus ? '(' + update.runStatus + ')' : '');
+            $('#rpaTxnId').text(update.transactionId || '-');
+            $('#rpaTitle').text(update.title || '');
+
+            if (update.grn) {
+                $('#rpaGRN').text(update.grn);
+                $('#rpaGRNWrap').show();
+            } else {
+                $('#rpaGRNWrap').hide();
+            }
+
+            if (update.grnTimeStamp) {
+                var ts = new Date(update.grnTimeStamp);
+                $('#rpaGRNTs').text(isNaN(ts) ? update.grnTimeStamp : ts.toLocaleString());
+                $('#rpaGRNTsWrap').show();
+            } else {
+                $('#rpaGRNTsWrap').hide();
+            }
+
+            if (update.invoiceDocumentNo) {
+                $('#rpaInvDocNo').text(update.invoiceDocumentNo);
+                $('#rpaInvWrap').show();
+            } else {
+                $('#rpaInvWrap').hide();
+            }
+
+            if (update.grn || update.grnTimeStamp || update.invoiceDocumentNo) {
+                $('#rpaResultRow').show();
+            }
+        }
+
+        function showRpaToast(msg) {
+            try {
+                $('#rpaToastBody').text(msg);
+                $('#rpaToastTime').text(new Date().toLocaleTimeString());
+                var el = document.getElementById('rpaToast');
+                var t = bootstrap.Toast.getOrCreateInstance(el, { delay: 6000 });
+                t.show();
+            } catch (e) { /* ignore */ }
+        }
+
+        function startRpaPolling(transactionId) {
+            if (rpaPollTimer) clearInterval(rpaPollTimer);
+            var attempts = 0;
+            var maxAttempts = 60; // 60 × 3s = 3 minutes
+
+            rpaPollTimer = setInterval(async function () {
+                attempts++;
+                if (attempts > maxAttempts) {
+                    clearInterval(rpaPollTimer);
+                    renderRpa({ transactionId: transactionId, status: 'Failed', runStatus: 'Timeout' });
+                    showRpaToast('RPA status check timed out. (' + transactionId + ')');
+                    return;
+                }
+                try {
+                    var r = await fetch('/api/rpa-webhook/status/' + encodeURIComponent(transactionId), { cache: 'no-store' });
+                    if (r.status === 404) return;
+                    if (!r.ok) return;
+                    var data = await r.json();
+                    renderRpa(data);
+                    if (['Succeeded', 'Failed', 'Cancelled'].includes(data.status)) {
+                        clearInterval(rpaPollTimer);
+                        var msg = data.status === 'Succeeded'
+                            ? 'GRN posted successfully. (' + transactionId + ')'
+                            : data.status === 'Failed'
+                                ? 'GRN posting failed. (' + transactionId + ')'
+                                : 'RPA ' + data.status.toLowerCase() + '. (' + transactionId + ')';
+                        showRpaToast(msg);
+                    }
+                } catch (e) { /* ignore transient errors */ }
+            }, 3000);
+        }
+
+        async function tryRpaSignalR(transactionId) {
+            if (rpaPollTimer) { clearInterval(rpaPollTimer); rpaPollTimer = null; }
+            if (rpaHubConnection) {
+                try { await rpaHubConnection.stop(); } catch (e) { }
+                rpaHubConnection = null;
+            }
+
+            try {
+                rpaHubConnection = new signalR.HubConnectionBuilder()
+                    .withUrl('/hubs/rpa-status?transactionId=' + encodeURIComponent(transactionId))
+                    .withAutomaticReconnect()
+                    .build();
+
+                rpaHubConnection.on('jobUpdated', function (update) {
+                    renderRpa(update);
+                    if (['Succeeded', 'Failed', 'Cancelled'].includes(update.status)) {
+                        var msg = update.status === 'Succeeded'
+                            ? 'GRN posted successfully. (' + transactionId + ')'
+                            : update.status === 'Failed'
+                                ? 'GRN posting failed. (' + transactionId + ')'
+                                : 'RPA ' + update.status.toLowerCase() + '. (' + transactionId + ')';
+                        showRpaToast(msg);
+                    }
+                });
+
+                rpaHubConnection.onreconnected(async function () {
+                    try { await rpaHubConnection.invoke('Subscribe', transactionId); } catch (e) { }
+                });
+
+                rpaHubConnection.onclose(function () {
+                    startRpaPolling(transactionId);
+                });
+
+                await rpaHubConnection.start();
+                await rpaHubConnection.invoke('Subscribe', transactionId);
+
+            } catch (e) {
+                rpaHubConnection = null;
+                startRpaPolling(transactionId);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // triggerRpa — fetches dynamic params then fires FlowGrnPost
+        //
+        // Parameters resolved here:
+        //   deliveryNumber  → I_GRN.Delivery  (keyed on BillDoc = DA No)
+        //                     (via usp_MM_GetGrnRpaParams, @DANo)
+        //   saleQuantity    → listBags ÷ 20  (MT value, computed client-side)
+        //   depotCode       → M_Depot.SAPDepotID
+        //                     (via usp_MM_GetGrnRpaParams, keyed on DepotID)
+        //   truckNumber     → #spanPlantTruck  (already on screen)
+        //   tokenRRNumber   → "0"  (hardcoded per spec)
+        //   storageLocation → "LT01"  (hardcoded per spec)
+        // ══════════════════════════════════════════════════════════
+        async function triggerRpa(txnId, daNo, listBagsMT) {
+            var depotId = localStorage.getItem('DepotID') || '0';
+
+            // ── Step 1: Fetch DeliveryNumber + SAPDepotCode from the server ──
+            var rpaParams;
+            try {
+                var resp = await fetch(
+                    '/api/ArrivalDamage/GrnRpaParams?daNo=' + encodeURIComponent(daNo) +
+                    '&depotId=' + encodeURIComponent(depotId),
+                    { cache: 'no-store' }
+                );
+                // ── TEMP DEBUG ──
+                console.log('GrnRpaParams HTTP status:', resp.status);
+                var rawText = await resp.text();
+                console.log('GrnRpaParams raw response:', rawText);
+                // ── END DEBUG ──
+
+                if (!resp.ok) {
+                    var errText = await resp.text();
+                    throw new Error('GrnRpaParams returned HTTP ' + resp.status + ': ' + errText);
+                }
+
+                rpaParams = JSON.parse(rawText);
+            } catch (ex) {
+                renderRpa({ transactionId: txnId, status: 'Failed', runStatus: 'ParamFetchError', title: ex.message });
+                showRpaToast('Failed to fetch RPA parameters. (' + txnId + ')');
+                return;
+            }
+
+            // ── Step 2: Fire SAP-GRN-POST with fully dynamic payload ──
+            // Wrapped in a Promise so that "await triggerRpa(...)" in fnSave
+            // waits until the ajax call resolves before the navigation timer
+            // is started.  Previously $.ajax was fire-and-forget here, which
+            // meant window.history.back() could fire before the request was
+            // sent, aborting it and causing a spurious "Failed" on the RPA panel.
+            await new Promise(function (resolve) {
+                $.ajax({
+                    url: '/api/FlowGrnPost/Trigger',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        requestHeader: {
+                            FlowId: 'SAP-GRN-POST',
+                            RequestId: txnId,
+                            PartnerSysId: 'VCPL',
+                            Timestamp: new Date().toISOString()
+                        },
+                        parameters: {
+                            deliveryNumber: rpaParams.deliveryNumber,   // from I_GRN.Delivery (keyed on DA No)
+                            saleQuantity: listBagsMT,                   // LIST Bags ÷ 20 (MT)
+                            depotCode: rpaParams.sapDepotCode,          // from M_Depot.SAPDepotID
+                            truckNumber: $('#spanPlantTruck').text().trim(),
+                            tokenRRNumber: '0',                         // hardcoded per spec
+                            storageLocation: 'LT01'                     // hardcoded per spec
+                        }
+                    }),
+                    success: function () {
+                        showRpaToast('GRN posting queued. Tracking status… (' + txnId + ')');
+                        resolve();
+                    },
+                    error: function (xhr) {
+                        renderRpa({ transactionId: txnId, status: 'Failed', runStatus: 'TriggerError', title: 'Flow trigger failed' });
+                        showRpaToast('Failed to trigger RPA. (' + txnId + ')');
+                        resolve();  // resolve even on error so navigation still proceeds
+                    }
+                });
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // fnSave — save record, then trigger RPA (Shortage mode only)
+        // ══════════════════════════════════════════════════════════
+        async function fnSave() {
+            var tl01Bags = parseFloat($('#txtTL01Bags').val()) || 0;
+            var listBags = parseFloat($('#txtListBags').val()) || 0;
+
+            if (gMode === 'Damage' && tl01Bags === 0) {
+                showToast('Please enter TL01 Bags.', 'error'); return;
+            }
+            if (gMode === 'Shortage' && listBags === 0) {
+                showToast('Please enter LIST Bags.', 'error'); return;
+            }
+            if (gMode === 'Damage' && !$('#hdnTL1Base64').val()) {
+                showToast('Please capture Photo of all bags.', 'error'); return;
+            }
+            if (gMode === 'Shortage') {
+                if (!$('#hdnLIST1Base64').val()) {
+                    showToast('Please capture Shortage Bags Photo.', 'error'); return;
+                }
+                if (!$('#hdnLIST2Base64').val()) {
+                    showToast('Please capture Driver Acceptance Signature.', 'error'); return;
+                }
+            }
+
+            var payload = {
+                GRNID: $('#hdnGRNID').val(),
+                MTRID: $('#hdnMTRID').val(),
+                DANo: $('#hdnDANo').val(),
+                Mode: gMode,
+                TL01Bags: tl01Bags.toString(),
+                ListBags: listBags.toString(),
+                DepotID: localStorage.getItem('DepotID'),
+                CreatedBy: localStorage.getItem('userID'),
+                WeekNo: '',
+                ProductID: $('#hdnProductID').val(),
+                PlantTruckNo: $('#spanPlantTruck').text().trim(),
+                DriverName: $('#spanDriverName').text().trim(),
+                DriverMobile: $('#spanDriverMobile').text().trim(),
+
+                TL_Photo1Base64: $('#hdnTL1Base64').val(), TL_Photo1Ext: $('#hdnTL1Ext').val() || 'jpg',
+                TL_Photo2Base64: $('#hdnTL2Base64').val(), TL_Photo2Ext: $('#hdnTL2Ext').val() || 'jpg',
+                TL_Photo3Base64: $('#hdnTL3Base64').val(), TL_Photo3Ext: $('#hdnTL3Ext').val() || 'jpg',
+                TL_Photo4Base64: $('#hdnTL4Base64').val(), TL_Photo4Ext: $('#hdnTL4Ext').val() || 'jpg',
+                TL_Photo5Base64: $('#hdnTL5Base64').val(), TL_Photo5Ext: $('#hdnTL5Ext').val() || 'jpg',
+
+                LIST_Photo1Base64: $('#hdnLIST1Base64').val(), LIST_Photo1Ext: $('#hdnLIST1Ext').val() || 'jpg',
+                LIST_Photo2Base64: $('#hdnLIST2Base64').val(), LIST_Photo2Ext: $('#hdnLIST2Ext').val() || 'jpg',
+                LIST_Photo3Base64: $('#hdnLIST3Base64').val(), LIST_Photo3Ext: $('#hdnLIST3Ext').val() || 'jpg',
+                LIST_Photo4Base64: $('#hdnLIST4Base64').val(), LIST_Photo4Ext: $('#hdnLIST4Ext').val() || 'jpg',
+                LIST_Photo5Base64: $('#hdnLIST5Base64').val(), LIST_Photo5Ext: $('#hdnLIST5Ext').val() || 'jpg'
+            };
+
+            $('#btnSave').prop('disabled', true).text('Saving...');
+
+            $.ajax({
+                url: '/api/ArrivalDamage/SaveArrivalDamage',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+
+                success: async function (saveResponse) {
+                    sessionStorage.removeItem('ArrDmgOTP');
+                    showToast('Saved successfully.', 'success');
+
+                    // ── RPA trigger — Shortage mode ONLY ──────────────────────
+                    // Damage mode does NOT trigger the SAP-GRN-POST RPA flow.
+                    // The LIST Approval task is created server-side (Step 4 in
+                    // the controller) — no separate client call needed here.
+                    if (gMode === 'Shortage') {
+                        // saleQuantity = LIST Bags converted to MT (bags ÷ 20)
+                        var listBagsMT = listBags > 0
+                            ? parseFloat((listBags / 20).toFixed(3))
+                            : 0;
+
+                        var txnId = genTxnId();
+                        renderRpa({ transactionId: txnId, status: 'Pending', runStatus: 'Queued' });
+
+                        // Subscribe to SignalR BEFORE triggering the flow —
+                        // prevents the race condition where the webhook fires
+                        // before the client has subscribed.
+                        await tryRpaSignalR(txnId);
+
+                        // triggerRpa fetches DeliveryNumber + SAPDepotCode from
+                        // the server using DA No (from querystring, via #hdnDANo),
+                        // then fires /api/FlowGrnPost/Trigger.
+                        // IMPORTANT: await here ensures the fetch + ajax calls
+                        // complete before we navigate away. Without this the
+                        // page unload aborts the in-flight requests and the RPA
+                        // trigger is never delivered, showing as "Failed".
+                        await triggerRpa(txnId, $('#hdnDANo').val(), listBagsMT);
+
+                        // Navigate back after 2 s so the user can see the
+                        // RPA panel confirm the trigger was queued successfully.
+                        setTimeout(function () { window.history.back(); }, 2000);
+                    } else {
+                        // Damage mode — no RPA, navigate back immediately.
+                        setTimeout(function () { window.history.back(); }, 2000);
+                    }
+                },
+
+                error: function (xhr) {
+                    $('#btnSave').prop('disabled', false).text('SAVE');
+                    var msg = 'Error saving. Please try again.';
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        if (resp && resp.message === 'QTY_EXCEEDS_BILLED') {
+                            showExceedsPopup();
+                            return;
+                        }
+                    } catch (e) { }
+                    showToast(msg, 'error');
+                }
+            });
+        }
+
+        function fnCancelPage() {
+            sessionStorage.removeItem('ArrDmgOTP');
+            window.history.back();
+        }
+
+        function showExceedsPopup() {
+            $('#exceedsPopup').remove();
+            var html = `
+            <div id="exceedsPopup" style="
+                position:fixed;inset:0;z-index:9999;
+                display:flex;align-items:center;justify-content:center;
+                background:rgba(0,0,0,0.55);animation:fadeInBg .25s ease;">
+              <div style="
+                  background:#fff;border-radius:12px;width:88%;max-width:360px;
+                  box-shadow:0 8px 32px rgba(0,0,0,0.35);overflow:hidden;
+                  animation:popIn .28s cubic-bezier(.175,.885,.32,1.275);">
+                <div style="background:#d93025;padding:16px 18px;display:flex;align-items:center;gap:10px;">
+                  <i class="fa fa-exclamation-triangle" style="color:#fff;font-size:22px;"></i>
+                  <span style="color:#fff;font-weight:700;font-size:15px;">Quantity Limit Exceeded</span>
+                </div>
+                <div style="padding:20px 18px 10px;">
+                  <p style="margin:0 0 6px;font-size:14px;color:#333;line-height:1.55;">
+                    <strong>Total Handled Qty + List + TL01</strong> exceeds the
+                    <strong>Billed Qty</strong> for this DA.
+                  </p>
+                  <p style="margin:0;font-size:13px;color:#888;">Aborting process. Please verify the entered quantity.</p>
+                </div>
+                <div style="padding:10px 18px 18px;text-align:right;">
+                  <button onclick="$('#exceedsPopup').remove()"
+                    style="padding:9px 28px;background:#d93025;color:#fff;border:none;
+                           border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;">
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>`;
+            $('body').append(html);
+        }</script>
+</body>
+</html>

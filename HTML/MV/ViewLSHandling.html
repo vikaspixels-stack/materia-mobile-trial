@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kendo UI (match existing app style) -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- Kendo Scripts -->
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <!-- App CSS -->
+    <link href="css/materia.css?v=1.28" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7952b3">
+
+    <style>
+        body.bg-app {
+            background: #f3f6f9;
+        }
+
+        .panel-3d {
+            position: relative;
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 12px 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.03), 0 1px 1px rgba(16,24,40,0.06), 0 0 0 3px #eef1f4;
+        }
+
+            .panel-3d:before {
+                content: "";
+                position: absolute;
+                inset: 3px;
+                border-radius: 6px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(0,0,0,0.04);
+                pointer-events: none;
+            }
+
+        .panel-flat {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 1px 2px rgba(16,24,40,0.06);
+        }
+
+        .stack-8 > * + * {
+            margin-top: 8px;
+        }
+
+        .label-strong {
+            font-weight: 600;
+        }
+
+        .pairline {
+            display: flex;
+            gap: 24px;
+            align-items: baseline;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .grid-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* ---- Each product line = its own 3D-bordered card ---- */
+        .var-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 1px rgba(16,24,40,0.06), 0 0 0 3px #eef1f4;
+        }
+
+            .var-card:last-child {
+                margin-bottom: 0;
+            }
+
+        .var-table {
+            display: table;
+            width: 100%;
+        }
+
+            .var-table .var-row {
+                display: table-row;
+            }
+
+            .var-table .var-cell {
+                display: table-cell;
+                padding: 3px 6px 3px 0;
+                vertical-align: top;
+            }
+
+        .var-prod {
+            word-break: break-all;
+        }
+
+        .empty-msg {
+            color: #64748b;
+            padding: 6px 2px;
+        }
+
+        .actions-wrap {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-approve {
+            padding: .65rem 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-app">
+    <div id="taskToast"></div>
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main class="container mt-3 mb-4">
+            <!-- ===== Header info ===== -->
+            <div class="panel-3d stack-8 mb-3">
+                <div class="pairline">
+                    <div><span class="label-strong">Type:</span> <span id="TaskType">LS Handling</span></div>
+                    <div><span class="label-strong">Date:</span> <span id="TranDate">—</span></div>
+                </div>
+                <div><span class="label-strong">Depot:</span> <span id="Depot">—</span></div>
+                <div class="pairline">
+                    <div><span class="label-strong">LS No:</span> <span id="LSNO">—</span></div>
+                    <div><span class="label-strong">Plant Truck:</span> <span id="PlantTruckNumber">—</span></div>
+                </div>
+                <div class="pairline">
+                    <div><span class="label-strong">Depot Lorry:</span> <span id="DepotLorryNo">—</span></div>
+                    <div><span class="label-strong">Sold To:</span> <span id="SoldToParty">—</span></div>
+                </div>
+                <div><span class="label-strong">Notes:</span> <span id="TaskNotes">—</span></div>
+            </div>
+
+            <!-- ===== Product line cards ===== -->
+            <div class="panel-flat mb-3">
+                <div class="grid-title">Products</div>
+                <div id="lstProducts"></div>
+                <div id="emptyMsg" class="empty-msg" style="display:none;">No products for this task.</div>
+                <div id="error" class="text-danger mt-2" style="display:none;" aria-live="polite"></div>
+            </div>
+
+            <!-- ===== Buttons ===== -->
+            <div class="actions-wrap">
+                <button id="btnApprove" type="button" class="button submit btn-approve">Approve. Close Task</button>
+                <button type="button" onclick="window.history.back();" class="btn btn-secondary">CANCEL</button>
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+    </footer>
+
+    <!-- One card per product line. -->
+    <script type="text/x-kendo-tmpl" id="tmpProduct">
+        <div class="var-card">
+            <div class="var-table">
+                <div class="var-row">
+                    <div class="var-cell var-prod">
+                        <span class="label-strong">Product: </span>#: data.ProductID #
+                    </div>
+                </div>
+                <div class="var-row">
+                    <div class="var-cell">
+                        <span class="label-strong">Total Qty (MT): </span>#: kendo.toString(data.TotalQty, "n2") #
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var taskToast;
+        var g_taskId = null;
+        var g_lsId = null;   // value sent to Approve as @LSID
+
+        $(document).ready(function () {
+            if (typeof fnSetPageName === "function") {
+                fnSetPageName("LS Handling Approval");
+            }
+
+            taskToast = $("#taskToast").kendoNotification({
+                stacking: "down",
+                autoHideAfter: 3000,
+                position: { pinned: true, top: 20, right: 20 },
+                templates: [
+                    { type: "success", template: "<div class='k-notification-wrap'><span class='k-icon k-i-check'></span> #= message #</div>" },
+                    { type: "error", template: "<div class='k-notification-wrap'><span class='k-icon k-i-warning'></span> #= message #</div>" }
+                ]
+            }).data("kendoNotification");
+
+            g_taskId = getQueryId();
+            if (!Number.isFinite(g_taskId) || g_taskId <= 0) {
+                showError("Missing or invalid task id.");
+                return;
+            }
+
+            $.getJSON("/api/UserTaskLSHandling", { taskId: g_taskId })
+                .done(function (data) {
+                    data = Array.isArray(data) ? data : (data ? [data] : []);
+
+                    if (data.length === 0) {
+                        showError("No details found for this task.");
+                        return;
+                    }
+
+                    // Header from the first row
+                    var head = data[0];
+                    $("#TaskType").text(head.TaskType || "LS Handling");
+                    $("#Depot").text(head.Depot || "—");
+                    $("#TranDate").text(head.TranDate ? fmtDateIST(head.TranDate) : "—");
+                    $("#LSNO").text(head.LSNO || "—");
+                    $("#PlantTruckNumber").text(head.PlantTruckNumber || "—");
+                    $("#DepotLorryNo").text(head.DepotLorryNo || "—");
+                    $("#SoldToParty").text(head.SoldToParty || "—");
+                    $("#TaskNotes").text(head.TaskNotes || "—");
+
+                    // The id sent to Approve as @LSID.
+                    // CHANGE THIS LINE if @LSID should come from a different field.
+                    g_lsId = head.TranID;
+
+                    // Product rows = those with a product code
+                    var rows = data.filter(function (r) { return r.ProductID && String(r.ProductID).length; });
+
+                    renderProducts(rows);
+                })
+                .fail(function (xhr) {
+                    showError(readErr(xhr, "Failed to load details."));
+                });
+
+            $("#btnApprove").on("click", function () {
+                approve();
+            });
+        });
+
+        function renderProducts(rows) {
+            if (!rows || rows.length === 0) {
+                $("#emptyMsg").show();
+                return;
+            }
+            $("#emptyMsg").hide();
+            $("#lstProducts").kendoListView({
+                dataSource: { data: rows },
+                template: kendo.template($("#tmpProduct").html())
+            });
+        }
+
+        function getQueryId() {
+            const p = new URLSearchParams(window.location.search);
+            const v = Number(p.get("id"));
+            return Number.isFinite(v) ? v : NaN;
+        }
+
+        function fmtDateIST(dtStr) {
+            try {
+                const d = new Date(dtStr);
+                if (isNaN(d.getTime())) return String(dtStr);
+                return d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+            } catch { return String(dtStr); }
+        }
+
+        function readErr(xhr, fallback) {
+            return (xhr.responseJSON && (xhr.responseJSON.title || xhr.responseJSON.message)) ||
+                   xhr.responseText || xhr.statusText || fallback;
+        }
+
+        function showError(msg) {
+            $("#error").text(msg).show();
+            if (taskToast) taskToast.show({ message: msg }, "error");
+        }
+
+        // Approve = call usp_ApproveLSHandling with @LSID + the logged-in @UserID
+        function approve() {
+            if (!Number.isFinite(g_lsId) || g_lsId <= 0) {
+                showError("Missing LS id; cannot approve.");
+                return;
+            }
+
+            const userId = localStorage.getItem("userID");   // same key the Stock Variance page uses
+            if (!userId) {
+                showError("No logged-in user found.");
+                return;
+            }
+
+            const $btn = $("#btnApprove");
+            $btn.prop("disabled", true).data("orig", $btn.html())
+                .html("<span class='spinner-border spinner-border-sm'></span> Approving...");
+
+            $.ajax({
+                url: "/api/UserTaskLSHandling/Approve?lsId=" + encodeURIComponent(g_lsId) +
+                     "&userId=" + encodeURIComponent(userId),
+                type: "POST"
+            })
+                .done(function () {
+                    if (taskToast) taskToast.show({ message: "Task Closed successfully." }, "success");
+                    setTimeout(function () { window.history.back(); }, 800);
+                })
+                .fail(function (xhr) {
+                    showError(readErr(xhr, "Task Closing failed."));
+                })
+                .always(function () {
+                    const orig = $btn.data("orig");
+                    $btn.prop("disabled", false).html(orig || "Approve");
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+﻿body {
+    background-color: #FAF9F6;
+    /* color:#fff;*/
+}
+.container-fluid {
+    width: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.container-fluid-inner {
+    width: 95%;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+    background-color: #6FA3E8;
+    margin: 10px;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.box {
+    display: inline-block;
+    background-color: #f8f9fa;
+    color: #111;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #999;
+    text-align: center;
+    min-height: 105px;
+    min-width: 80px;
+}
+
+.box-text {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.disabled {
+    color: gray !important;
+    pointer-events: none; /* disables all mouse interactions */
+    cursor: not-allowed !important; /* shows disabled cursor */
+}

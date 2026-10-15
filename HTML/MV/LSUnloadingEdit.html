@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link href="css/materia.css?v=1.22" rel="stylesheet" />
+   
+    <link rel="manifest" href="/manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <meta name="theme-color" content="#7952b3">
+  
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+        <main>
+            <input type="hidden" id="hdnLSID" value="0" />
+            <div class="container" style="margin-top: 20px;padding-top:10px;width: 100% !important; background-color: white !important; ">
+                <div class="form-group">
+                    <div style="background-color:#fff !important; border: solid 3px #E0E0E0;padding:5px">
+                       
+                        <p><strong>Plant Truck No:</strong> <span id="spnTruckNo"></span></p>
+                        <p><strong>Driver :</strong> <span id="spnDriver"></span></p>
+                        <p><strong>Transporter:</strong> <span id="spnTransporter"></span></p>
+                        <p><strong>Product:</strong> <span id="spnProduct"></span></p>
+                        <p>
+                            <strong>DA:</strong> <span id="spnDANumber"></span> &nbsp;&nbsp;
+                            <strong>Bal. MT:</strong> <span id="spnBalMT"></span>&nbsp;&nbsp;
+                            <strong>Bags :</strong> <span id="spnBags"></span>
+                        </p>
+                        <p>
+                            <strong>Week No. :</strong>
+                            <span id="spnWeekNumber">
+                            </span>
+                        </p>
+                        <p><strong>Truck In Time:</strong> <span id="spnTruckInTime"> </span></p>
+                        <p><strong>Last GRN Date:</strong> <span id="spnLastGRNDate"></span></p>
+                        <!--<p><strong>Date:</strong> <span id="txtDate"></span></p>-->
+                        <p></p>
+                    </div>
+
+                    <div>
+                        <table class="" border="0" cellpadding="2" cellspacing="2" width="100%">
+
+                            <tr style="display:none">
+                                <td style="white-space: nowrap;"><strong>Is Damaged (TL01)</strong></td>
+                                <td>:</td>
+                                <td style="padding-left: 0;">
+                                    <label style="display: inline-flex; align-items: center; gap: 5px; font-weight: normal;">
+                                        <input type="checkbox" id="chkIsDamaged" value="Yes" style="margin: 0;" />
+
+                                    </label>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><strong>Unloaded Bags</strong></td>
+                                <td>:</td>
+                                <td>
+                                    <input type="number" class="form-control" id="txtUnloadedBags" min="0" />
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td valign="top"><strong>Notes</strong></td>
+                                <td valign="top">:</td>
+                                <td style="width:80%">
+                                    <textarea id="txtNotes" class="form-control" rows="4" style="padding:13px;height:96%;width:100%"></textarea>
+                                </td>
+                            </tr>
+
+
+
+                        </table>
+                    </div>
+
+
+
+
+                    <div class="button-group" style="display: flex; justify-content: center;padding:10px">
+                        <button class="button submit" id="btnSubmit" onclick="fnSubmit()">SUBMIT</button>
+                        <button class="btn btn-secondary ms-3" onclick="window.history.back();">CANCEL</button>
+                    </div>
+                </div>
+
+              
+            </div>
+        </main>
+    </div>
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+    
+    <script>
+     
+
+        const currentUrl = window.location.href;
+        function getLSID() {
+            const url = new URL(currentUrl);
+            const params = new URLSearchParams(url.search);
+            return params.get('LSID');
+        }
+        function formatDateTime(dateString) {
+            if (!dateString) return "";
+
+            const date = new Date(dateString);
+            if (isNaN(date)) return "";
+
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0'); // January = 0
+            const yyyy = date.getFullYear();
+
+            const hh = String(date.getHours()).padStart(2, '0');
+            const min = String(date.getMinutes()).padStart(2, '0');
+
+            return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+        }
+        function fnSubmit() {
+            const userId = getUserID();
+            const depotId = getDepotID();
+            const daNo = $("#spnDANumber").text();
+            const qty = $("#txtUnloadedBags").val();
+            const weekNo = $("#spnWeekNumber").text();
+            const notes = $("#txtNotes").val();
+            const isUnloadingLIST = $("#chkIsDamaged").is(":checked");
+            const lsid = getLSID();
+
+            if (!userId || !depotId || !daNo) {
+                alert("Missing required input (UserID, DepotID, or DA No.)");
+                return;
+            }
+
+
+
+            if (qty < 0) {
+                alert("Unloaded Bags cannot be negative.");
+                return;
+            }
+
+
+            const dataToSend = {
+                UserID: parseInt(userId),
+                DepotID: parseInt(depotId),
+                DANo: daNo,
+                IsUnloadingLIST: isUnloadingLIST,
+                Qty: qty ? parseFloat(qty) : null,
+                WeekNo: weekNo,
+                Notes: notes,
+                LSID: lsid
+            };
+
+            $.ajax({
+                url: '/api/LoadingSlip/UpdateUnloadingSlip',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    // Check for quantity validation failure
+                    if (response.LSID === -1 || response.LSID === 0) {
+                        alert("Entered quantity exceeds available balance stock.");
+                        return; // Stop further execution
+                    }
+
+                    // Success
+                    alert("Unloading slip saved successfully. LSID: " + response.LSID);
+                    window.location.href = "Loadingslip.html";
+                },
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Failed to save unloading slip.");
+                }
+            });
+        }
+        function getDepotID() {
+            return localStorage.getItem("DepotID").toString();
+        }
+        function getUserID() {
+            return localStorage.getItem("userID").toString();
+        }
+    
+
+        $(document).ready(function () {
+            fnSetPageName("Edit Loading Slip");
+            var LSID = getLSID();
+            $("#hdnLSID").val(LSID);
+
+            $.ajax({
+                url: '/api/LoadingSlip/UnloadingSlipDetail',
+                type: 'GET',
+                data: { LSID: LSID },
+                success: function (response) {
+                    if (!response) {
+                        alert("No data found.");
+                        return;
+                    }
+
+                    // Bind span text
+                    $('#spnTruckNo').text(response.LorryNumber || '');
+                   // $('#spnDriver').text(response.driverName || ''); 
+                    $('#spnTransporter').text(response.TransporterName || '');
+                    $('#spnProduct').text(response.ProductDesc || '');
+                    $('#spnDANumber').text(response.DANo || '');
+                    $('#spnBalMT').text(response.QtyMT || '');
+                    $('#spnBags').text(response.QtyMTBags || '');
+                    $('#spnWeekNumber').text(response.Weeknumber || '');
+                    $('#spnTruckInTime').text(formatDateTime(response.TruckInTime));
+                    $('#spnLastGRNDate').text(formatDateTime(response.TruckOutTime));
+
+                    // Bind checkbox
+                    $('#chkIsDamaged').prop('checked', response.IsDamaged === 'Yes');
+
+                    // Bind input fields
+                    $('#txtUnloadedBags').val(response.UnloadedBagsQty || 0);
+                    $('#txtNotes').val(response.Notes || '');
+                    $("#spnDriver").text((response.DriverName || '') + ' ' + (response.DriverMobileNumber || ''));
+                },
+                
+                error: function (xhr, status, error) {
+                    console.error("API error:", error);
+                    alert("Error loading data from API.");
+                }
+            });
+
+            //$.ajax({
+            //    url: '../api/LoadingSlip/PendingDA?LSID=' + getLSID(),
+            //    method: 'GET',
+            //    contentType: 'application/json',
+            //    success: function (data) {
+            //        //alert(data.length);
+            //        if (data.length == 0) {
+            //            $("#chkTranshipment").attr("style", "display:none!important;");
+            //            $("#dvTrpLbl").attr("style", "display:none!important;");
+            //        }
+            //    }
+            //});
+
+
+        });
+
+       
+    </script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html ng-app="photoApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Authenticity Detector (AngularJS)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <style>
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body ng-controller="PhotoController">
+    <h2>Upload or Capture a Photo</h2>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="angular.element(this).scope().processFile(this)">
+    <br><br>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="photo" style="max-width: 100%; display: none;">
+    <div id="result">{{ resultMessage }}</div>
+
+    <script>
+        const app = angular.module('photoApp', []);
+
+        app.controller('PhotoController', ['$scope', function ($scope) {
+            $scope.resultMessage = "No photo uploaded yet.";
+
+            $scope.processFile = function (input) {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = function () {
+                            document.getElementById('photo').src = img.src;
+                            document.getElementById('photo').style.display = 'block';
+                            $scope.analyzeImage(img, file);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            $scope.analyzeImage = function (image, file) {
+                EXIF.getData(file, function () {
+                    const metadata = EXIF.getAllTags(this);
+                    console.log(metadata);
+
+                    let exifResult = "❌ No Camera Metadata Detected (Possibly a Photo of a Photo).";
+                    if (metadata.Make && metadata.Model && metadata.ExposureTime && metadata.ISOSpeedRatings) {
+                        exifResult = "✅ Camera Metadata Found (Likely Real Photo).";
+                    }
+
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    ctx.drawImage(image, 0, 0, image.width, image.height);
+
+                    const imageData = ctx.getImageData(0, 0, image.width, image.height);
+                    const data = imageData.data;
+                    const totalPixels = image.width * image.height;
+
+                    let brightnessSum = 0;
+                    let contrastSum = 0;
+                    let sharpnessSum = 0;
+                    let moireCount = 0;
+                    let unnaturalEdgeCount = 0;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const avg = (r + g + b) / 3;
+                        brightnessSum += avg;
+
+                        if (i < data.length - 4) {
+                            const nextAvg = (data[i + 4] + data[i + 5] + data[i + 6]) / 3;
+                            const diff = Math.abs(avg - nextAvg);
+                            contrastSum += diff;
+
+                            if (diff > 40) sharpnessSum++;
+                            if (diff > 60) unnaturalEdgeCount++;
+                        }
+
+                        if (Math.abs(r - g) < 5 && Math.abs(g - b) < 5 && Math.abs(r - b) < 5 && avg > 200) {
+                            moireCount++;
+                        }
+                    }
+
+                    const averageBrightness = brightnessSum / totalPixels;
+                    const averageContrast = contrastSum / totalPixels;
+                    const sharpnessRatio = sharpnessSum / totalPixels;
+                    const moireRatio = moireCount / totalPixels;
+                    const unnaturalEdgeRatio = unnaturalEdgeCount / totalPixels;
+
+                    let resultMessage = `${exifResult}\n`;
+
+                    if (averageBrightness > 220) resultMessage += "⚠ High Brightness Detected (Possible Screen Glare).\n";
+                    if (averageContrast < 10) resultMessage += "⚠ Low Contrast Detected (Possibly a Photo of a Photo).\n";
+                    if (sharpnessRatio < 0.05) resultMessage += "❌ Low Sharpness Detected (Likely a Photo of a Photo).\n";
+                    if (moireRatio > 0.01) resultMessage += "❌ Moiré Patterns Detected (Likely a Photo of a Screen).\n";
+                    if (unnaturalEdgeRatio > 0.01) resultMessage += "❌ Unnatural Edge Patterns Detected (Photo of a Photo).\n";
+
+                    if (moireRatio < 0.01 && unnaturalEdgeRatio < 0.01 && sharpnessRatio > 0.05) {
+                        resultMessage += "✅ This photo seems to be a real-world capture.";
+                    }
+
+                    $scope.resultMessage = resultMessage;
+                    $scope.$apply();
+                });
+            };
+        }]);
+    </script>
+</body>
+</html>

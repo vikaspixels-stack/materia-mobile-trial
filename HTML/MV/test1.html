@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PDF as HTML</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .print-button {
+            display: block;
+            margin: 20px auto;
+            padding: 16px;
+            font-size: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="print-button" onclick="window.print()">🖨️ Print</button>
+    <div id="pdf-container"></div>
+
+    <script>
+        const url = 'https://cors-anywhere.herokuapp.com/https://materiatractus.com/Uploads/MobileLoadingUnloadingSlip/Invoice/3.pdf';
+
+        const container = document.getElementById('pdf-container');
+
+        const loadingTask = pdfjsLib.getDocument(url);
+        loadingTask.promise.then(pdf => {
+            for (let i = 1; i <= pdf.numPages; i++) {
+                pdf.getPage(i).then(page => {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
+
+                    container.appendChild(canvas);
+                });
+            }
+        }).catch(err => {
+            container.innerHTML = `<p>Failed to load PDF: ${err.message}</p>`;
+        });
+    </script>
+
+</body>
+</html>

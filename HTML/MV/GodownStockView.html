@@ -1,0 +1,452 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Depot Stock</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materia.css?v=1.66" rel="stylesheet" />
+    <!-- Kendo UI CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+
+    <!-- jQuery + Kendo -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <style>
+        #gridGodownStock {
+            margin: 8px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+            /* Group header row */
+            #gridGodownStock .k-grouping-row,
+            #gridGodownStock .k-grouping-row td {
+                color: navy !important;
+                font-weight: bold !important;
+            }
+
+        .k-table, .k-data-table {
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="bg-gray">
+    <input type="hidden" id="hdnLastImportFreshDiff" value="9999" />
+    <input type="hidden" id="hdnLastImportOtherDiff" value="9999" />
+
+    <div class="container-fluid">
+        <div id="header">
+            <script src="Scripts/header.js?v=1.3"></script>
+        </div>
+
+        <main>
+            <div id="gridGodownStock"></div>
+            <div id="refresh-panel" class="border-top text-center py-2"
+                 style="position:fixed; bottom:48px; left:0; right:0; z-index:1050;">
+                <div class="col" id="dvLastupdatedTime" style="display: none; justify-content: center; gap: 5px; margin:2px;color:green"></div>
+                <div class="col" id="dvLastupdatedTimeOther" style="display: none; justify-content: center; gap: 5px; margin:2px;color:green"></div>
+                <div class="col" style="display: flex; justify-content: center; gap: 5px;">
+                    <button type="submit" id="btnRefresh" style="display:none" class="btn btn-cancel">Refresh Fresh</button>
+                    <button type="submit" id="btnRefreshOther" style="display:none" class="btn btn-cancel">Refresh Others</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <script>
+        // ---------------------------------------------------------------
+        // Helper: disable the Refresh Fresh button if already imported today
+        // ---------------------------------------------------------------
+        function applyFreshImportedState(btn) {
+            btn.disabled = true;
+            btn.textContent = "Fresh Imported \u2713";
+            btn.title = "Fresh stock has already been imported today.";
+        }
+
+        // ---------------------------------------------------------------
+        // Check API and conditionally disable Refresh Fresh button
+        // ---------------------------------------------------------------
+        async function checkFreshImportedToday() {
+            try {
+                const response = await fetch("/api/GodownStockView/IsFreshImportedToday");
+                const data = await response.json();
+                if (data.isImportedToday) {
+                    applyFreshImportedState(document.getElementById("btnRefresh"));
+                }
+            } catch (e) {
+                // Fail open: if check fails, leave button enabled
+                console.warn("Could not check fresh import status:", e);
+            }
+        }
+
+        // ---------------------------------------------------------------
+        // DOMContentLoaded: show/hide buttons based on permissions,
+        // then check if Fresh was already imported today.
+        // ---------------------------------------------------------------
+        document.addEventListener("DOMContentLoaded", async function () {
+            let isAllowed = localStorage.getItem("IsAllowedSAP_Fresh_Download") === "true";
+            if (isAllowed) {
+                document.getElementById("dvLastupdatedTime").style.display = "flex";
+                document.getElementById("btnRefresh").style.display = "block";
+
+                // Disable button if Fresh already imported today
+                await checkFreshImportedToday();
+            }
+
+            let isAllowed2 = localStorage.getItem("IsAllowedSAP_Stock_Download") === "true";
+            if (isAllowed2) {
+                document.getElementById("dvLastupdatedTimeOther").style.display = "flex";
+                document.getElementById("btnRefreshOther").style.display = "block";
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            fnSetPageName("Depot Stock");
+            getSAPLastImportTime('SAPFresh');
+            getSAPLastImportTimeOther('SAPSTK');
+
+            function setGridHeight() {
+                var availableHeight = $(window).height()
+                    - $("#header").outerHeight(true)
+                    - $("#refresh-panel").outerHeight(true)
+                    - $("#footer").outerHeight(true)
+                    - 95;
+
+                $("#gridGodownStock").height(availableHeight);
+            }
+
+            $("#gridGodownStock").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/api/GodownStockView?DepotID=" + localStorage.getItem("DepotID"),
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        model: {
+                            fields: {
+                                ProductGroup: { type: "string" },
+                                ProductID: { type: "string" },
+                                Qty: { type: "number" },
+                                QtyInBags: { type: "number" },
+                                ClosingStockID: { type: "number" }
+                            }
+                        }
+                    },
+                    sort: [{
+                        field: "ProductGroup,ProductID",
+                        dir: "asc",
+                        comparer: function (a, b) {
+                            if (a.ProductGroup === "Fresh" && b.ProductGroup !== "Fresh") return -1;
+                            if (a.ProductGroup !== "Fresh" && b.ProductGroup === "Fresh") return 1;
+                            return a.ProductGroup.localeCompare(b.ProductGroup);
+                        }
+                    }],
+                    group: [{
+                        field: "ProductGroup",
+                        aggregates: [
+                            { field: "Qty", aggregate: "sum" },
+                            { field: "QtyInBags", aggregate: "sum" }
+                        ]
+                    }],
+                    aggregate: [
+                        { field: "Qty", aggregate: "sum" },
+                        { field: "QtyInBags", aggregate: "sum" }
+                    ]
+                },
+                sortable: true,
+                filterable: true,
+                groupable: false,
+                resizable: true,
+                toolbar: ["excel"],
+                excel: { fileName: "DepotStock.xlsx", allPages: true },
+                selectable: "row",
+                excelExport: function (e) {
+                    var sheet = e.workbook.sheets[0];
+                    sheet.rows.forEach(function (row) {
+                        if (row.type === "data") {
+                            row.cells.forEach(function (cell) {
+                                if (cell.value && typeof cell.value === "string") {
+                                    cell.value = cell.value.replace(/<\/?br\s*\/?>/gi, "\n");
+                                }
+                            });
+                        }
+                    });
+                },
+                columns: [
+                    {
+                        field: "ProductGroup",
+                        hidden: true,
+                        width: 10,
+                        groupHeaderTemplate: "#= value # (Total MT: #: kendo.toString(aggregates.Qty.sum, 'n2') #, Bags: #: kendo.toString(aggregates.QtyInBags.sum, 'n0') #)"
+                    },
+                    {
+                        field: "ProductID",
+                        title: "Product",
+                        width: 203,
+                        encoded: false,
+                        headerAttributes: { style: "font-weight:bold;" },
+                        attributes: { style: "white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" },
+                        template: "#= ProductID #"
+                    },
+                    {
+                        field: "Qty",
+                        title: "MT",
+                        width: 55,
+                        format: "{0:n2}",
+                        attributes: { style: "text-align:right;" },
+                        footerAttributes: { style: "text-align:right;" },
+                        headerAttributes: { style: "font-weight:bold;text-align:right" },
+                        aggregates: ["sum"],
+                        footerTemplate: "#: kendo.toString(sum, 'n2') #"
+                    },
+                    {
+                        field: "QtyInBags",
+                        title: "Bag",
+                        width: 55,
+                        format: "{0:n0}",
+                        attributes: { style: "text-align:right;" },
+                        footerAttributes: { style: "text-align:right;" },
+                        headerAttributes: { style: "font-weight:bold;text-align:right" },
+                        aggregates: ["sum"],
+                        footerTemplate: "#: kendo.toString(sum, 'n0') #"
+                    }
+                ],
+                dataBound: function () {
+                    var grid = this;
+                    grid.tbody.find("tr.k-master-row").each(function () {
+                        var dataItem = grid.dataItem(this);
+                        if (dataItem.ProductGroup !== "Fresh" && dataItem.ProductGroup !== "  Fresh") {
+                            $(this).find(".k-hierarchy-cell").html("");
+                        }
+                    });
+                },
+                detailInit: function (e) {
+                    if (e.data.ProductGroup !== "Fresh" && e.data.ProductGroup !== "  Fresh") {
+                        e.detailRow.remove();
+                        return;
+                    }
+
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "/api/GodownStockView/FreshWeekStock?ClosingStockID=" + e.data.ClosingStockID,
+                                    dataType: "json"
+                                }
+                            },
+                            schema: {
+                                model: {
+                                    fields: {
+                                        WeekNo: { type: "number" },
+                                        Qty: { type: "number" },
+                                        QtyInBags: { type: "number" }
+                                    }
+                                }
+                            }
+                        },
+                        scrollable: false,
+                        sortable: false,
+                        pageable: false,
+                        columns: [
+                            {
+                                field: "WeekNo", title: "Week No", width: 155,
+                                headerAttributes: { style: "font-weight:bold;" }
+                            },
+                            {
+                                field: "Qty",
+                                title: "MT",
+                                width: 70,
+                                format: "{0:n2}",
+                                attributes: { style: "text-align:right;" },
+                                headerAttributes: { style: "text-align:right;font-weight:bold;" }
+                            },
+                            {
+                                field: "QtyInBags",
+                                title: "Bag",
+                                width: 60,
+                                format: "{0:n0}",
+                                attributes: { style: "text-align:right;" },
+                                headerAttributes: { style: "text-align:right;font-weight:bold;" }
+                            }
+                        ]
+                    });
+                }
+            });
+
+            setGridHeight();
+            $(window).resize(setGridHeight);
+
+            // ---------------------------------------------------------------
+            // Refresh Fresh button
+            // ---------------------------------------------------------------
+            $("#btnRefresh").on("click", async function () {
+                var $btn = $(this);
+
+                let diffMinutes = await getSAPLastImportTime('SAPFresh')
+                    .catch(() => 9999);
+
+                if (diffMinutes <= 10) {
+                    alert("Last import was just " + diffMinutes + " minute(s) ago. Please wait before refreshing again.");
+                    return;
+                }
+
+                $btn.prop("disabled", true).text("Refreshing...");
+
+                $.ajax({
+                    url: "/api/Flow/Trigger",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ FlowId: "SAP-STK-FRSH-DOWNLOAD" }),
+                    success: function (response) {
+                        console.log("Flow Triggered (FRSH):", response);
+                        getSAPLastImportTime('SAPFresh');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error triggering SAP-STK-FRSH-DOWNLOAD:", error);
+                        alert("Failed to trigger SAP-STK-FRSH-DOWNLOAD.");
+                        $btn.prop("disabled", false).text("Refresh Fresh");
+                    },
+                    complete: function () {
+                        // Re-enable after 60 seconds, then re-check import status
+                        setTimeout(async function () {
+                            var grid = $("#gridGodownStock").data("kendoGrid");
+                            if (grid) {
+                                grid.dataSource.read();
+                            }
+
+                            // Re-check if imported today; disable permanently if so
+                            try {
+                                const response = await fetch("/api/GodownStockView/IsFreshImportedToday");
+                                const data = await response.json();
+                                if (data.isImportedToday) {
+                                    applyFreshImportedState(document.getElementById("btnRefresh"));
+                                } else {
+                                    $btn.prop("disabled", false).text("Refresh Fresh");
+                                }
+                            } catch (e) {
+                                $btn.prop("disabled", false).text("Refresh Fresh");
+                            }
+                        }, 60000);
+                    }
+                });
+            });
+
+            // ---------------------------------------------------------------
+            // Refresh Others button
+            // ---------------------------------------------------------------
+            $("#btnRefreshOther").on("click", async function () {
+                var $btn = $(this);
+
+                let diffMinutes = await getSAPLastImportTimeOther('SAPSTK')
+                    .catch(() => 9999);
+
+                if (diffMinutes <= 10) {
+                    alert("Last import was just " + diffMinutes + " minute(s) ago. Please wait before refreshing again.");
+                    return;
+                }
+
+                $btn.prop("disabled", true).text("Refreshing...");
+
+                $.ajax({
+                    url: "/api/Flow/Trigger",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ FlowId: "SAP-STK-DOWNLOAD" }),
+                    success: function (response) {
+                        console.log("Flow Triggered (STK):", response);
+                        getSAPLastImportTimeOther('SAPSTK');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error triggering SAP-STK-DOWNLOAD:", error);
+                        alert("Failed to trigger SAP-STK-DOWNLOAD");
+                        $btn.prop("disabled", false).text("Refresh Others");
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            var grid = $("#gridGodownStock").data("kendoGrid");
+                            if (grid) {
+                                grid.dataSource.read();
+                            }
+                            $btn.prop("disabled", false).text("Refresh Others");
+                        }, 60000);
+                    }
+                });
+            });
+
+            // ---------------------------------------------------------------
+            // SAP last import time helpers
+            // ---------------------------------------------------------------
+            function getSAPLastImportTime(source) {
+                return new Promise(function (resolve, reject) {
+                    $("#dvLastupdatedTime").html('');
+                    $.ajax({
+                        url: "/api/flow/sap-last-import",
+                        type: "GET",
+                        data: { source: source },
+                        success: function (response) {
+                            if (response.Status === "Success") {
+                                $("#dvLastupdatedTime").html("Fresh " + response.WhatsAppStyleTime);
+                                let actualTime = new Date(response.ActualTime);
+                                let now = new Date();
+                                let diffMinutes = Math.floor((now - actualTime) / 60000);
+                                $("#hdnLastImportFreshDiff").val(diffMinutes);
+                                resolve(diffMinutes);
+                            } else {
+                                reject(response.Message);
+                            }
+                        },
+                        error: function (xhr) {
+                            reject(xhr.responseText);
+                        }
+                    });
+                });
+            }
+
+            function getSAPLastImportTimeOther(source) {
+                return new Promise(function (resolve, reject) {
+                    $("#dvLastupdatedTimeOther").html('');
+                    $.ajax({
+                        url: "/api/flow/sap-last-import",
+                        type: "GET",
+                        data: { source: source },
+                        success: function (response) {
+                            if (response.Status === "Success") {
+                                $("#dvLastupdatedTimeOther").html("Others " + response.WhatsAppStyleTime);
+                                let actualTime = new Date(response.ActualTime);
+                                let now = new Date();
+                                let diffMinutes = Math.floor((now - actualTime) / 60000);
+                                $("#hdnLastImportOtherDiff").val(diffMinutes);
+                                resolve(diffMinutes);
+                            } else {
+                                reject(response.Message);
+                            }
+                        },
+                        error: function (xhr) {
+                            reject(xhr.responseText);
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kendo UI (match existing app style) -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- Kendo Scripts -->
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <!-- App CSS -->
+    <link href="css/materia.css?v=1.28" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7952b3">
+
+    <style>
+        :root {
+            /* Set this to your main page's body text size so the grid matches it. */
+            --app-font-size: 1rem;
+            --ink: #1f2933;
+            --ink-soft: #4b5563;
+            --muted: #6b7280;
+            --line: #e3e8ee;
+            --card-shadow: 0 1px 2px rgba(16,24,40,0.05);
+            --pos: #15803d; /* positive variance (green) */
+            --neg: #d11a2a; /* negative variance (red)   */
+        }
+
+        body.bg-app {
+            background: #f3f6f9;
+        }
+
+        /* Use the full width; only cap on large screens */
+        main.container {
+            max-width: 760px;
+            padding-left: 12px;
+            padding-right: 12px;
+            font-size: var(--app-font-size);
+            color: var(--ink);
+        }
+
+        /* ---- Cards ---- */
+        .panel-3d, .panel-flat {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 14px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stack-6 > * + * {
+            margin-top: 6px;
+        }
+
+        .label-strong {
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        /* Type + Dt share a line; wraps (never clips) if extremely narrow */
+        .pairline {
+            display: flex;
+            gap: 22px;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .grid-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+            color: var(--ink);
+        }
+
+        /* ---- One product variance per card ---- */
+        .var-card {
+            border: 1px solid var(--line);
+            border-left: 3px solid #c7ccd6; /* sign colour set inline */
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            background: #fff;
+        }
+
+            .var-card:last-child {
+                margin-bottom: 0;
+            }
+
+        /* Three columns: label (left) | colon (aligned to one stop) | value */
+        .var-grid {
+            display: grid;
+            grid-template-columns: max-content min-content 1fr;
+            column-gap: 0;
+            row-gap: 6px;
+            align-items: baseline;
+        }
+
+            .var-grid .lbl {
+                font-weight: 700;
+                text-align: left; /* labels left-aligned */
+                white-space: nowrap;
+                color: var(--ink-soft);
+            }
+
+            .var-grid .sep { /* the colon - sits at a fixed x => aligned */
+                font-weight: 700;
+                color: var(--ink-soft);
+            }
+
+            .var-grid .val {
+                padding-left: 6px; /* one space after the colon */
+                color: var(--ink);
+            }
+
+                .var-grid .val.prod {
+                    white-space: nowrap; /* product code never wraps */
+                }
+
+                /* Quantities: per-card width, space-padded so decimals line up.
+               Bold + pure black, sized to match the labels outside the grid. */
+                .var-grid .val.num {
+                    font-family: 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+                    white-space: pre; /* preserve the leading-space padding */
+                    font-variant-numeric: tabular-nums;
+                    color: #000;
+                    font-weight: 700;
+                    font-size: var(--app-font-size);
+                }
+
+        .empty-msg {
+            color: var(--muted);
+            padding: 6px 2px;
+        }
+
+        /* ---- Buttons fill the width ---- */
+        .actions-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+            .actions-wrap > * {
+                flex: 1 1 0;
+            }
+
+            .actions-wrap .btn-approve {
+                flex: 1.6 1 0;
+            }
+
+        .btn-approve {
+            background: var(--pos);
+            border: 1px solid var(--pos);
+            color: #fff;
+            padding: .7rem 1rem;
+            font-weight: 700;
+            letter-spacing: .3px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+            .btn-approve:hover, .btn-approve:focus {
+                background: #136c34;
+                border-color: #136c34;
+                color: #fff;
+            }
+
+        .btn-cancel2 {
+            background: #4b5563;
+            border: 1px solid #4b5563;
+            color: #fff;
+            padding: .7rem 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+        }
+
+            .btn-cancel2:hover {
+                background: #3f4753;
+                border-color: #3f4753;
+                color: #fff;
+            }
+    </style>
+</head>
+<body class="bg-app">
+    <div id="taskToast"></div>
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main class="container mt-3 mb-4">
+            <!-- ===== Header info ===== -->
+            <div class="panel-3d stack-6 mb-2">
+                <div class="pairline">
+                    <div><span class="label-strong">Type:</span> <span id="TaskType">Stock Variance</span></div>
+                    <div><span class="label-strong">Dt:</span> <span id="TranDate">—</span></div>
+                </div>
+                <div><span class="label-strong">Depot:</span> <span id="Depot">—</span></div>
+            </div>
+
+            <!-- ===== Product variance cards ===== -->
+            <div class="panel-flat mb-2">
+                <div id="gridTitle" class="grid-title">Product Variances</div>
+                <div id="lstVariance"></div>
+                <div id="emptyMsg" class="empty-msg" style="display:none;">No product variances for this depot.</div>
+                <div id="error" class="text-danger mt-2" style="display:none;" aria-live="polite"></div>
+            </div>
+
+            <!-- ===== Buttons ===== -->
+            <div class="actions-wrap">
+                <button id="btnApprove" type="button" class="btn-approve">Done. Close Task</button>
+                <button type="button" class="btn-cancel2" onclick="window.history.back();">Cancel</button>
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+    </footer>
+
+    <!-- One card per product variance.
+         NOTE: Kendo templates use '#' as a delimiter, so a hex colour written
+         literally inside #: ... # would break compilation. The colours here come
+         from varColor() at render time (the template text contains no '#'). -->
+    <script type="text/x-kendo-tmpl" id="tmpVariance">
+        <div class="var-card" style="border-left-color:#: varColor(data.Variance) #">
+            <div class="var-grid">
+                <div class="lbl">SAP Product Code</div><div class="sep">:</div>
+                <div class="val prod">#: data.ProductID #</div>
+
+                <div class="lbl">Prev. Day Closing (MT)</div><div class="sep">:</div>
+                <div class="val num">#: data.PrevStr #</div>
+
+                <div class="lbl">Today's Opening (MT)</div><div class="sep">:</div>
+                <div class="val num">#: data.OpenStr #</div>
+
+                <div class="lbl">Stock Variance (MT)</div><div class="sep">:</div>
+                <div class="val num" style="font-weight:700;color:#: varColor(data.Variance) #">#: data.VarStr #</div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var taskToast;
+        var g_taskId = null;
+
+        $(document).ready(function () {
+            if (typeof fnSetPageName === "function") {
+                fnSetPageName("Stock Variance Approval");
+            }
+
+            taskToast = $("#taskToast").kendoNotification({
+                stacking: "down",
+                autoHideAfter: 3000,
+                position: { pinned: true, top: 20, right: 20 },
+                templates: [
+                    { type: "success", template: "<div class='k-notification-wrap'><span class='k-icon k-i-check'></span> #= message #</div>" },
+                    { type: "error", template: "<div class='k-notification-wrap'><span class='k-icon k-i-warning'></span> #= message #</div>" }
+                ]
+            }).data("kendoNotification");
+
+            g_taskId = getQueryId();
+            if (!Number.isFinite(g_taskId) || g_taskId <= 0) {
+                showError("Missing or invalid task id.");
+                return;
+            }
+
+            $.getJSON("/api/UserTaskStockVariance", { taskId: g_taskId })
+                .done(function (data) {
+                    data = Array.isArray(data) ? data : (data ? [data] : []);
+
+                    if (data.length === 0) {
+                        showError("No details found for this task.");
+                        return;
+                    }
+
+                    // Header from the first row (Type shown as "Stock Variance")
+                    var head = data[0];
+                    $("#Depot").text(head.Depot || "—");
+                    $("#TranDate").text(head.TranDate ? fmtDate(head.TranDate) : "—");
+
+                    // Product rows = those with a product code
+                    var rows = data.filter(function (r) { return r.ProductID && String(r.ProductID).length; });
+
+                    // Per-card alignment: pad each card's quantities to its own
+                    // widest integer part, so the biggest number sits one space
+                    // after the colon and the rest align their decimals below it.
+                    rows.forEach(function (r) {
+                        var w = Math.max(intLen(r.PrevClosingQty), intLen(r.OpeningQty), intLen(r.Variance));
+                        r.PrevStr = padQty(r.PrevClosingQty, w);
+                        r.OpenStr = padQty(r.OpeningQty, w);
+                        r.VarStr = padQty(r.Variance, w);
+                    });
+
+                    $("#gridTitle").text(rows.length ? ("Product Variances (" + rows.length + ")") : "Product Variances");
+                    renderVariances(rows);
+                })
+                .fail(function (xhr) {
+                    showError(readErr(xhr, "Failed to load details."));
+                });
+
+            $("#btnApprove").on("click", function () {
+                approve(g_taskId);
+            });
+        });
+
+        // Build the card list ONCE, or show a single empty message.
+        function renderVariances(rows) {
+            if (!rows || rows.length === 0) {
+                $("#emptyMsg").show();
+                return;
+            }
+            $("#emptyMsg").hide();
+            $("#lstVariance").kendoListView({
+                dataSource: { data: rows },
+                template: kendo.template($("#tmpVariance").html())
+            });
+        }
+
+        // Variance colour - returned from plain JS so no '#' hex reaches the Kendo
+        // template parser. Negative = dark red, positive = dark green, zero = slate.
+        function varColor(v) {
+            v = (v == null) ? 0 : v;
+            return v < 0 ? "#a30015" : (v > 0 ? "#0a6b2e" : "#333333");
+        }
+
+        // Digits before the decimal point (includes a leading '-' for negatives).
+        function intLen(v) {
+            v = (v == null) ? 0 : Number(v);
+            if (isNaN(v)) v = 0;
+            return v.toFixed(2).indexOf(".");
+        }
+
+        // Pad a value to (width + 3) chars: leading spaces + N.NN. With a per-card
+        // width, the largest number gets no leading space (=> one space after the
+        // colon) and smaller ones align their decimals beneath it.
+        function padQty(v, width) {
+            v = (v == null) ? 0 : Number(v);
+            if (isNaN(v)) v = 0;
+            return v.toFixed(2).padStart(width + 3, " ");
+        }
+
+        function getQueryId() {
+            const p = new URLSearchParams(window.location.search);
+            const v = Number(p.get("id"));
+            return Number.isFinite(v) ? v : NaN;
+        }
+
+        // dd/MM/yyyy, day and month always 2 digits (zero-padded)
+        function fmtDate(dtStr) {
+            try {
+                var d = new Date(dtStr);
+                if (isNaN(d.getTime())) return String(dtStr);
+                var dd = String(d.getDate()).padStart(2, "0");
+                var mm = String(d.getMonth() + 1).padStart(2, "0");
+                return dd + "/" + mm + "/" + d.getFullYear();
+            } catch (e) {
+                return String(dtStr);
+            }
+        }
+
+        function readErr(xhr, fallback) {
+            return (xhr.responseJSON && (xhr.responseJSON.title || xhr.responseJSON.message)) ||
+                xhr.responseText || xhr.statusText || fallback;
+        }
+
+        function showError(msg) {
+            $("#error").text(msg).show();
+            if (taskToast) taskToast.show({ message: msg }, "error");
+        }
+
+        // Complete the task (by TaskID) + stamp the logged-in user
+        function approve(taskId) {
+            const userId = localStorage.getItem("userID");
+            const $btn = $("#btnApprove");
+            $btn.prop("disabled", true).data("orig", $btn.html())
+                .html("<span class='spinner-border spinner-border-sm'></span> Closing...");
+
+            $.ajax({
+                url: "/api/UserTaskStockVariance/Approve?taskId=" + encodeURIComponent(taskId) +
+                    "&userId=" + encodeURIComponent(userId),
+                type: "POST"
+            })
+                .done(function () {
+                    if (taskToast) taskToast.show({ message: "Task closed." }, "success");
+                    setTimeout(function () { window.history.back(); }, 800);
+                })
+                .fail(function (xhr) {
+                    showError(readErr(xhr, "Could not close the task."));
+                })
+                .always(function () {
+                    const orig = $btn.data("orig");
+                    $btn.prop("disabled", false).html(orig || "Done. Close Task");
+                });
+        }
+    </script>
+</body>
+</html>

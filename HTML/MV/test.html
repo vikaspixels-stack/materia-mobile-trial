@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Send SMS</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <h2>Send SMS via API</h2>
+
+    <label>Mobile Number:</label>
+    <input type="text" id="mobile"  value="9987919292"><br><br>
+
+    <label>Template Name:</label>
+    <input type="text" id="template" value="Vaidsaleordersms"><br><br>
+
+    <label>Var1:</label>
+    <input type="text" id="var1" value="123456"><br><br>
+
+    <label>Var2:</label>
+    <input type="text" id="var2" value="User"><br><br>
+
+    <label>Var3:</label>
+    <input type="text" id="var3" value="App"><br><br>
+
+    <button onclick="sendSMS()">Send SMS</button>
+
+    <p id="response"></p>
+
+    <script>
+        function sendSMS() {
+            $.ajax({
+                url: "/api/OTP/send",  // Replace with your actual API URL and port
+                method: "POST",
+                contentType: "application/json",
+                //data: JSON.stringify({
+                //    MobileNumber: $("#mobile").val(),
+                //    SMSText: "This is a test message",
+                //    TemplateName: $("#template").val(),
+                //    Var1: $("#var1").val(),
+                //    Var2: $("#var2").val(),
+                //    Var3: $("#var3").val()
+                //}),
+
+                data: JSON.stringify({ "MobileNumber":"9987919292", "SMSText": "test", "TemplateName": "Vaidsaleordersms", "Var1": "123", "Var2": " TN 28 AJ 5469", "Var3": "F01PC000RCFM01 1" }),
+                success: function (response) {
+                    $("#response").html("SMS sent!<br>" + JSON.stringify(response));
+                },
+                error: function (xhr, status, error) {
+                    $("#response").html("Error: " + xhr.responseText);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

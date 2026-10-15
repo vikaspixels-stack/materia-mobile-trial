@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>OCR Demo</title>
+</head>
+<body>
+    <h1>OCR Demo</h1>
+    <p>Select an image and upload to read text:</p>
+
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept="image/*" />
+        <button type="submit">Upload &amp; OCR</button>
+    </form>
+
+    <h2>Recognized Text:</h2>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            // Make sure a file is selected
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select an image file first.');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // Call the .NET Core API endpoint
+                const response = await fetch('/api/ocr/read-text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                // Parse JSON response
+                const data = await response.json();
+
+                // Display recognized text
+                resultDiv.textContent = data.recognized_text;
+            } catch (error) {
+                console.error('Error during OCR request:', error);
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

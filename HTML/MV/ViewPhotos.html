@@ -1,0 +1,473 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile – Photos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kendo UI -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <!-- App CSS -->
+    <link href="css/materia.css?v=1.28" rel="stylesheet" />
+    <link rel="manifest" href="/manifest.json">
+
+    <style>
+        body.bg-app {
+            background: #f3f6f9;
+        }
+
+        /* ── Info header panel ── */
+        .panel-3d {
+            position: relative;
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 12px 14px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.03), 0 1px 1px rgba(16,24,40,0.06), 0 0 0 3px #eef1f4;
+        }
+
+            .panel-3d:before {
+                content: "";
+                position: absolute;
+                inset: 3px;
+                border-radius: 6px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(0,0,0,0.04);
+                pointer-events: none;
+            }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+            margin-top: 6px;
+        }
+
+            .info-row:first-child {
+                margin-top: 0;
+            }
+
+        .label-strong {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ── Photo grid ── */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        /* Single photo card */
+        .photo-card {
+            background: #fff;
+            border: 1px solid #e0e4ea;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(16,24,40,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .photo-caption {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #475569;
+            padding: 6px 8px 4px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .photo-thumb-wrap {
+            position: relative;
+            width: 100%;
+            padding-bottom: 75%; /* 4:3 aspect */
+            background: #f1f5f9;
+            cursor: zoom-in;
+            overflow: hidden;
+        }
+
+            .photo-thumb-wrap img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform .2s ease;
+            }
+
+            .photo-thumb-wrap:hover img,
+            .photo-thumb-wrap:active img {
+                transform: scale(1.06);
+            }
+
+        /* placeholder when no photo */
+        .photo-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            gap: 6px;
+        }
+
+            .photo-placeholder svg {
+                opacity: .45;
+            }
+
+        /* ── Lightbox ── */
+        #lightboxOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            touch-action: pinch-zoom;
+        }
+
+            #lightboxOverlay.active {
+                display: flex;
+            }
+
+        #lightboxImg {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 6px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+            touch-action: pinch-zoom;
+        }
+
+        #lightboxCaption {
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        #lightboxClose {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            opacity: .85;
+        }
+
+        /* spinner */
+        .spinner-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 120px;
+        }
+
+        .badge-type {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: .4px;
+        }
+
+        .badge-damage {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-shortage {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .btn-back {
+            padding: .55rem 1.4rem;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .ist-clock {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+            text-align: right;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body class="bg-app">
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main class="container mt-3 mb-4">
+
+            <!-- IST clock -->
+            <div class="ist-clock" id="lblISTDateTime"></div>
+
+            <!-- Info header
+                 Row 1: [Damage/Shortage badge]  LS No.: xxx   Dt: dd Mon yyyy
+                 Row 2: Truck No.: xxx   DA No.: xxx
+            -->
+            <div class="panel-3d mb-3" id="infoPanel">
+                <div class="info-row">
+                    <span id="lblType" class="badge-type">—</span>
+                    <span class="label-strong">LS No.:</span>
+                    <span id="lblLSNO">—</span>
+                    <span class="label-strong" style="margin-left:6px;">Dt:</span>
+                    <span id="lblLSDate">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="label-strong">Truck No.:</span>
+                    <span id="lblTruckNo">—</span>
+                    <span class="label-strong" style="margin-left:12px;">DA No.:</span>
+                    <span id="lblDANo">—</span>
+                </div>
+                <div id="infoError" class="text-danger mt-1" style="display:none;"></div>
+            </div>
+
+            <!-- Photo area -->
+            <div id="photoArea">
+                <div class="spinner-overlay" id="photoSpinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading…</span>
+                    </div>
+                </div>
+                <!-- Photo cards injected here -->
+                <div class="photo-grid" id="photoGrid" style="display:none;"></div>
+                <div id="noPhotosMsg" class="text-center text-muted mt-4" style="display:none;">
+                    No photos found for this record.
+                </div>
+            </div>
+
+            <!-- Close / Back button -->
+            <div class="d-flex justify-content-center mt-4">
+                <button type="button" class="btn btn-secondary btn-back"
+                        onclick="fnClose();">
+                    &#x2715;&nbsp; Close
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+    </footer>
+
+    <!-- Lightbox -->
+    <div id="lightboxOverlay" onclick="closeLightbox(event)">
+        <button id="lightboxClose" onclick="closeLightbox(event)" title="Close">&times;</button>
+        <img id="lightboxImg" src="" alt="" />
+        <div id="lightboxCaption"></div>
+    </div>
+
+    <script>
+        // ---------- Captions & columns ----------
+        const DAMAGE_PHOTOS = [
+            { col: "PhotoFileName1", caption: "Photo of All Bags" },
+            { col: "PhotoFileName2", caption: "Batch No. Photo" },
+            { col: "PhotoFileName3", caption: "Manufactured Date Photo" },
+            { col: "PhotoFileName4", caption: "Truck with Number Plate" },
+            { col: "PhotoFileName5", caption: "Driver Acceptance Signature" }
+        ];
+        const SHORTAGE_PHOTOS = [
+            { col: "PhotoFileName1", caption: "Driver Acceptance Signature" },
+            { col: "PhotoFileName2", caption: "Driver Photo" }
+        ];
+
+        const cameraSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8
+                         a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+            </svg>`;
+
+        // ---------- IST clock ----------
+        function getISTParts() {
+            const now = new Date();
+            const datePart = now.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+            const [year, month, day] = datePart.split("-");
+            const timePart = now.toLocaleTimeString("en-GB", {
+                timeZone: "Asia/Kolkata",
+                hour12: false,
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+            return { year, month, day, timePart };
+        }
+
+        function updateISTClock() {
+            const { day, month, year, timePart } = getISTParts();
+            $("#lblISTDateTime").text(day + "/" + month + "/" + year + "  " + timePart + " IST");
+        }
+
+        // ---------- Init ----------
+        $(document).ready(function () {
+            if (typeof fnSetPageName === "function") fnSetPageName("View Photos");
+
+            // Start live IST clock
+            updateISTClock();
+            setInterval(updateISTClock, 1000);
+
+            const params = new URLSearchParams(window.location.search);
+            const lsId = params.get("lsId");
+            const type = (params.get("type") || "Damage");  // "Damage" | "Shortage"
+            const lsDate = params.get("lsDate") || "";
+            const truckNo = params.get("truckNo") || "";
+            const daNo = params.get("daNo") || "";
+
+            // Row 1 — badge (left of LS No)
+            const $badge = $("#lblType");
+            if (type === "Damage") {
+                $badge.text("Damage").addClass("badge-damage");
+            } else {
+                $badge.text("Shortage").addClass("badge-shortage");
+            }
+
+            // Row 2 — Truck No & DA No (populated from URL params, no extra API call)
+            if (truckNo) $("#lblTruckNo").text(truckNo);
+            if (daNo) $("#lblDANo").text(daNo);
+            if (lsDate) $("#lblLSDate").text(lsDate);
+
+            if (!lsId) {
+                showInfoError("Missing LSID in URL.");
+                hideSpinner();
+                return;
+            }
+
+            // Fetch photo filenames from API
+            $.getJSON("/api/ViewPhotos", { lsId: lsId, type: type })
+                .done(function (data) {
+                    const rec = Array.isArray(data) ? (data[0] || {}) : data;
+
+                    // LS No — from API response
+                    $("#lblLSNO").text(rec.LSNO ?? rec.lsno ?? lsId);
+
+                    const photoDefs = type === "Damage" ? DAMAGE_PHOTOS : SHORTAGE_PHOTOS;
+                    const $grid = $("#photoGrid");
+                    let hasAny = false;
+
+                    photoDefs.forEach(function (def) {
+                        // API returns PascalCase keys; fall back to lowercase just in case
+                        const fileName = rec[def.col] ?? rec[def.col.toLowerCase()] ?? "";
+                        const url = fileName
+                            ? ("/api/ViewPhotos/File?lsId=" + encodeURIComponent(lsId)
+                                + "&type=" + encodeURIComponent(type)
+                                + "&col=" + encodeURIComponent(def.col))
+                            : "";
+
+                        if (url) hasAny = true;
+
+                        const thumbHtml = url
+                            ? `<div class="photo-thumb-wrap" onclick="openLightbox('${url}','${escJs(def.caption)}')">
+                                       <img src="${url}" alt="${escAttr(def.caption)}" loading="lazy" />
+                                   </div>`
+                            : `<div class="photo-thumb-wrap" style="cursor:default;">
+                                       <div class="photo-placeholder">
+                                           ${cameraSvg}
+                                           <span>No photo</span>
+                                       </div>
+                                   </div>`;
+
+                        $grid.append(`
+                                <div class="photo-card">
+                                    <div class="photo-caption">${escHtml(def.caption)}</div>
+                                    ${thumbHtml}
+                                </div>`);
+                    });
+
+                    hideSpinner();
+                    if (hasAny || photoDefs.length > 0) {
+                        $grid.show();
+                    } else {
+                        $("#noPhotosMsg").show();
+                    }
+                })
+                .fail(function (xhr) {
+                    hideSpinner();
+                    const msg = (xhr.responseJSON && (xhr.responseJSON.title || xhr.responseJSON.message))
+                        || xhr.responseText || xhr.statusText || "Failed to load photos.";
+                    showInfoError(msg);
+                });
+        });
+
+        function hideSpinner() {
+            $("#photoSpinner").hide();
+        }
+
+        function showInfoError(msg) {
+            $("#infoError").text(msg).show();
+        }
+
+        // ---------- Close / Back ----------
+        function fnClose() {
+            if (window.parent && window.parent !== window
+                && typeof window.parent.fnClosePhotosModal === "function") {
+                window.parent.fnClosePhotosModal();
+            } else {
+                window.history.back();
+            }
+        }
+
+        // ---------- Lightbox ----------
+        function openLightbox(url, caption) {
+            $("#lightboxImg").attr("src", url);
+            $("#lightboxCaption").text(caption);
+            $("#lightboxOverlay").addClass("active");
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === "lightboxOverlay" || e.target.id === "lightboxClose") {
+                $("#lightboxOverlay").removeClass("active");
+                $("#lightboxImg").attr("src", "");
+            }
+        }
+
+        // ---------- Escape helpers ----------
+        function escHtml(s) {
+            return String(s || "")
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+        function escAttr(s) { return escHtml(s); }
+        function escJs(s) {
+            return String(s || "")
+                .replace(/\\/g, "\\\\").replace(/'/g, "\\'")
+                .replace(/"/g, '\\"').replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <link href="https://kendo.cdn.telerik.com/themes/10.2.0/default/default-main.css" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.53" rel="stylesheet" />
+
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <div class="container" style="background-color: #E0E0E0 !important; ">
+                <div style="display: flex; justify-content: center; margin:5px 0;">
+                    <button id="btnBackToDashborad" style="display:none" onclick="window.location.href = 'dashboard.html';" class="btn btn-secondary">
+                        Back To Dashborad
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <div id="example">
+                        <div class="demo-section">
+                            <div id="lstSaleInvoiceDetail" style="border:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <!--
+        Same display rules as the Loading Slip page.
+        Operation values: Transhipment, Loading, Unloading, LIST (HandlingType A), TL01 (HandlingType B).
+        For LIST / TL01: Truck No, Week No (DA/Week portion), Dealer and Delivery No are hidden.
+        Bags and Driver/Mob stay visible.
+
+        This page loads ONE sale request (by SalesRequestID), so there is no date filter here -
+        the LS being approved must always show, regardless of its date or invoice state.
+        Edit and Cancel are kept on top of the Loading-Slip-style display.
+    -->
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailExpand">
+        <div class="clsTable cls#: LSID #" style="margin-bottom:5px;padding:0px!important;width:100%!important;">
+
+            # var hasOrder = (data.OrderNumber || '').toString().trim().length > 0; #
+            # var hasInvoice = (data.InvoiceNo || '').toString().trim().length > 0; #
+            # var canSAP = (data.Operation === 'Loading' || data.Operation === 'Transhipment'); #
+            # var isListOrTL01 = (data.Operation === 'LIST' || data.Operation === 'TL01'); #
+            # var weekText = (data.DAWeekNo || '').toString().replace(/\s*\(Bags[^)]*\)/g, ''); #
+
+            <!-- Action row: SAP Invoice (only when it can actually be invoiced) + Edit + Cancel.
+                 SAP visibility is further restricted by role in dataBound. -->
+            # var sapActive = (canSAP && hasOrder && !hasInvoice); #
+            <div class="clsTableRow" style="display:table-row; width:100%;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <div style="display:flex; align-items:center; gap:8px; padding:6px 0; flex-wrap:wrap;">
+                        # if (sapActive) { #
+                        <button id="btnTriggerSAPInvoice_#: LSID #"
+                                class="button submit btnSAPPrint"
+                                style="width:110px; flex:0 0 auto;"
+                                onclick="fnTriggerSAPInvoice('#: data.LSID #', event, this);">
+                            SAP Invoice
+                        </button>
+                        # } #
+                        <button id="btnEdit_#: LSID #"
+                                class="btn-primary"
+                                style="width:90px; flex:0 0 auto;"
+                                onclick="openLSEdit('#: data.LSID #')">
+                            Edit
+                        </button>
+                        <button id="btnCancel_#: LSID #"
+                                class="btn-primary"
+                                style="width:90px; flex:0 0 auto;"
+                                onclick="fnCancelLS('#: LSID #', event, this);">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LS No + Dt (date) on one line -->
+            <div class="clsTableRow" style="display:table-row;padding:0px!important;width:100%!important;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>LS No: </strong>#: data.LSNO #&nbsp;&nbsp;&nbsp;&nbsp;<strong>Dt: </strong>#: data.TranDateDesc #
+                </div>
+            </div>
+
+            <!-- Inv. No. + Inv. Dt in green (invoice date only for Loading/Transhipment) -->
+            # if (hasInvoice) { #
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Inv. No.: <span style="color:green">#: data.InvoiceNo #</span></strong>
+                    # if (canSAP && (data.InvoiceDateDesc || '').toString().trim()) { #
+                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Dt: <span style="color:green">#: data.InvoiceDateDesc #</span></strong>
+                    # } #
+                </div>
+            </div>
+            # } #
+
+            <!-- Truck No (hidden for Unloading / LIST / TL01) + Operation (+ Bags for LIST/TL01) -->
+            <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    # if (data.Operation !== 'Unloading' && !isListOrTL01) { #
+                        <strong>Truck No: </strong>#: data.DepotLorryNo #&nbsp;&nbsp;&nbsp;&nbsp;
+                    # } #
+                    <strong>Operation: </strong>#: data.Operation #
+                    # if (isListOrTL01) { #
+                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>Bags: </strong>#: data.TotalQty #
+                    # } #
+                </div>
+            </div>
+
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>Product: </strong>#: data.ProductID #</div>
+            </div>
+
+            <!-- Week No / DA + Bags - only for non LIST/TL01 (for LIST/TL01 Bags is shown next to Operation) -->
+            # if (!isListOrTL01) { #
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>#: data.ISDaWeek #: </strong>#: weekText #&nbsp;&nbsp;&nbsp;&nbsp;<strong>Bags: </strong>#: data.TotalQty #
+                </div>
+            </div>
+            # } #
+
+            # if ((data.IsLIST || '').toLowerCase() === "yes") { #
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Is LIST: </strong><span style="color:red;font-weight:bold;">Yes</span>
+                </div>
+            </div>
+            # } #
+
+            # if ((data.IsDamaged || '').toLowerCase() === "yes") { #
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                    <strong>Is Damaged: </strong><span style="color:red;font-weight:bold;">Yes</span>
+                </div>
+            </div>
+            # } #
+        </div>
+    </script>
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoiceDetailCollaps">
+        <div class="clsTable cls#: LSID #" style="margin-bottom:2px;padding:0px;border-bottom:5px solid;border-bottom-color: \#E0E0E0;">
+            # var isListOrTL01 = (data.Operation === 'LIST' || data.Operation === 'TL01'); #
+            <table style="border-collapse: collapse;" border="0">
+                <tr>
+                    <td>
+                        # if (data.Operation === 'Transhipment' || data.Operation === 'Unloading') { #
+                        <div class="clsTableRow" style="display:table-row;">
+                            <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>Plant Truck No.: </strong>#: data.PlantTruckNumber #</div>
+                        </div>
+                        # } #
+                        # if (data.Operation !== 'Unloading') { #
+                            <!-- Dealer hidden for LIST / TL01 -->
+                            # if (!isListOrTL01) { #
+                            <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>Dealer: </strong>#: data.SoldToParty #</div>
+                            </div>
+                            # } #
+                            <!-- Driver + Mob always shown (when not Unloading) -->
+                            <div class="clsTableRow" style="display:table-row;padding:0px!important;">
+                                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                    <strong>Driver: </strong>#: data.DriverName #&nbsp;&nbsp;&nbsp;&nbsp;<strong>Mob: </strong>#: data.DriverMobileNo #
+                                </div>
+                            </div>
+                            <!-- Ref Doc before Delivery No on the last row (hidden for LIST / TL01); Delivery No label turns red when missing -->
+                            # if (!isListOrTL01) { #
+                            # var hasDelivery = (data.OrderNumber || '').toString().trim().length > 0; #
+                            <div class="clsTableRow" style="display:table-row;">
+                                <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                                    <strong>Ref Doc: </strong>#: (data.ReferenceDoc || '') #&nbsp;&nbsp;&nbsp;&nbsp;<strong # if (!hasDelivery) { #style="color:red;"# } #>Delivery No.: </strong>#: data.OrderNumber #
+                                </div>
+                            </div>
+                            # } #
+                        # } #
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </script>
+
+    <script>document.addEventListener("DOMContentLoaded", function () {
+
+            // Disable back button
+            history.pushState(null, '', window.location.href);
+            window.addEventListener('popstate', function (event) {
+                history.pushState(null, '', window.location.href);
+                console.log("Back button disabled on mobile/desktop");
+            });
+
+            // Disable F5 / Ctrl+R on keyboard
+            document.addEventListener("keydown", function (e) {
+                if (e.which === 116 || (e.ctrlKey && e.which === 82)) {
+                    e.preventDefault();
+                    alert("Page refresh is disabled!");
+                }
+            });
+
+            // Disable pull-to-refresh / overscroll in mobile browsers
+            let touchStartY = 0;
+            document.addEventListener('touchstart', function (e) {
+                if (e.touches.length === 1) {
+                    touchStartY = e.touches[0].clientY;
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchmove', function (e) {
+                if (e.touches.length === 1) {
+                    let touchCurrentY = e.touches[0].clientY;
+                    if (window.scrollY === 0 && (touchCurrentY - touchStartY) > 0) {
+                        // Prevent pull-to-refresh
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log("Pull-to-refresh prevented");
+                    }
+                }
+            }, { passive: false });
+
+        });</script>
+
+    <script>// ── Utilities ──────────────────────────────────────────────────────────────
+
+        function getDepotID() {
+            return localStorage.getItem("DepotID").toString();
+        }
+
+        function setListViewHeight() {
+            var availableHeight = $(window).height()
+                - $("#header").outerHeight(true)   // subtract header
+                - $("#footer").outerHeight(true)   // subtract footer
+                - 74;                              // small padding margin
+
+            $("#lstSaleInvoiceDetail").height(availableHeight);
+        }
+
+        // One place to enable/disable all three buttons for an LS
+        function setLSButtons(LSID, disabled) {
+            $("#btnTriggerSAPInvoice_" + LSID).prop("disabled", disabled);
+            $("#btnEdit_" + LSID).prop("disabled", disabled);
+            $("#btnCancel_" + LSID).prop("disabled", disabled);
+        }
+
+        // ── ListView ─────────────────────────────────────────────────────────────
+
+        $(document).ready(function () {
+
+            const userID = Number(localStorage.getItem("userID")); // get userID once
+            const roleID = Number(localStorage.getItem("roleID")); // get roleID once
+
+            fnSetPageName("LS Approval");
+
+            // Read SalesRequestID from the URL (case-insensitive key)
+            const urlParams = new URLSearchParams(window.location.search);
+            let SalesRequestId = null;
+            for (const [key, value] of urlParams.entries()) {
+                if (key.toLowerCase() === 'salesrequestid') {
+                    SalesRequestId = value;
+                    break;
+                }
+            }
+
+            if (!SalesRequestId) {
+                alert("SalesRequestID is missing in the URL!"); // stop if null/empty
+                return;
+            }
+
+            // Compile the expand template once, not once per row
+            var expandTemplate = kendo.template($("#tmpSaleInvoiceDetailExpand").html());
+
+            $("#lstSaleInvoiceDetail").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "../api/LoadingSlip/GetBySalesRequestId/" + SalesRequestId,
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        data: function (response) {
+                            // No date filter here - this page must always show its sale request
+                            return response.mmLoadingUnloadingTran || [];
+                        }
+                    }
+                },
+                template: kendo.template($("#tmpSaleInvoiceDetailCollaps").html()),
+                selectable: "single",
+                change: function (e) {
+                },
+                dataBound: function () {
+                    var lv = this;
+                    setListViewHeight(); // size the list right away so rows are visible
+
+                    var items = $("#lstSaleInvoiceDetail .k-listview-content .k-listview-item").toArray();
+                    var CHUNK = 8; // panels to build per frame
+                    var idx = 0;
+
+                    function initChunk() {
+                        var end = Math.min(idx + CHUNK, items.length);
+                        for (; idx < end; idx++) {
+                            (function (el) {
+                                var $el = $(el);
+
+                                // Grab the data item before the panel wraps the element
+                                var dataItem = lv.dataItem($el);
+
+                                // expanded: true => every field shows by default, no tap needed
+                                $el.kendoExpansionPanel({
+                                    title: '',
+                                    subTitle: '',
+                                    expanded: true
+                                });
+
+                                // Inject the header now. The 'complete' event does not fire
+                                // reliably when a panel starts already expanded.
+                                var $expander = $el.closest("div.k-expander");
+                                var $header = $expander.find("div.k-expander-header");
+
+                                $header.find("div.k-expander-title").html(expandTemplate(dataItem));
+                                $header.css({
+                                    'border-bottom': '0px solid',
+                                    'border-bottom-color': '#E0E0E0',
+                                    'padding-bottom': '10px'
+                                });
+
+                                // SAP Invoice is only for approver roles
+                                var $sap = $header.find(".btnSAPPrint");
+                                if (roleID === 1 || roleID === 41 || roleID === 11) {
+                                    $sap.show();
+                                } else {
+                                    $sap.hide();
+                                }
+
+                                // Once RPA has fired or the LS is cancelled, lock all buttons
+                                if (dataItem.IsSAPInvoiceCreationRPA_Activated === true || dataItem.IsCancelled === true) {
+                                    setLSButtons(dataItem.LSID, true);
+                                }
+                            })(items[idx]);
+                        }
+                        if (idx < items.length) {
+                            setTimeout(initChunk, 0); // let rows paint between chunks
+                        }
+                    }
+
+                    setTimeout(initChunk, 0); // start after first paint
+                }
+            });
+
+            setListViewHeight();
+            $(window).on("resize", setListViewHeight);
+        });
+
+        // ── SAP Invoice (same flow id + payload as the Loading Slip page) ───────────
+
+        function fnTriggerSAPInvoice(LSID, event, btn) {
+            event.preventDefault();
+
+            var lv = $("#lstSaleInvoiceDetail").data("kendoListView");
+            var dataItem = lv
+                ? lv.dataSource.view().find(function (x) { return String(x.LSID) === String(LSID); })
+                : null;
+
+            if (!dataItem) {
+                return alert("Unable to find LS data. Please refresh and try again.");
+            }
+
+            // Delivery No (OrderNumber) must be present before invoicing
+            if (!(dataItem.OrderNumber || '').toString().trim()) {
+                return alert("SAP Invoice is allowed only when Delivery No. is available.");
+            }
+
+            // Don't re-trigger when an invoice already exists
+            if ((dataItem.InvoiceNo || '').toString().trim()) {
+                return alert("SAP Invoice already exists for this LS.");
+            }
+
+            if (dataItem.Operation !== "Transhipment" && dataItem.Operation !== "Loading") {
+                return alert("SAP Invoice is allowed only for Transhipment or Loading.");
+            }
+
+            setLSButtons(LSID, true);
+
+            $.ajax({
+                url: '/api/LoadingSlip/GetSAPInvoiceParamsByLSID/' + LSID,
+                type: "GET",
+                success: function (data) {
+                    var isLoading = dataItem.Operation === "Loading";
+
+                    // Fields common to Loading and Transhipment.
+                    // Optional values go as "" (never null) to the RPA.
+                    var sharedParams = {
+                        loadingSlipId: data.loadingSlipId,
+                        orderNumber: data.orderNumber || "",
+                        deliveryNumber: data.deliveryNumber || "",
+                        saleQuantity: data.saleQuantity,
+                        batchNumber: data.batchNumber || "",
+                        depotCode: data.depotCode || "",
+                        shipmentType: data.shipmentType || "",
+                        truckNumber: data.truckNumber || "",
+                        driverName: data.driverName || "",
+                        phoneNumber: data.phoneNumber || "",
+                        loadingSlipNumber: data.loadingSlipNumber,
+                        isGenerateTransMetadata: false,
+                        isGRNEntryCompleted: false
+                    };
+
+                    // Extra fields only Transhipment needs
+                    var transhipmentExtras = isLoading ? {} : {
+                        GRNdeliveryNumber: data.GRNdeliveryNumber || "",
+                        salesOrderNumber: data.salesOrderNumber || "",
+                        storageLocation: data.storageLocation || "",
+                        tokenRRNumber: data.tokenRRNumber || ""
+                    };
+
+                    var payload = {
+                        requestHeader: {
+                            flowId: isLoading ? "SAP-LOADING-INVOICE"
+                                              : "SAP-TRANSHIPMENT-INVOICE"
+                        },
+                        parameters: $.extend({}, sharedParams, transhipmentExtras)
+                    };
+
+                    $.ajax({
+                        url: "/api/FlowInvoice/Trigger",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(payload),
+                        success: function () {
+                            alert("SAP Invoice Triggered Successfully!");
+
+                            var uID = Number(localStorage.getItem("userID"));
+                            if (uID > 0) {
+                                $.ajax({
+                                    url: "/api/LoadingSlip/ActivateSAPInvoiceRPA",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({ LSID: LSID, ActivatedBy: uID }),
+                                    success: function (res) {
+                                        console.log("RPA Activated:", res);
+                                        $("#btnBackToDashborad").show();
+                                    },
+                                    error: function (xhr, _, err) {
+                                        console.error("RPA Activation error:", xhr.responseText);
+                                        alert("Error activating RPA: " + err);
+                                        setLSButtons(LSID, false);
+                                    }
+                                });
+                            } else {
+                                console.warn("UserID not found in localStorage.");
+                                $("#btnBackToDashborad").show();
+                            }
+                        },
+                        error: function (xhr, _, err) {
+                            alert("Error: " + err);
+                            console.error(xhr.responseText);
+                            setLSButtons(LSID, false);
+                        }
+                    });
+                },
+                error: function (xhr, _, err) {
+                    alert("Failed to get invoice parameters: " + err);
+                    console.error(xhr.responseText);
+                    setLSButtons(LSID, false);
+                }
+            });
+        }
+
+        // ── Cancel LS (kept intact) ─────────────────────────────────────────────────
+
+        function fnCancelLS(LSID, event, btn) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            if (!confirm("Are you sure you want to cancel this LS?")) {
+                return;
+            }
+
+            // Lock the buttons while the cancel runs
+            setLSButtons(LSID, true);
+
+            $.ajax({
+                url: '/api/LoadingSlip/DeleteLoadingSlip?LSID=' + LSID,
+                type: 'Post',
+                contentType: 'application/json',
+                success: function (response) {
+                    alert(response.message);
+                    $("#btnBackToDashborad").show();
+                },
+                error: function (xhr, status, error) {
+                    alert("Error cancelling LS: " + (xhr.responseJSON?.message || error));
+                    setLSButtons(LSID, false);
+                }
+            });
+        }
+
+        // ── Edit LS (kept intact) ───────────────────────────────────────────────────
+
+        function openLSEdit(lsid) {
+            const currentPage = window.location.pathname.split("/").pop();
+            const currentQuery = window.location.search; // e.g. ?SalesrequestId=568
+            const returnUrl = currentPage + currentQuery;
+
+            window.location.href =
+                `LSEdit.html?LSID=${lsid}&from=${encodeURIComponent(returnUrl)}`;
+        }</script>
+
+    <style>
+        .k-expander-content {
+            max-width: 600px;
+            padding-bottom: 0px !important;
+            border-bottom: 0px !important;
+        }
+
+        .k-expander-header {
+            padding: 0px !important;
+            text-transform: none;
+            background-color: white !important;
+        }
+
+            .k-expander-header:hover {
+                background-color: unset;
+            }
+
+        .k-expander-title {
+            padding: 0px !important;
+            text-transform: unset;
+        }
+
+        .button.submit:disabled {
+            background-color: #cccccc !important; /* greyed out */
+            color: #666666 !important; /* text color */
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .btn-primary:disabled {
+            background-color: #cccccc !important; /* greyed out */
+            color: #666666 !important; /* text color */
+            cursor: not-allowed !important;
+            opacity: 0.7;
+        }
+
+        .form-group {
+            margin-bottom: 0px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

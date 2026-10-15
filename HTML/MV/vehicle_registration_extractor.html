@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration Extractor</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        #preview {
+            max-width: 100%;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+        #result, #metadata {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Capture Image for Analysis</h2>
+        <input type="file" id="fileInput" accept="image/*" capture="environment">
+        <img id="preview" alt="Preview Image">
+        <div id="metadata"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const BASE_LAT = 9.9252;
+        const BASE_LON = 78.1198;
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                readImage(file);
+                extractMetadata(file);
+                extractRegistrationNumber(file);
+            }
+        });
+
+        function readImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const img = document.getElementById('preview');
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function extractMetadata(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event) {
+                const exifData = EXIF.readFromBinaryFile(event.target.result);
+
+                const latitude = exifData?.GPSLatitude ? convertToDecimal(exifData.GPSLatitude, exifData.GPSLatitudeRef) : "N/A";
+                const longitude = exifData?.GPSLongitude ? convertToDecimal(exifData.GPSLongitude, exifData.GPSLongitudeRef) : "N/A";
+                const dateTime = exifData?.DateTimeOriginal || "N/A";
+                const isRealImage = (latitude !== "N/A" && longitude !== "N/A") ? "✅ Real Image" : "❌ Fake Image (No GPS Data)";
+
+                document.getElementById("metadata").innerText =
+                    `📅 Date/Time: ${dateTime}\n📍 Location: ${latitude}, ${longitude}\n📝 Image Authenticity: ${isRealImage}`;
+
+                if (latitude !== "N/A" && longitude !== "N/A") {
+                    calculateDistance(latitude, longitude);
+                }
+            };
+        }
+
+        function convertToDecimal(coord, ref) {
+            const decimal = coord[0] + (coord[1] / 60) + (coord[2] / 3600);
+            return (ref === "S" || ref === "W") ? -decimal : decimal;
+        }
+
+        function calculateDistance(lat1, lon1) {
+            const R = 6371000;
+            const lat1Rad = lat1 * Math.PI / 180;
+            const lon1Rad = lon1 * Math.PI / 180;
+            const lat2Rad = BASE_LAT * Math.PI / 180;
+            const lon2Rad = BASE_LON * Math.PI / 180;
+
+            const dLat = lat2Rad - lat1Rad;
+            const dLon = lon2Rad - lon1Rad;
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c;
+
+            document.getElementById("result").innerText = `📏 Distance from Base Location: ${distance.toFixed(2)} meters.`;
+        }
+
+        async function extractRegistrationNumber(file) {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await fetch("/api/extract/license-plate", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.registration_number) {
+                    document.getElementById("result").innerText += `\n🚗 Vehicle Registration Number: ${data.registration_number}`;
+                } else {
+                    document.getElementById("result").innerText += "\n❌ Failed to Extract Registration Number.";
+                }
+            } catch (error) {
+                document.getElementById("result").innerText += "\n❌ Error in Registration Number Extraction.";
+            }
+        }
+    </script>
+</body>
+</html>

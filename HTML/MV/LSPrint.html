@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link href="css/materia.css?v=1.22" rel="stylesheet" />
+   
+    <link rel="manifest" href="/manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <meta name="theme-color" content="#7952b3">
+  
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+</head>
+<body style="font-size: 12px!important;background-color:white!important;">
+    <div>
+        <!--<header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>-->
+            <input type="hidden" id="hdnLSID" value="0" />
+            <div style="margin-left: 15px; margin-top: 2px; width: 98% !important; background-color: white !important; ">
+                <div class="clsTable cls1" style="margin-bottom:5px;padding:0px!important;width:100%!important;">
+                    <table border="0" style="width: 670px; height: 410px;padding-left:15px">
+                        <tr>
+                            <td>
+                                <table border="1px" style="width: 645px; height: 410px;font-family:Verdana!important;">
+                                    <tr>
+                                        <td>
+                                            <table style="width: 645px; height: 410px;">
+                                                <tr>
+                                                    <td colspan="3" align="center"><div id="lblCancelled" style="font-weight:bold;"></div></td>
+                                                    <td colspan="3" align="right"><div id="lblPrintedOn"></div></td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td style="width: 125px"><b>Depot</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td style="width: 250px">
+                                                        <div id="lblDepot" style="font-weight:bold;"></div>
+                                                    </td>
+                                                    <td style="width: 125px"><b>Made By</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td style="width: 145px">
+                                                        <div id="lblMadeBy"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>DCB No.</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDCBNo"></div>
+                                                    </td>
+                                                    <td><b>Date</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDate"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Handling Type</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblHandlingType"></div>
+                                                    </td>
+                                                    <td><div id="lblManualLSNo" style="font-weight:bold;display:none;">Manual LS No.</div></td>
+                                                    <td><div id="lblManualLSNoColon" style="display: none;">&nbsp;:&nbsp;</div></td>
+                                                    <td><div id="txtManualLSNo" style="display: none;"></div></td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>SAP Product Code</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblSAPProductCode"></div>
+                                                    </td>
+                                                    <td><b>Quantity (Bags)</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblQuantity" style="font-weight: bold"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Variety</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblVariety" style="font-weight: bold"></div>
+                                                    </td>
+                                                    <td><div id="lblLIST_ClottedQty" style="display:none;"><b>Arr. Clotted Qty</b></div></td>
+                                                    <td><div id="lblLIST_ClottedQtyColon" style="display:none;">&nbsp;:&nbsp;</div></td>
+                                                    <td><div id="txtLIST_ClottedQty" style="display:none;"></div></td>
+                                                </tr>
+                                                <tr valign="top" id="rowLIST" style="display:none;">
+                                                    <td><div id="lblLIST_CutTornQty" style="visibility: hidden;"><b>Arr. C&T Qty</b></div></td>
+                                                    <td><div id="lblLIST_CutTornQtyColon" style="display:none;">&nbsp;:&nbsp;</div></td>
+                                                    <td><div id="txtLIST_CutTornQty" style="display:none;"></div></td>
+                                                    <td><div id="lblLIST_ShortageQty" style="visibility: hidden;"><b>Arr. Shortage Qty</b></div></td>
+                                                    <td><div id="lblLIST_ShortageQtyColon" style="display:none;">&nbsp;:&nbsp;</div></td>
+                                                    <td><div id="txtLIST_ShortageQty" style="display:none;"></div></td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Dealer/Godown</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDealerGodown"></div>
+                                                    </td>
+                                                    <td><b>Delivery Points</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDeliveryPoints"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b><div id="titleReceiptDANoBatchWeekNo"></div></b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td colspan="4">
+                                                        <div id="lblReceiptDANoBatchWeekNo"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Invoice No.</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblInvoiceNo"></div>
+                                                    </td>
+                                                    <td><div id="lblDCJJNoHeading" style="font-weight:bold;">DC No.</div></td>
+                                                    <td>&nbsp;<div id="lblDCJJNoHeadingDots" style="font-weight:bold;">:</div>&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDCJJNo"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Invoice Truck No.</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblInvoiceTruckNo"></div>
+                                                    </td>
+                                                    <td><b>Truck Type</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblTruckType"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Truck In Time</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblTruckInTime"></div>
+                                                    </td>
+                                                    <td><b>Driver Name</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDriverName"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td><b>Truck Out Time</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblTruckOutTime"></div>
+                                                    </td>
+                                                    <td><b>Driver Mobile No.</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td>
+                                                        <div id="lblDriverMobileNo"></div>
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td><b>Driver Signature</b></td>
+                                                    <td>&nbsp;:&nbsp;</td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="6" style="vertical-align:top;height:10px">
+                                                    </td>
+                                                </tr>
+                                                <tr valign="top">
+                                                    <td colspan="6" style="vertical-align:top;height:40px">
+                                                        <center>
+                                                            <div id="lblNoteTN" style="font-size: smaller; text-align: center">30 நாட்களுக்கு மேல் பழக்கமான சிமெண்ட் இல்லை என்றும் மேலும் சிமெண்ட் முடைகளை நல்ல நிலையில் கிடைக்க பெற்றதாகவும் ட்ரைவர் உறுதி செய்ய வேண்டும்.</div><div id="lblNoteKL" style="font-size: smaller; text-align: center">30 ദിവസത്തിനുമേല്‍ പഴക്കമില്ലാത്ത സിമെന്റ്‌ ആണെന്നും ആയത്‌നല്ല നിലയില്‍ ആണ് ലഭിച്ചതെന്നും ബന്ധപ്പെട്ട ട്രക്ക് ഡ്രൈവര്‍ഉറപ്പുവരുതേണ്ടതാണ്</div>
+                                                            <br /><div id="lblNoteEN" style="text-align: center">These cement bags are not more than 30 days old and the concerned truck driver needs to confirm that the same was received in good condition.</div>
+                                                        </center>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <script language="javascript" type="text/javascript">
+                        //window.print();
+                        //window.onfocus = function () { window.close(); }
+                    </script>
+                </div>
+            </div>
+    </div>
+    <!--<footer id="footer">
+        <script src="Scripts/footer2.js?v1.241" defer></script>
+    </footer>-->
+    <script>
+        const currentUrl = window.location.href;
+        function getLSID() {
+            const url = new URL(currentUrl);
+            const params = new URLSearchParams(url.search);
+            return params.get('LSID');
+        }
+
+        $(document).ready(function () {
+            //fnSetPageName("Print Loading Slip");
+            var LSID = getLSID();
+            $("#hdnLSID").val(LSID);
+
+            if (LSID) {
+                $.ajax({
+                    url: '../api/LoadingSlip/LSDetailsForPrint?LSID=' + LSID,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#lblPrintedOn').html("Printed on " + data.LSPrintedOn + "&nbsp;&nbsp;");
+                        if (data.IsCancelled == true)
+                            $('#lblCancelled').html('CANCELLED');
+                        if (data.IsPrinted != "1")
+                            $('#lblPrintedOn').html($('#lblPrintedOn').html() + "(" + data.IsPrinted + ")");
+                        $('#lblPrintedOn').html($('#lblPrintedOn').html() + "&nbsp;");
+                        $('#lblDepot').html(data.Depot);
+                        $('#lblMadeBy').html(data.MadeBy);
+                        $('#lblDCBNo').html(data.LSNO);
+                        $('#lblDate').html(data.TranDateDesc);
+                        $('#lblHandlingType').html(data.HandlingTypeDesc);
+
+                        if (data.ManualLSNumber != "" && data.ManualLSNumber != null) {
+                            $("#lblManualLSNo").attr("style", "display:show;");
+                            $("#lblManualLSNoColon").attr("style", "display:show;");
+                            $("#txtManualLSNo").attr("style", "display:show;");
+                            $('#txtManualLSNo').html(data.ManualLSNumber);
+                        }
+                        $('#lblSAPProductCode').html(data.ProductID);
+                        $('#lblQuantity').html(data.TotalQty);
+                        $('#lblVariety').html(data.ProductGroup);
+
+                        if (data.ClottedQty != "" && data.ClottedQty != null) {
+                            $("#lblLIST_ClottedQty").attr("style", "display:show;");
+                            $("#lblLIST_ClottedQtyColon").attr("style", "display:show;");
+                            $("#txtLIST_ClottedQty").attr("style", "display:show;");
+                            $('#txtLIST_ClottedQty').html(data.ClottedQty);
+                        }
+
+                        //alert(data.CutTornQty);
+                        if ((data.CutTornQty != "" && data.CutTornQty != null) || (data.ShortageQty != "" && data.ShortageQty != null)) {
+                            $("#rowLIST").attr("style", "display:show;");
+                            if (data.CutTornQty != "" && data.CutTornQty != null) {
+                                $("#lblLIST_CutTornQty").attr("style", "display:show;");
+                                $("#lblLIST_CutTornQtyColon").attr("style", "display:show;");
+                                $("#txtLIST_CutTornQty").attr("style", "display:show;");
+                                $('#txtLIST_CutTornQty').html(data.CutTornQty);
+                            }
+                            if (data.ShortageQty != "" && data.ShortageQty != null) {
+                                $("#lblLIST_ShortageQty").attr("style", "display:show;");
+                                $("#lblLIST_ShortageQtyColon").attr("style", "display:show;");
+                                $("#txtLIST_ShortageQty").attr("style", "display:show;");
+                                $('#txtLIST_ShortageQty').html(data.ShortageQty);
+                            }
+                        }
+                        $('#lblDealerGodown').html(data.DealerNameGodown);
+                        $('#lblDeliveryPoints').html(data.DeliveryPoinrt);
+                        
+                        if (data.HandlingType == "T" || data.HandlingType == "D" || data.HandlingType == "R") {
+                            $('#titleReceiptDANoBatchWeekNo').html("Receipt DA No.");
+                            $('#lblReceiptDANoBatchWeekNo').html(data.ReceiptDANo);
+                            //$('#lblDealerGodown').html(data.DealerNameGodown);
+                            //lblReceiptDANoBatchWeekNo.Text.Replace("Bags", "<b>Bags</b>").Replace("Truck No", "<b>Truck No</b>").Replace("In Time", "<b>In Time</b>");
+                        }
+                        else {
+                            $('#titleReceiptDANoBatchWeekNo').html("Batch/Week No.");
+                            $('#lblReceiptDANoBatchWeekNo').html(data.WeekNo);
+                        }
+                        $('#lblInvoiceNo').html(data.InvoiceNo);
+                        $('#lblDCJJNo').html(data.DCJJNo);
+                        if (data.DCJJNo != "" && data.DCJJNo != null) {
+                            $("#lblDCJJNoHeading").attr("style", "display:show;");
+                            $("#lblDCJJNoHeadingDots").attr("style", "display:show;");
+                        }
+                        else {
+                            $("#lblDCJJNoHeading").attr("style", "display:none;");
+                            $("#lblDCJJNoHeadingDots").attr("style", "display:none;");
+                        }
+                        if (data.GodownType == "ST")
+                            $('#lblDCJJNoHeading').html("E-Token No.");
+                        $('#lblInvoiceTruckNo').html(data.InvoiceTrkNo);
+                        $('#lblTruckType').html(data.DepotLorryTypeDesc);
+                        if (data.HandlingTypeDesc != "Shortage")
+                            $('#lblTruckInTime').html(data.TranDateDesc);
+                        $('#lblDriverName').html(data.DriverName);
+                        $('#lblDriverMobileNo').html(data.DriverMobileNo);
+                        if (data.TruckOutTime != "" && data.TruckOutTime != null)
+                            $('#lblTruckOutTime').html(data.TruckOutTimeDesc);
+                        if (data.StateID == "1") {
+                            $("#lblNoteTN").attr("style", "display:none;");
+                        }
+                        else {
+                            $("#lblNoteKL").attr("style", "display:none;");
+                        }
+
+                        //alert("complete");
+                        window.print();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching LS details:", error);
+                    }
+                });
+            } else {
+                console.warn("No LSID found in URL.");
+            }
+        });
+    </script>
+</body>
+</html>

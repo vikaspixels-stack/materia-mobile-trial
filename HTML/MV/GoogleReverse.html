@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Vehicle Image Verification</title>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #preview {
+            width: 100%;
+            max-width: 400px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📷 Verify Real-Time Vehicle Image</h2>
+
+    <!-- Capture Image from Back Camera -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment">
+    <button id="verifyButton">✅ Verify Image</button>
+    <button id="searchButton" style="display:none;">🔍 Reverse Search</button>
+
+    <br><br>
+    <img id="preview" src="" alt="Captured Image">
+    <p id="result"></p>
+
+    <script>
+        let uploadedImageBase64 = null;
+        let uploadedImageUrl = null;
+
+        $("#cameraInput").on("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#preview").attr("src", e.target.result).show();
+                    uploadedImageBase64 = e.target.result;
+                    extractMetadata(file);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Extract EXIF Metadata (Timestamp, GPS)
+        function extractMetadata(file) {
+            EXIF.getData(file, function () {
+                let exifData = EXIF.getAllTags(this);
+                let dateTaken = exifData.DateTimeOriginal || "No Date Data";
+                let gpsLat = exifData.GPSLatitude ? convertDMSToDecimal(exifData.GPSLatitude, exifData.GPSLatitudeRef) : null;
+                let gpsLon = exifData.GPSLongitude ? convertDMSToDecimal(exifData.GPSLongitude, exifData.GPSLongitudeRef) : null;
+
+                $("#result").html(
+                    `<b>Date Taken:</b> ${dateTaken}<br>
+                        <b>GPS Latitude:</b> ${gpsLat || "No GPS Data"}<br>
+                        <b>GPS Longitude:</b> ${gpsLon || "No GPS Data"}`
+                );
+
+                let isRecent = checkRecentTime(dateTaken);
+                let hasGPS = gpsLat !== null && gpsLon !== null;
+                let isLive = isRecent && hasGPS;
+
+                $("#result").append(`<br><b>Real-Time Image:</b> ${isLive ? "✅ Yes" : "❌ No"}`);
+
+                if (!isLive) {
+                    $("#searchButton").show();
+                }
+            });
+        }
+
+        // Convert DMS (Degrees, Minutes, Seconds) to Decimal
+        function convertDMSToDecimal(dmsArray, direction) {
+            let degrees = dmsArray[0];
+            let minutes = dmsArray[1] / 60;
+            let seconds = dmsArray[2] / 3600;
+            let decimal = degrees + minutes + seconds;
+            return (direction === "S" || direction === "W") ? -decimal : decimal;
+        }
+
+        // Check if the timestamp is recent (within last 5 minutes)
+        function checkRecentTime(dateString) {
+            if (dateString === "No Date Data") return false;
+            let takenTime = new Date(dateString.replace(/:/g, "-"));
+            let currentTime = new Date();
+            let diffMinutes = Math.abs((currentTime - takenTime) / (1000 * 60));
+            return diffMinutes <= 5;
+        }
+
+        // Perform DuckDuckGo Reverse Image Search
+        function reverseSearch() {
+            if (!uploadedImageUrl) {
+                alert("❗ Upload the image to PostImage or another host before searching.");
+                window.open("https://www.duckduckgo.com/?q=&ia=images", "_blank");
+            } else {
+                window.open(`https://www.duckduckgo.com/?q=${encodeURIComponent(uploadedImageUrl)}&ia=images`, "_blank");
+            }
+        }
+
+        // Attach event listener
+        $("#verifyButton").on("click", function () {
+            if (!uploadedImageBase64) {
+                alert("Please capture an image first!");
+                return;
+            }
+            alert("Image Verified! ✅");
+        });
+
+        $("#searchButton").on("click", reverseSearch);
+    </script>
+
+</body>
+</html>

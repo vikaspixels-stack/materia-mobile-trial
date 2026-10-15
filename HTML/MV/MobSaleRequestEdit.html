@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>    
+    <link href="css/materia.css" rel="stylesheet"  />
+    <style>
+        .k-listview .item {
+            border: none;
+            border-bottom: 3px solid #fff;
+            /*border-radius: 5px;*/
+            padding: 4px;
+            background-color: #e0e0e0; /*
+           background-color: #f8f8f8;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;*/
+        }
+
+            .k-listview .item:hover {
+                background-color: aliceblue;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                cursor:pointer;
+            }
+
+            .k-listview .item p {
+                margin:1px 0;
+                color: #333;
+            }
+            .k-listview .item:last-child {
+                border-bottom: none;
+            }
+
+        /* Adding padding and text alignment */
+        .item p {
+           
+            line-height: 1.6;
+        }
+
+        /* Additional responsive styling */
+        @media (max-width: 768px) {
+            .k-listview .item {
+                padding: 12px;
+            }
+
+                
+
+                .k-listview .item p {
+                    font-size: 16px;
+                }
+        }
+        .btn-primary {
+            background-color: #6FA3E8;
+            color: #fff;
+            font-size: 15px;
+            width: 150px;
+            font-weight: bold;
+            white-space: nowrap;
+            padding: 10px 5px;
+        }
+
+            .btn-primary:hover {
+                background-color: #5a8ad6;
+                border-color: #5a8ad6;
+            }
+
+        .btn-cancel {
+            background-color: #ffcc00;
+            font-size: 15px;
+            width:150px;
+            font-weight: bold;
+            padding: 10px 5px;
+           align-items: center;
+        }
+
+            .btn-cancel:hover {
+                background-color: #ffcc00;
+               /* border-color: #dc3545;*/
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <!-- Add your main content here -->
+            <div class="container mt-3 mb-9" >
+                <div class="row">
+                    <div class="col">
+                      
+                                <h6><b>Select Handling Type</b></h6>
+                                <form>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="handlingType" id="loading">
+                                        <label class="form-check-label" for="loading">Loading</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="handlingType" id="unloading">
+                                        <label class="form-check-label" for="unloading">UnLoading</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="handlingType" id="transhipment">
+                                        <label class="form-check-label" for="transhipment">Transhipment / Crossing</label>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label for="quantity" class="form-label"><b>Enter Quantity</b></label>
+                                        <input type="text" class="form-control" id="quantity">
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label for="reason" class="form-label"><b>Reason for Change</b></label>
+                                        <textarea class="form-control" id="reason" placeholder="Enter reason for change"></textarea>
+                                    </div>
+                                    <div class="row mt-5" style="margin-bottom:20px;text-align:center">
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-primary">
+                                                Update
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                                  
+                
+
+
+            </div>
+        </main>
+    </div>
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+    <script>
+        $(document).ready(function () {
+            fnSetDepoPageName();           
+        });
+        function fnSetDepoPageName() {
+            $("#spDepoName").html("Adoor");
+            $("#spPageName").html("Edit Loading Slip");
+        }
+    </script>
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

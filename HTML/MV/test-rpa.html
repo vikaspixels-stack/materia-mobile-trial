@@ -1,0 +1,473 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>RPA Webhook Live Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            margin: 24px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin: 10px 0 6px;
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            max-width: 520px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 0;
+            background: #1565c0;
+            color: #fff;
+            cursor: pointer;
+        }
+
+            button.secondary {
+                background: #455a64;
+            }
+
+            button:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .muted {
+            color: #666;
+            font-size: 12px;
+        }
+
+        #statusBox {
+            padding: 10px 12px;
+            background: #fafafa;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            min-height: 40px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .b-pending {
+            background: #757575;
+        }
+
+        .b-running {
+            background: #0277bd;
+        }
+
+        .b-succeeded {
+            background: #2e7d32;
+        }
+
+        .b-failed {
+            background: #b00020;
+        }
+
+        .b-cancelled {
+            background: #6d4c41;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            background: #222;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0,0,0,.25);
+            z-index: 9999;
+            max-width: 420px;
+            line-height: 1.35;
+            display: none;
+        }
+
+        .toast--error {
+            background: #b00020;
+        }
+
+        .toast--ok {
+            background: #2e7d32;
+        }
+
+        .toast--warn {
+            background: #f57c00;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>RPA Webhook — Live Notification Test</h1>
+
+    <div class="card">
+        <p class="muted">This page simulates the RPA bot by calling your local webhook endpoint and then watches status updates.</p>
+        <div class="row">
+            <div>
+                <label>Webhook URL</label>
+                <input id="webhookUrl" type="text" value="m24.materiatractus.com/api/rpa-webhook/notify" />
+            </div>
+            <div>
+                <label>Basic Username</label>
+                <input id="basicUser" type="text" value="rpa-client" />
+            </div>
+            <div>
+                <label>Basic Password <span class="muted">(testing only)</span></label>
+                <input id="basicPass" type="password" value="VcplRpa#2025!Secure@Bot" />
+            </div>
+            <div>
+                <label>Final Outcome</label>
+                <select id="finalStatus">
+                    <option value="Succeeded">Succeeded</option>
+                    <option value="Failed" selected>Failed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div>
+                <label>Simulated Run Delay</label>
+                <select id="runDelay">
+                    <option value="2000">2s</option>
+                    <option value="5000" selected>5s</option>
+                    <option value="10000">10s</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-top:12px" class="row">
+            <button id="btnSimulate">Simulate RPA Run</button>
+            <button id="btnWatchOnly" class="secondary">Watch Existing Txn</button>
+            <input id="txnInput" type="text" placeholder="Enter transactionId to watch" style="width:320px" />
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <div>
+                <strong>Current Status</strong>
+                <div id="statusBox">Waiting…</div>
+            </div>
+        </div>
+        <div style="margin-top:8px" class="muted mono">
+            transactionId: <span id="txnView">-</span>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- SignalR client (for push) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+        /* ----------------------------- Helpers ----------------------------- */
+
+        function genTxnId() {
+            const g = crypto.randomUUID().replace(/-/g, '').slice(0, 16).toUpperCase();
+            const d = new Date();
+            const y = d.getUTCFullYear();
+            const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(d.getUTCDate()).padStart(2, '0');
+            return `TXN-${y}-${m}-${day}-${g}`;
+        }
+
+        function btoaBasic(user, pass) {
+            return btoa(unescape(encodeURIComponent(`${user}:${pass}`)));
+        }
+
+        function showToast(message, kind) {
+            const el = document.getElementById('toast');
+            el.className = `toast ${kind ? 'toast--' + kind : ''}`;
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
+        }
+
+        async function maybeBrowserNotify(title, options) {
+            try {
+                if (!('Notification' in window)) return;
+                if (Notification.permission === 'default') {
+                    await Notification.requestPermission();
+                }
+                if (Notification.permission === 'granted') {
+                    new Notification(title, options || {});
+                }
+            } catch { /* ignore */ }
+        }
+
+        function renderStatus(update) {
+            const el = document.getElementById('statusBox');
+            const badge = (s) => {
+                const cls = s === 'Succeeded' ? 'b-succeeded'
+                    : s === 'Failed' ? 'b-failed'
+                        : s === 'Cancelled' ? 'b-cancelled'
+                            : s === 'Running' ? 'b-running'
+                                : 'b-pending';
+                return `<span class="badge ${cls}">${s}</span>`;
+            };
+            const parts = [
+                `Status: ${badge(update.status)} ${update.runStatus ? `<span class="muted">(${update.runStatus})</span>` : ''}`,
+                update.title ? `Title: <span class="mono">${escapeHtml(update.title)}</span>` : '',
+                update.issueId ? `Issue: <span class="mono">${escapeHtml(update.issueId)}</span>` : ''
+            ].filter(Boolean);
+            el.innerHTML = parts.join('<br/>');
+
+            document.getElementById('txnView').textContent = update.transactionId || '-';
+        }
+
+        function escapeHtml(s) {
+            return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        /* --------------------------- Polling logic ------------------------- */
+
+        let pollTimer = null;
+        function startPolling(transactionId) {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(async () => {
+                try {
+                    const r = await fetch(`/api/rpa-webhook/status/${encodeURIComponent(transactionId)}`, { cache: 'no-store' });
+                    if (!r.ok) return; // keep polling
+                    const data = await r.json();
+                    renderStatus(data);
+
+                    if (['Succeeded', 'Failed', 'Cancelled'].includes(data.status)) {
+                        clearInterval(pollTimer);
+                        const msg = data.status === 'Succeeded'
+                            ? `RPA succeeded: ${data.title || data.transactionId}`
+                            : data.status === 'Failed'
+                                ? `RPA failed: ${data.title || data.transactionId}`
+                                : `RPA ${data.status.toLowerCase()}: ${data.title || data.transactionId}`;
+                        showToast(msg, data.status === 'Succeeded' ? 'ok' : (data.status === 'Failed' ? 'error' : 'warn'));
+                        maybeBrowserNotify('RPA Update', { body: msg });
+                    }
+                } catch { /* ignore transient errors */ }
+            }, 3000);
+        }
+
+        /* --------------------------- SignalR (push) ------------------------ */
+
+        let hubConnection = null;
+        async function trySignalR(transactionId) {
+            try {
+                // support auto-subscribe via query string as well
+                hubConnection = new signalR.HubConnectionBuilder()
+                    .withUrl(`/hubs/rpa-status?transactionId=${encodeURIComponent(transactionId)}`)
+                    .withAutomaticReconnect()
+                    .build();
+
+                hubConnection.on("jobUpdated", (update) => {
+                    renderStatus(update);
+                    if (['Succeeded', 'Failed', 'Cancelled'].includes(update.status)) {
+                        const msg = update.status === 'Succeeded'
+                            ? `RPA succeeded: ${update.title || update.transactionId}`
+                            : update.status === 'Failed'
+                                ? `RPA failed: ${update.title || update.transactionId}`
+                                : `RPA ${update.status.toLowerCase()}: ${update.title || update.transactionId}`;
+                        showToast(msg, update.status === 'Succeeded' ? 'ok' : (update.status === 'Failed' ? 'error' : 'warn'));
+                        maybeBrowserNotify('RPA Update', { body: msg });
+                    }
+                });
+
+                hubConnection.onreconnected(async () => {
+                    // ensure group membership restored
+                    try { await hubConnection.invoke("Subscribe", transactionId); } catch { }
+                });
+
+                hubConnection.onclose(() => {
+                    // fallback to polling if connection drops
+                    startPolling(transactionId);
+                });
+
+                await hubConnection.start();
+                // redundant subscribe for safety (works even with query param)
+                try { await hubConnection.invoke("Subscribe", transactionId); } catch { }
+
+            } catch (e) {
+                console.warn("SignalR unavailable, falling back to polling:", e);
+                startPolling(transactionId);
+            }
+        }
+
+        /* ----------------------- Webhook simulation ------------------------ */
+
+        async function postWebhook(url, basicUser, basicPass, bodyObj) {
+            const auth = `Basic ${btoaBasic(basicUser, basicPass)}`;
+            const payload = JSON.stringify(bodyObj);
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': auth,
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            });
+            return res.json().catch(() => ({}));
+        }
+
+        function buildPayload(transactionId, runStatus, now = new Date()) {
+            const nowIso = new Date(now).toISOString();
+            return {
+                powerAutomateRun: {
+                    flowInstanceId: "08586653599602737903377116100CU103",
+                    flowId: "SAP-INV-PROC-001",
+                    flowName: "SAP-Invoice-Processing",
+                    runStatus: runStatus,
+                    startTime: new Date(now.getTime() - 180000).toISOString(),
+                    endTime: nowIso,
+                    requestId: "REQ-2025-01-ABC-0001",
+                    triggerType: "HTTP"
+                },
+                transactionContext: {
+                    transactionId: transactionId,
+                    flowInstanceId: "08586653599602737903377116100CU103",
+                    correlationId: "CORR-9d6f1e0f-6c79-4c29-a6d0-0a39f5d0aabc"
+                },
+                issueTracking: {
+                    issueId: runStatus === 'Failed' ? "ISS-2025-000987" : "ISS-2025-000123",
+                    title: runStatus === 'Failed' ? "Invoice posting failed in SAP" : "Invoice posted",
+                    description: runStatus === 'Failed'
+                        ? "BAPI returned error: GL account missing for company code 1000."
+                        : "Document posted successfully.",
+                    status: runStatus === 'Failed' ? "Open" : "Closed",
+                    priority: runStatus === 'Failed' ? "High" : "Low",
+                    severity: runStatus === 'Failed' ? "Critical" : "Info",
+                    category: "SAP-Posting",
+                    createdDate: nowIso,
+                    createdBy: "pad-robot@rpa",
+                    processName: "Invoice Posting",
+                    recoveryAction: runStatus === 'Failed' ? "Fix master data and retry" : "None",
+                    retryCount: runStatus === 'Failed' ? 1 : 0
+                },
+                originalRequest: {
+                    requestHeader: {
+                        flowId: "SAP-INV-PROC-001",
+                        requestId: "REQ-2025-01-ABC-0001",
+                        partnerSysId: "MOBILE-PWA",
+                        timestamp: new Date(now.getTime() - 240000).toISOString()
+                    },
+                    parameters: {
+                        deliveryNumber: "DLV-00981234",
+                        saleQuantity: 125.75,
+                        batchNumber: "BATCH-24-10-XYZ",
+                        depotCode: "DEPOT-TRV",
+                        shipmentType: "Road",
+                        truckNumber: "KL07-AB-1234",
+                        driverName: "John Driver",
+                        phoneNumber: "+91-98765-43210",
+                        loadingSlipNumber: "LS-2025-10-0001",
+                        isGenerateTransMetadata: true
+                    }
+                },
+                errorContext: runStatus === 'Failed' ? {
+                    errorType: "BusinessError",
+                    errorCode: "SAP_GL_001",
+                    errorMessage: "G/L account not defined for company code 1000.",
+                    failedStep: "BAPI_ACC_DOCUMENT_POST",
+                    failureTimestamp: nowIso,
+                    stackTrace: "BapiCall -> Mapper -> PostDocument",
+                    transactionId: transactionId
+                } : {
+                    errorType: null, errorCode: null, errorMessage: null, failedStep: null, failureTimestamp: null,
+                    stackTrace: null, transactionId: transactionId
+                },
+                systemContext: {
+                    environment: "DEV",
+                    robotName: "PAD-ROBOT-01",
+                    machineName: "RPASRV-02",
+                    rpaPlatform: "PowerAutomateDesktop",
+                    osVersion: "Windows Server 2022",
+                    padVersion: "2.44.180.23143"
+                }
+            };
+        }
+
+        /* --------------------------- UI wiring ----------------------------- */
+
+        document.getElementById('btnSimulate').addEventListener('click', async () => {
+            const url = document.getElementById('webhookUrl').value.trim();
+            const user = document.getElementById('basicUser').value.trim();
+            const pass = document.getElementById('basicPass').value;
+            const finalStatus = document.getElementById('finalStatus').value;
+            const delayMs = parseInt(document.getElementById('runDelay').value, 10);
+
+            if (!url || !user || !pass) {
+                showToast('Please fill Webhook URL, Basic username and password.', 'warn');
+                return;
+            }
+
+            const txnId = genTxnId();
+            document.getElementById('txnView').textContent = txnId;
+            renderStatus({ transactionId: txnId, status: 'Pending' });
+
+            // Prefer push; fall back to polling if SignalR isn’t available
+            trySignalR(txnId);
+
+            // Send an initial "Running" event
+            const runningPayload = buildPayload(txnId, 'Running');
+            await postWebhook(url, user, pass, runningPayload);
+            showToast(`Simulated RPA started. Txn: ${txnId}`, 'warn');
+
+            // Send the final outcome after a delay
+            setTimeout(async () => {
+                const finalPayload = buildPayload(txnId, finalStatus);
+                await postWebhook(url, user, pass, finalPayload);
+
+                const msg = `Posted final status: ${finalStatus} for ${txnId}`;
+                showToast(msg, finalStatus === 'Succeeded' ? 'ok' : (finalStatus === 'Failed' ? 'error' : 'warn'));
+                maybeBrowserNotify('RPA Update', { body: msg });
+            }, delayMs);
+        });
+
+        document.getElementById('btnWatchOnly').addEventListener('click', async () => {
+            const txn = document.getElementById('txnInput').value.trim();
+            if (!txn) { showToast('Enter a transactionId to watch.', 'warn'); return; }
+            document.getElementById('txnView').textContent = txn;
+            renderStatus({ transactionId: txn, status: 'Pending' });
+            trySignalR(txn); // push first; will fallback to polling if needed
+        });
+    </script>
+</body>
+</html>

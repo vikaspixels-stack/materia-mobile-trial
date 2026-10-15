@@ -1,0 +1,496 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+    <link href="css/materia.css?v=1.66" rel="stylesheet" />
+
+    <!-- SignalR client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <style>
+        .ls-exists {
+            background-color: #fff0f5 !important;
+            opacity: 0.7;
+        }
+
+            .ls-exists * {
+                pointer-events: none;
+            }
+
+            .ls-exists::after {
+                content: "Already Processed";
+                color: #b30047;
+                font-weight: bold;
+                float: right;
+            }
+
+        /* --- RPA Status UI --- */
+        #rpaStatusPanel {
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: 110px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .rpa-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            color: #fff;
+            margin-right: 6px;
+        }
+
+        .rpa-pending {
+            background: #757575;
+        }
+
+        .rpa-running {
+            background: #0277bd;
+        }
+
+        .rpa-succeeded {
+            background: #2e7d32;
+        }
+
+        .rpa-failed {
+            background: #b00020;
+        }
+
+        .rpa-cancelled {
+            background: #6d4c41;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        }
+    </style>
+
+</head>
+<body class="bg-gray">
+
+    <div class="container-fluid">
+        <div id="header">
+            <script src="Scripts/header.js?v=1.3"></script>
+        </div>
+
+        <main>
+            <div class="container">
+                <div class="form-group">
+                    <div id="lstPendingOrders" style="border:none;"></div>
+                </div>
+            </div>
+
+            <!-- RPA status panel -->
+            <div id="rpaStatusPanel" class="card shadow-sm">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-bold">
+                                <span id="rpaStatusBadge" class="rpa-badge rpa-pending">Pending</span>
+                                <span id="rpaStatusText" class="text-muted">Waiting…</span>
+                            </div>
+                            <div class="small text-muted mono mt-1">
+                                Txn: <span id="rpaTxnId">-</span>
+                                <span id="rpaIssueIdWrap" style="display:none;"> | Issue: <span id="rpaIssueId">-</span></span>
+                            </div>
+                            <div id="rpaTitle" class="small mt-1"></div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnHideRpaPanel">Hide</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="refresh-panel" class="border-top text-center py-2"
+                 style="position:fixed; bottom:48px; left:0; right:0; z-index:1050;display:none">
+                <div class="col" id="dvLastupdatedTime" style="display: flex; justify-content: center; gap: 5px; margin:2px;color:green"></div>
+                <div class="col" style="display: flex; justify-content: center; gap: 5px;">
+                    <button type="submit" id="btnRefresh" class="btn btn-cancel">Refresh</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <!-- Bootstrap Toast container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:3000">
+        <div id="rpaToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">RPA Status</strong>
+                <small class="text-muted" id="rpaToastTime">now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="rpaToastBody">…</div>
+        </div>
+    </div>
+
+    <script type="text/kendo-x-tmpl" id="tmpPendingOrder">
+        <div class="clsTable
+            # if (data.LsNo && data.LsNo !== '') { # ls-exists # } #"
+            style="margin-bottom:5px;margin-top:5px;padding:5px;">
+
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell" style="display:table-cell;">
+                    <strong>Dealer: </strong>#: data.SoldToPtName #
+                </div>
+            </div>
+
+            <div class="clsTableRow" style="display:table-row;">
+                <div style="display:table-caption;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                        <strong>Order No: </strong>#: data.OrderNumber #
+                    </div>
+                    <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                        <strong>Date: </strong>
+                        #: kendo.toString(new Date(data.OrderDate), "dd/MM/yyyy") #
+                    </div>
+                </div>
+            </div>
+
+            <div class="clsTableRow" style="display:table-row;">
+                <div style="display:table-caption;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;">
+                        <strong>Product: </strong>#: data.ProductID #
+                    </div>
+                    <div class="clsTableCell clsTableSecondCell" style="display:table-cell;">
+                        <strong>Qty(Bags): </strong>#: data.OrderQuantity #
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let isAllowed = localStorage.getItem("IsAllowedSAP_PendingOrder_Download") === "true";
+            if (isAllowed) {
+                document.getElementById("refresh-panel").style.display = "block";
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            fnSetPageName("Pending Order");
+            getSAPLastImportTime('SAPSO');
+
+            function setListViewHeight() {
+                var availableHeight = $(window).height()
+                    - $("#header").outerHeight(true)
+                    - $("#refresh-panel").outerHeight(true)
+                    - $("#footer").outerHeight(true)
+                    - 73;
+                $("#lstPendingOrders").height(availableHeight);
+            }
+
+            $("#lstPendingOrders").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/PendingOrder?DepotID=' + localStorage.getItem("DepotID"),
+                            dataType: "json"
+                        }
+                    },
+                    schema: {
+                        // Helper flag: 0 = white / clickable (no LsNo), 1 = already processed (pink)
+                        parse: function (response) {
+                            (response || []).forEach(function (o) {
+                                o.HasLs = (o.LsNo && o.LsNo !== "") ? 1 : 0;
+                            });
+                            return response;
+                        },
+                        model: {
+                            fields: {
+                                HasLs: { type: "number" },
+                                OrderDate: { type: "date" }   // ensures real chronological sort
+                            }
+                        }
+                    },
+                    sort: [
+                        { field: "HasLs", dir: "asc" },   // white / clickable rows on top
+                        { field: "OrderDate", dir: "desc" }    // then by date (oldest first)
+                    ],
+                    pageSize: 30
+                },
+                template: kendo.template($("#tmpPendingOrder").html()),
+                selectable: "single",
+                height: 620,
+                scrollable: "endless",
+                change: function () {
+                    var listView = $("#lstPendingOrders").data("kendoListView");
+                    var selectedItem = listView.select();
+                    var dataItem = listView.dataItem(selectedItem);
+
+                    if (dataItem && dataItem.LsNo && dataItem.LsNo !== "") {
+                        listView.clearSelection();
+                        return;
+                    }
+
+                    if (dataItem) {
+                        window.location.href =
+                            "MobSaleRequestNew2.html?orderId=" + encodeURIComponent(dataItem.OrderID)
+                            + "&qty=" + encodeURIComponent(dataItem.OrderQuantity)
+                            + "&orderNumber=" + encodeURIComponent(dataItem.OrderNumber);
+                    }
+                }
+            });
+            setListViewHeight();
+            $(window).resize(setListViewHeight);
+
+            /* ===================== RPA realtime status ===================== */
+
+            let hubConnection = null;
+            let pollTimer = null;
+
+            function genTxnId() {
+                const g = crypto.randomUUID().replace(/-/g, '').slice(0, 16).toUpperCase();
+                const d = new Date();
+                const y = d.getUTCFullYear();
+                const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(d.getUTCDate()).padStart(2, '0');
+                return `TXN-${y}-${m}-${day}-${g}`;
+            }
+
+            function statusClass(status) {
+                switch (status) {
+                    case "Running": return "rpa-running";
+                    case "Succeeded": return "rpa-succeeded";
+                    case "Failed": return "rpa-failed";
+                    case "Cancelled": return "rpa-cancelled";
+                    default: return "rpa-pending";
+                }
+            }
+
+            function showRpaPanel() {
+                $("#rpaStatusPanel").show();
+            }
+
+            function renderRpa(update) {
+                showRpaPanel();
+                const st = update.status || "Pending";
+                const badgeEl = $("#rpaStatusBadge");
+                badgeEl
+                    .text(st)
+                    .removeClass("rpa-pending rpa-running rpa-succeeded rpa-failed rpa-cancelled")
+                    .addClass(statusClass(st));
+                $("#rpaStatusText").text(update.runStatus ? `(${update.runStatus})` : "");
+                $("#rpaTxnId").text(update.transactionId || "-");
+                if (update.issueId) {
+                    $("#rpaIssueId").text(update.issueId);
+                    $("#rpaIssueIdWrap").show();
+                } else {
+                    $("#rpaIssueIdWrap").hide();
+                }
+                $("#rpaTitle").text(update.title ? update.title : "");
+            }
+
+            function showToast(msg) {
+                try {
+                    $("#rpaToastBody").text(msg);
+                    $("#rpaToastTime").text(new Date().toLocaleTimeString());
+                    const el = document.getElementById("rpaToast");
+                    const t = bootstrap.Toast.getOrCreateInstance(el, { delay: 6000 });
+                    t.show();
+                } catch { /* ignore */ }
+            }
+
+            // Polling fallback — tolerates 404 while webhook hasn't arrived yet
+            // and keeps retrying for up to 3 minutes.
+            async function startPolling(transactionId) {
+                if (pollTimer) clearInterval(pollTimer);
+
+                let attempts = 0;
+                const maxAttempts = 60; // 60 × 3s = 3 minutes max
+
+                pollTimer = setInterval(async () => {
+                    attempts++;
+                    if (attempts > maxAttempts) {
+                        clearInterval(pollTimer);
+                        renderRpa({ transactionId: transactionId, status: "Failed", runStatus: "Timeout" });
+                        showToast("Status check timed out. (" + transactionId + ")");
+                        return;
+                    }
+                    try {
+                        const r = await fetch(`/api/rpa-webhook/status/${encodeURIComponent(transactionId)}`, { cache: 'no-store' });
+                        if (r.status === 404) return; // webhook not arrived yet — keep polling
+                        if (!r.ok) return;
+                        const data = await r.json();
+                        renderRpa(data);
+                        if (["Succeeded", "Failed", "Cancelled"].includes(data.status)) {
+                            clearInterval(pollTimer);
+                            const msg = data.status === "Succeeded"
+                                ? `Refresh completed successfully. (${transactionId})`
+                                : data.status === "Failed"
+                                    ? `Refresh failed. (${transactionId})`
+                                    : `Refresh ${data.status.toLowerCase()}. (${transactionId})`;
+                            showToast(msg);
+                        }
+                    } catch { /* ignore transient errors */ }
+                }, 3000);
+            }
+
+            // FIX 1: Fully awaited — Subscribe completes before flow trigger fires.
+            // FIX 2: invoke("Subscribe") awaited directly so failures propagate
+            //         to the outer catch and fall back to polling cleanly.
+            async function trySignalR(transactionId) {
+                if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+                if (hubConnection) {
+                    try { await hubConnection.stop(); } catch { }
+                    hubConnection = null;
+                }
+
+                try {
+                    hubConnection = new signalR.HubConnectionBuilder()
+                        .withUrl(`/hubs/rpa-status?transactionId=${encodeURIComponent(transactionId)}`)
+                        .withAutomaticReconnect()
+                        .build();
+
+                    hubConnection.on("jobUpdated", (update) => {
+                        renderRpa(update);
+                        if (["Succeeded", "Failed", "Cancelled"].includes(update.status)) {
+                            const msg = update.status === "Succeeded"
+                                ? `Refresh completed successfully. (${transactionId})`
+                                : update.status === "Failed"
+                                    ? `Refresh failed. (${transactionId})`
+                                    : `Refresh ${update.status.toLowerCase()}. (${transactionId})`;
+                            showToast(msg);
+                        }
+                    });
+
+                    hubConnection.onreconnected(async () => {
+                        try { await hubConnection.invoke("Subscribe", transactionId); } catch { }
+                    });
+
+                    hubConnection.onclose(() => {
+                        // Connection dropped — fall back to polling
+                        startPolling(transactionId);
+                    });
+
+                    await hubConnection.start();
+                    await hubConnection.invoke("Subscribe", transactionId);
+
+                } catch (e) {
+                    // SignalR unavailable or Subscribe failed → polling fallback
+                    hubConnection = null;
+                    startPolling(transactionId);
+                }
+            }
+
+            $("#btnHideRpaPanel").on("click", function () {
+                $("#rpaStatusPanel").hide();
+            });
+
+            /* ===================== Refresh logic ===================== */
+
+            $("#btnRefresh").on("click", async function () {
+                var $btn = $(this);
+
+                // Step 1: Get last import time
+                let diffMinutes;
+                try {
+                    diffMinutes = await getSAPLastImportTime('SAPSO');
+                } catch (err) {
+                    diffMinutes = 9999;
+                }
+
+                // Step 2: Restrict if within 3 minutes
+                if (diffMinutes <= 3) {
+                    alert("Last import was just " + diffMinutes + " minute(s) ago. Please wait before refreshing again.");
+                    return;
+                }
+
+                // Step 3: Disable button
+                $btn.prop("disabled", true).text("Refreshing...");
+
+                // Step 4: Generate txnId and show Pending state
+                const txnId = genTxnId();
+                renderRpa({ transactionId: txnId, status: "Pending", runStatus: "Queued" });
+
+                // Step 5: Fully subscribe to SignalR BEFORE triggering the flow.
+                // The flow trigger only fires after the client is in the group,
+                // so jobUpdated cannot arrive before Subscribe completes.
+                await trySignalR(txnId);
+
+                // Step 6: Trigger the flow — SignalR is guaranteed to be listening
+                $.ajax({
+                    url: "/api/Flow/Trigger",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        FlowId: "SAP-SO-DOWNLOAD",
+                        RequestId: txnId,
+                        DepotID: localStorage.getItem("DepotID")
+                    }),
+                    success: function (response) {
+                        showToast("Refresh requested. Tracking status… (" + txnId + ")");
+                        var listView = $("#lstPendingOrders").data("kendoListView");
+                        if (listView) listView.dataSource.read();
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Failed to trigger flow.");
+                        renderRpa({ transactionId: txnId, status: "Failed", runStatus: "TriggerError", title: "Flow trigger failed" });
+                        showToast("Failed to trigger refresh. (" + txnId + ")");
+                    },
+                    complete: function () {
+                        setTimeout(function () {
+                            var listView = $("#lstPendingOrders").data("kendoListView");
+                            if (listView) listView.dataSource.read();
+                            $btn.prop("disabled", false).text("Refresh");
+                        }, 60000);
+                        getSAPLastImportTime('SAPSO');
+                    }
+                });
+            });
+
+            function getSAPLastImportTime(source) {
+                $("#dvLastupdatedTime").html('');
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: "/api/flow/sap-last-import",
+                        type: "GET",
+                        data: { source: source },
+                        success: function (response) {
+                            if (response.Status === "Success") {
+                                $("#dvLastupdatedTime").html(response.WhatsAppStyleTime);
+                                let actualTime = new Date(response.ActualTime);
+                                let now = new Date();
+                                let diffMinutes = Math.floor((now - actualTime) / 60000);
+                                resolve(diffMinutes);
+                            } else {
+                                reject(response.Message);
+                            }
+                        },
+                        error: function (xhr) {
+                            reject(xhr.responseText);
+                        }
+                    });
+                });
+            }
+
+        });
+    </script>
+
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

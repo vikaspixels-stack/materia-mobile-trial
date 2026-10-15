@@ -1,0 +1,181 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Materia Mobile</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">    
+    <!-- Custom styles for this template -->
+    <style>
+        html, body {
+            height: 100%; 
+            margin: 0; 
+        }
+
+        body {
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        .login-container {
+            max-width: 380px;
+            width: 99%;
+            padding: 15px;
+            margin: auto;
+            background-color: #fff;
+           /* border: 1px solid #ced4da;*/
+           /* border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);*/
+        }
+      
+        .btn-primary {
+            background-color: #6FA3E8;
+            color: #fff;
+            font-size:20px;
+            font-weight: bold;
+            padding: 10px 5px;
+        }
+        .btn:hover {
+            color: var(--bs-btn-hover-color);
+            background-color: #6FA3E8;
+            border-color: var(--bs-btn-hover-border-color);
+        }
+    </style>
+</head>
+
+<body>    
+    <div class="login-container">       
+        <center class="mb-10">
+            <img src="https://www.vaidworld.com/images/vaid_logo.jpg" style="width:60%;height:60%" />
+        </center>
+        <br />
+        <br />
+        <br />
+        <h1 class="mb-3 text-center" style="font-size:2em">Materia Mobile</h1>
+        <h4 class="mb-4 text-center" style="color:#555">Access sales tools on the go.</h4>
+        <form action="login.html" id="form">
+            <br />
+            <center class="mb-10">
+                <img src="img/home.png" />
+            </center>
+            <br />
+            <br />
+            
+            <br />
+            <button type="submit" class="btn btn-primary w-100">Go</button>
+            
+        </form>
+    </div>
+
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script v="1.21">
+        //function login() {
+
+        //    var username = $("#username").val();
+        //    var password = $("#password").val();
+        //    localStorage.removeItem('AccessToMobileDevice_GUID');
+        //    localStorage.removeItem('UserID');
+        //    localStorage.removeItem('MobileDevice_ContactModulePermissions');
+
+        //    $.ajax({
+        //        //url: 'https://v24.vaidworld.com/api/UserMob',
+        //        //url: 'https://tekriwalsachin.bsite.net/api/UserMob',
+        //        url: window.location.origin + '/api/UserMob',
+        //        //url: 'http://localhost:56146/api/UserMob',
+        //        method: 'GET',
+        //        data: { username: username, password: password },
+        //        success: function (data) {
+        //            if (data && data.AccessToMobileDevice_GUID) {
+        //                // Save the AccessToMobileDevice_GUID in localStorage
+        //                localStorage.setItem('LoginName', data.LoginName);
+        //                localStorage.setItem('UserID', data.UserID);
+        //                localStorage.setItem('AccessToMobileDevice_GUID', data.AccessToMobileDevice_GUID);
+        //                localStorage.setItem('IsContactEditAllowedonMobile', data.IsContactEditAllowedonMobile);
+        //                localStorage.setItem('MobileDevice_ContactModulePermissions', data.MobileDevice_ContactModulePermissions);
+        //                localStorage.setItem('MobileDevice_IsContactDeleteAllowed', data.MobileDevice_IsContactDeleteAllowed);
+        //                /*MV*/
+        //                // Redirect to the contact.html page
+        //                //alert(data.MobileDevice_ContactModulePermissions);
+        //                window.location.href = 'dashboard.html';
+        //            } else {
+        //                alert("User not found");
+        //            }
+        //        },
+        //        error: function (xhr, status, error) {
+        //            // Handle error
+        //            if (xhr.status == 404) {
+        //                alert("User not found");
+        //            } else {
+        //                console.log("Error:", error);
+        //            }
+        //        }
+        //    });
+        //}
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            localStorage.removeItem('AccessToMobileDevice_GUID');
+            localStorage.removeItem('UserID');
+            localStorage.removeItem('MobileDevice_ContactModulePermissions');
+            localStorage.removeItem('MobileDevice_CompanyModulePermissions');
+            localStorage.removeItem('MobileDevice_IsCompanyEditAllowed');
+            localStorage.removeItem('EmailGridDefaultView');
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/authMob/login');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            var token = response.Token;
+                            var data = response.User;
+                           // alert(data.MobileDevice_CompanyModulePermissions);
+                            // Store user data in localStorage
+                            localStorage.setItem('LoginName', data.LoginName);
+                            localStorage.setItem('UserID', data.UserID);
+                            localStorage.setItem('IsSuperUser', data.IsSuperUser);
+                            localStorage.setItem('AccessToMobileDevice_GUID', data.AccessToMobileDevice_GUID);
+                            localStorage.setItem('IsContactEditAllowedonMobile', data.IsContactEditAllowedonMobile);
+                            localStorage.setItem('MobileDevice_ContactModulePermissions', data.MobileDevice_ContactModulePermissions);
+                            localStorage.setItem('MobileDevice_IsContactDeleteAllowed', data.MobileDevice_IsContactDeleteAllowed);
+                            localStorage.setItem('MobileDevice_IsCompanyEditAllowed', data.MobileDevice_IsCompanyEditAllowed);
+                            localStorage.setItem('MobileDevice_CompanyModulePermissions', data.MobileDevice_CompanyModulePermissions);
+                            localStorage.setItem('MobileDevice_IsCompanyDeleteAllowed', data.MobileDevice_IsCompanyDeleteAllowed);
+                            localStorage.setItem('EmailGridDefaultView', data.EmailGridDefaultView);
+                            //alert(data.EmailGridDefaultView);
+                            // Redirect to dashboard.html or any other page
+                            console.log(data.IsSuperUser);
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            alert('Login failed. Please check your credentials.');
+                        }
+
+
+                    }
+            };
+
+            xhr.onerror = function () {
+                console.error('Request failed');
+            };
+
+            var jsonBody = JSON.stringify({
+                Username: formData.get('username'),
+                Password: formData.get('password')
+            });
+            //alert(jsonBody);
+            xhr.send(jsonBody);
+        });
+    </script>
+</body>
+
+</html>

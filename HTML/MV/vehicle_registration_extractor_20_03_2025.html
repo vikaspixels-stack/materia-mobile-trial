@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registration Extractor</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script> <!-- EXIF Reader -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-direction: column;
+        }
+
+        .camera-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #openCameraButton {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 200px;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 99%;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        #preview {
+            max-width: 100%;
+            min-width: 300px;
+            max-height: 380px;
+            border-radius: 8px;
+            margin-top: 1px;
+        }
+
+        #result, #metadata {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <center><h3> Upload Vehicle Image to Extract Registration Number Version 4</h3></center>
+    <div class="container">
+        <div class="camera-container">
+            <button id="openCameraButton">Open Camera</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" capture="camera" style="display:none;">
+        <div class="image-container">
+            <img id="preview" src="" alt="Captured Image">
+        </div>
+        <p id="result"></p>
+        <p id="metadata"></p>
+    </div>
+
+    <script>
+        document.getElementById("openCameraButton").addEventListener("click", function () {
+            document.getElementById("fileInput").click();
+        });
+
+        document.getElementById("fileInput").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                extractMetadata(file);
+                compressAndUpload(file);
+            }
+        });
+
+        function extractMetadata(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event) {
+                const exifData = EXIF.readFromBinaryFile(event.target.result);
+
+                let latitude = exifData?.GPSLatitude ? convertToDecimal(exifData.GPSLatitude, exifData.GPSLatitudeRef) : "N/A";
+                let longitude = exifData?.GPSLongitude ? convertToDecimal(exifData.GPSLongitude, exifData.GPSLongitudeRef) : "N/A";
+                let dateTime = exifData?.DateTimeOriginal ? formatDateTime(exifData.DateTimeOriginal) : "N/A";
+                let isLivePhoto = (exifData?.SubSecTimeOriginal || exifData?.SubSecTimeDigitized || exifData?.MakerNote || exifData?.MediaGroupUUID) ? "Yes (Live Photo)" : "No";
+
+                document.getElementById("metadata").innerText =
+                    `📍 Location: ${latitude}, ${longitude} \n📅 Date/Time: ${dateTime} \n📸 Live Photo: ${isLivePhoto}`;
+            };
+        }
+
+        function convertToDecimal(coord, ref) {
+            let decimal = coord[0] + coord[1] / 60 + coord[2] / 3600;
+            return (ref === "S" || ref === "W") ? -decimal : decimal;
+        }
+
+        function formatDateTime(dateTimeString) {
+            const parts = dateTimeString.split(" ");
+            const dateParts = parts[0].split(":");
+            return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]} ${parts[1]}`;
+        }
+
+        async function compressAndUpload(file) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function () {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = 600;
+                    canvas.height = 600;
+                    ctx.drawImage(img, 0, 0, 600, 600);
+
+                    canvas.toBlob(async function (blob) {
+                        document.getElementById("preview").src = URL.createObjectURL(blob);
+                        const formData = new FormData();
+                        formData.append("image", blob, "compressed_image.jpg");
+
+                        try {
+                            document.getElementById("result").innerText = "Processing...";
+                            const response = await fetch("/api/extract/license-plate", {
+                                method: "POST",
+                                body: formData
+                            });
+                            const data = await response.json();
+                            document.getElementById("result").innerText = " " + data.registration_number;
+                        } catch (error) {
+                            console.error("Error:", error);
+                            document.getElementById("result").innerText = "Error extracting registration number.";
+                        }
+                    }, "image/jpeg",1.0);
+                };
+            };
+        }
+    </script>
+</body>
+</html>

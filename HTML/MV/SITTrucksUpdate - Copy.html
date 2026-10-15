@@ -1,0 +1,995 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link href="css/materia.css?v=1.21" rel="stylesheet" />
+    <style>
+
+        html {
+            height: -webkit-fill-available;
+            /*overscroll-behavior: none;*/
+        }
+
+
+        body {
+            background-color: #FAF9F6;
+            /*overscroll-behavior: none;*/
+        }
+
+        .camera-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /*    #openCameraButton {
+                    padding: 5px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                    #openCameraButton:focus {
+                        outline: none;
+                    }
+        */
+
+
+
+        #preview {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 8px;
+            margin-top: 1px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+
+        a.no-underline {
+            text-decoration: none;
+        }
+
+            a.no-underline:hover {
+                color: #007bff;
+            }
+
+        .company {
+            color: #808080;
+            font-size: 14px;
+        }
+
+        #txtDriverName {
+            background-color: transparent;
+            transition: none !important;
+        }
+
+        .mouseover {
+            background-color: #f0f0f0; /* Change this to your desired background color */
+            cursor: pointer; /* Change this to your desired cursor style */
+        }
+    </style>
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+
+    <meta name="theme-color" content="#7952b3">
+    <style>
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .photo-btn {
+            padding: 10px;
+            background: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .truck-image {
+            max-width: 50%;
+            height: auto;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: bold;
+            }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        #logoRow {
+            padding: 0px;
+            margin: 0px;
+            /* background-color: #ededed !important; */
+            height: auto !important;
+            background-size: cover;
+            border: none;
+            /* height: 78px !important; */
+        }
+
+        .user-image {
+            border-radius: 50%;
+        }
+
+        .custom-img {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .container-fluid {
+            width: 100%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .container-fluid-inner {
+            width: 95%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: #6FA3E8;
+            margin: 10px;
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .box {
+            display: inline-block;
+            background-color: #f8f9fa;
+            color: #111;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #999;
+            text-align: center;
+            min-height: 105px;
+            min-width: 88px;
+        }
+
+        .box-text {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+
+        .clsDealer > tbody > tr {
+            padding-bottom: 10px !important;
+            display: flex !important;
+        }
+
+        .container12 {
+            position: relative;
+            width: 100%;
+            height: 2.5em;
+            border-bottom: 1px solid rgb(204, 204, 204);
+            margin-bottom: 10px !important;
+        }
+
+        .label12 {
+            position: absolute;
+            top: -20px;
+            /*left: 10px;*/
+            background-color: #fff;
+            padding: 0px 5px;
+            font-weight: 600;
+        }
+
+        #lstProduct3, #lstProduct2, #lstProduct1 {
+            text-transform: uppercase;
+        }
+
+        .clsProduct {
+            padding: 5px;
+            white-space: nowrap;
+            width: 100%;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            background-color: white;
+            height: 35px;
+            min-width: 230px !important;
+            max-width: 230px !important;
+        }
+
+
+
+        .clsbtnProduct {
+            display: none;
+        }
+
+        input[type=text]:focus {
+            border: 3px solid blue;
+        }
+
+        .red-cross {
+            color: #ff0047;
+            font-size: 1em; /* Make cross bigger */
+            margin-right: 0px; /* Push left if needed */
+            display: inline-block;
+        }
+
+        .green-tick {
+            color: green;
+            font-size: 1.2em; /* You can increase this as needed */
+            font-weight: bold;
+            margin-left: 2px; /* To push it slightly right */
+        }
+    </style>
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+</head>
+<body>
+
+    <!--<input id="ddlProduct1" style="width: 100%;" />-->
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+        <main>
+            <div class="bg-warning" id="dvWarning" style="padding:5px;min-height:80px;display:none">
+                <div id="dvImageMessage" style="display:none">
+
+                </div>
+                <div id="dvAwayMessage">
+                </div>
+                <div id="dvTruckNumberMessage">
+
+                </div>
+                <div id="dvTruckNoOverrideMessage">
+
+                </div>
+            </div>
+            <div class="container">
+                <table style="width:100%">
+
+                    <tr>
+                        <td valign="top">
+                            <input type="hidden" id="hdnPlantTruckID" value="0" />
+                            <input type="hidden" id="hdnGRNID" value="0" />
+                            <input type="hidden" id="hdnGRNIDList" value="0" />
+                            <input type="hidden" id="hdnFileBase64" value="" />
+                            <input type="hidden" id="hdnFileExtension" value="" />
+                            <div class="camera-container" style="margin-top:5px">
+                                <button id="openCameraButton" class="button submit" style="width:80%">Capture Truck Photo</button>
+                            </div>
+                            <div class="data-container" style="display:none" id="dvResult">
+                                <p style="margin-bottom:0px;display:none"><strong>🚗 Registration No:</strong> <span id="registration_number"></span></p>
+                                <p id="metadata"></p>
+                            </div>
+                            <div id="dvProcessing"></div>
+                            <div style="text-align:center;display:none" id="dvbtnTruckNoOverride">
+                                <button class="button verify" style="width:80%" id="btnTruckNoOverride">TruckNo Override</button>
+                                <button class="button verify" style="width: 80%;display:none" id="btnTruckNoOverrideRefresh">Refresh TruckNo</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="image-container">
+
+                                <img id="preview" src="../img/placeholder.png" alt="Image">
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div>
+                                <!--<div class="data-container" style="display:none" id="dvResult">
+                            <p style="margin-bottom:0px;display:none"><strong>🚗 Registration No:</strong> <span id="registration_number"></span></p>
+                            <p id="metadata"></p>
+                        </div>-->
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="container" style="margin-top:20px">
+
+
+                <div class="form-group">
+                    <table class="clsDealer" border="0" cellpadding="5" cellspacing="5" width="100%">
+                        <tbody>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Truck Number : </div>
+                                        <input id="txtTruckNumber" type="text" readonly="readonly" style="padding:13px;border:none;height:96%;" maxlength="14" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12" style="margin-bottom: 6px;">Reason:</div>
+                                        <select id="ddlMissingReasons"></select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Notes : </div>
+                                        <textarea id="txtMTNotes" rows="4" style="padding:13px;border:none;height:96%;width:100%;resize: vertical;"></textarea>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="button-group" style="display: flex; justify-content: center;">
+                        <button class="button disabled" disabled id="btnSubmit" onclick="fnSubmit()">SUBMIT</button>
+                    </div>
+                </div>
+
+
+            </div>
+           
+        </main>
+    </div>
+
+
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+  
+
+    <script type="text/kendo-x-tmpl" id="tmpProduct">
+        <div style="border-bottom: 1px solid lightgrey;padding:5px;">
+            <div style="display:table-cell;padding: 5px 10px;width:140px;">#: data.ProductID #</div>
+            <div style="display:table-cell;padding: 5px 10px;">#: data.ProductDesc #</div>
+        </div>
+    </script>
+
+    <script>
+        var Product1, Product2, Product3 = undefined;
+        //const BASE_LAT = 9.9252;
+        //const BASE_LON = 78.1198;
+        //Madurai
+
+        var BASE_LAT = parseFloat(localStorage.getItem("DepotLongitude"));
+        var BASE_LON = parseFloat(localStorage.getItem("DepotLatitude"));
+
+
+        document.getElementById("openCameraButton").addEventListener("click", function () {
+            HideShowNotification('HIDE');
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+            fileInput.capture = "environment";
+
+            fileInput.addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const fileName = file.name;
+                    const fileExtension = fileName.split('.').pop().toLowerCase();
+                    $("#hdnFileExtension").val(fileExtension);
+
+                    const reader = new FileReader();
+                    reader.onloadend = function () {
+                        const base64String = reader.result.split(',')[1];
+                        $("#hdnFileBase64").val(base64String);
+                        (async () => {
+                            await compressAndUpload(file);
+                            //const detectedNumber = $("#txtTruckNumber").val()?.replace(/\s+/g, '').toUpperCase();
+                            //const expectedNumber = localStorage.getItem("ExpectedTruckNumber")?.replace(/\s+/g, '').toUpperCase();
+
+                           
+                            CreateRecordAfterImageCapture();
+                           
+                            // Other synchronous steps
+                            vehicleImageAnalyse(file);
+                            extractMetadata(file);
+                            readDatetime(file);
+                            //if (expectedNumber && detectedNumber && detectedNumber !== expectedNumber) {
+                            //    alert(`Truck Number does not match`);
+                            //    $("#btnSubmit").removeClass("submit").addClass("disabled").attr("disabled", true);
+                              
+                            //    // return;
+                            //}
+
+                            $(".data-container").show();
+                           
+
+                        })();
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            fileInput.click();
+        });
+
+        function readImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const img = document.getElementById('preview');
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function extractMetadata(file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (event) {
+                const exifData = EXIF.readFromBinaryFile(event.target.result);
+
+                const latitude = exifData?.GPSLatitude ? convertToDecimal(exifData.GPSLatitude, exifData.GPSLatitudeRef).toFixed(2) : "N/A";
+                const longitude = exifData?.GPSLongitude ? convertToDecimal(exifData.GPSLongitude, exifData.GPSLongitudeRef).toFixed(2) : "N/A";
+                const dateTime = exifData?.DateTimeOriginal ? formatDateTime(exifData.DateTimeOriginal) : "N/A";
+                //  const isRealImage = (latitude !== "N/A" && longitude !== "N/A") ? "✅ Real Image" : "❌ Fake Image (No GPS Data)";
+                /*<br>📍 <b>Location:</b> ${latitude}, ${longitude}*/
+                /*  `📅 <b>Date/Time:</b> ${dateTime}<br>*/
+                document.getElementById("metadata").innerHTML =
+                    `📅 <b>Date/Time:</b><br> <span id="image_datetime"></span>    <br>
+                                    <div style="display:none"> <b>🌍 Dist. from Depot:</b> <span id="distance_from_depot"></span>
+                                    <br>📝 <b>Image Authenticity:</b> <span id="image_authenticity"></span></div>`;
+
+                if (latitude !== "N/A" && longitude !== "N/A") {
+                    calculateDistance(latitude, longitude);
+                }
+
+            };
+        }
+
+        function convertToDecimal(coord, ref) {
+            const decimal = coord[0] + (coord[1] / 60) + (coord[2] / 3600);
+            return (ref === "S" || ref === "W") ? -decimal : decimal;
+        }
+
+        function calculateDistance(lat1, lon1) {
+            const R = 6371000;
+            const lat1Rad = lat1 * Math.PI / 180;
+            const lon1Rad = lon1 * Math.PI / 180;
+            const lat2Rad = BASE_LAT * Math.PI / 180;
+            const lon2Rad = BASE_LON * Math.PI / 180;
+
+            const dLat = lat2Rad - lat1Rad;
+            const dLon = lon2Rad - lon1Rad;
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = (R * c);
+            const distanceKM = (R * c) / 1000;
+
+            document.getElementById("distance_from_depot").innerText = `${distanceKM.toFixed(2)} km.`;
+            if (distance > 100) {
+                $("#dvWarning").show();
+                playWarning();
+                $("#dvAwayMessage").html("<b> You are currently away from the depot.</b>");
+                speakText("You are away from the depot");
+                $("#dvAwayMessage").show();
+                $("#btnSubmit").addClass("disabled").removeClass("submit").attr("disabled", true);
+            }
+        }
+
+
+
+        function compressAndUpload(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+
+                    img.onload = function () {
+                        const canvas = document.createElement("canvas");
+                        const ctx = canvas.getContext("2d");
+                        canvas.width = 700;
+                        canvas.height = 700;
+                        ctx.drawImage(img, 0, 0, 700, 700);
+
+                        canvas.toBlob(async function (blob) {
+                            document.getElementById("preview").src = URL.createObjectURL(blob);
+                            const formData = new FormData();
+                            formData.append("image", blob, "compressed_image.jpg");
+
+                            try {
+                                document.getElementById("registration_number").innerText = "Processing...";
+                                document.getElementById("dvProcessing").innerText = "Registration Number Processing...";
+
+                                const response = await fetch("/api/VehicleNumberExtractor/license-plate", {
+                                    method: "POST",
+                                    body: formData
+                                });
+
+                                const data = await response.json();
+                                document.getElementById("dvProcessing").innerText = "";
+                                document.getElementById("registration_number").innerText = " " + data.registration_number;
+                                $("#txtTruckNumber").val(data.registration_number);
+
+                                if (
+                                    data.registration_number.includes("Unable to") ||
+                                    data.registration_number.includes("I can't extract") ||
+                                    data.registration_number.includes("no vehicle registration numbe")
+                                    
+                                )
+                                {
+                                    $("#dvWarning").show();
+                                    $("#dvTruckNumberMessage").html("<b>" + data.registration_number + "</b>");
+                                    $("#txtTruckNumber").val('');
+                                    return false;
+                                }
+                            } catch (error) {
+                                console.error("Error:", error);
+                                document.getElementById("registration_number").innerText = "Error extracting registration number.";
+                                return false;
+                            } finally {
+                                resolve(); // <- this tells the await to continue
+                            }
+                        }, "image/jpeg", 1.0);
+                    };
+
+                    img.onerror = () => reject(new Error("Image failed to load"));
+                };
+
+                reader.onerror = () => reject(new Error("File could not be read"));
+            });
+        }
+
+
+
+        async function vehicleImageAnalyse(file) {
+            var formData = new FormData();
+            formData.append('image', file);
+
+            $.ajax({
+                url: '/api/VehicleImageAnalyse/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    console.log('API Response:', response);
+                    $("#image_authenticity").html(response.analysis_result);
+                    var message = response.analysis_result;
+                    if (
+
+                        message.includes("The photo was captured from a screen") ||
+                        message.includes("The photo was likely captured from a screen")
+                    ) {
+                        //playWarning();
+                        speakText("This is not a real time image");
+                        $("#dvImageMessage").html("<b>This is not a real-time image.</b>");
+                        $("#dvImageMessage").show();
+                        $("#dvAwayMessage").show();
+                        $("#btnSubmit").addClass("disabled").removeClass("submit").attr("disabled", true);
+                    }
+
+                    //alert('Analysis Result: ' + response.analysis_result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Error uploading image: ' + xhr.responseText);
+                }
+            });
+        }
+        async function readDatetime(file) {
+            var formData = new FormData();
+            formData.append('image', file);
+
+            $.ajax({
+                url: '/api/VehicleNumberExtractor/datetime',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $("#image_datetime").html(formatDateTime(response.Metadata["Date/Time"]));
+                    //alert(response.Metadata);
+                    //alert(response.Metadata["Date/Time"]);
+                    // console.log(response);
+                    //alert('Analysis Result: ' + response.analysis_result);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', xhr.responseText);
+                    alert('Error uploading image: ' + xhr.responseText);
+                }
+            });
+        }
+
+
+        function formatDateTime(dateTime) {
+            const [date, time] = dateTime.split(' ');
+            const [year, month, day] = date.split(':');
+            const [hours, minutes] = time.split(':');
+
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        
+
+     
+
+        function playWarning() {
+            const warningSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+            warningSound.volume = 0.25; // Volume range is from 0.0 (mute) to 1.0 (full volume) ~50–60 dB
+            warningSound.play().catch(e => console.error("Playback failed:", e));
+        }
+        function speakText(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = 'en-IN'; // Indian English accent
+            utterance.rate = 0.95; // Slightly slower for clarity
+            window.speechSynthesis.speak(utterance);
+        }
+
+        $('#btnTruckNoOverride').on('click', function () {
+              $(this).hide(); // Hide the button
+            //$('#lblTruckNoOverrideOTP').show();
+            //$('#txtTruckNoOverrideOTP').val('');
+            //$('#txtTruckNoOverrideOTP').show().focus();
+            var vdepotId = localStorage.getItem("DepotID");
+            var vplantTruckID = $('#hdnPlantTruckID').val();
+            var vrequestedByName = localStorage.getItem("Name");
+            //alert(vplantTruckID);
+            var vdepotName = localStorage.getItem("DepotName");
+            var vCreatedBy = localStorage.getItem("userID");
+            $.ajax({
+                url: '/api/PlantTruck/TruckNumberOverrideEmail',
+                type: 'GET',
+                data: {
+                    depotId: vdepotId,
+                    PlantTruckID: vplantTruckID,
+                    requestedBy: vrequestedByName,
+                    depotName: vdepotName,
+                    createdBy: vCreatedBy
+                },
+                success: function (response) {
+                    $("#btnTruckNoOverrideRefresh").show();
+                },
+                error: function (xhr, status, error) {
+                    // Handle error
+                    $(this).show();
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+
+        $('#btnTruckNoOverrideRefresh').on('click', function () {
+            var $btn = $(this);
+            var vplantTruckID = $('#hdnPlantTruckID').val();
+
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: '/api/PlantTruck/TruckNumberOverrideRefresh',
+                type: 'GET',
+                data: {
+                    PlantTruckID: vplantTruckID
+                },
+                success: function (response) {
+                    if (response) {
+
+                        if (response.OverrideTruckNoUpdateBy === null || response.OverrideTruckNoUpdateOn === null) {
+
+                            speakText("Truck Number override is pending.");
+                            $("#dvTruckNoOverrideMessage").html("<b>Truck Number override is pending.</b>");
+                            HideShowNotification('SHOW');
+                            $("#dvTruckNoOverrideMessage").show();
+
+
+                        } else if (response.TruckNumber) {
+                            $('#txtTruckNumber').val(response.TruckNumber);
+                            $("#dvTruckNoOverrideMessage").html("");
+                            $("#dvTruckNoOverrideMessage").hide();
+                            $("#btnTruckNoOverrideRefresh").hide();
+                            HideShowNotification('HIDE');
+                            $("#btnSubmit").removeClass("disabled").addClass("submit").removeAttr("disabled");
+                        } else {
+                            alert("No Truck Number returned.");
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: " + xhr.responseText);
+                },
+                complete: function () {
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+
+
+
+        $(document).ready(function () {
+            fnSetPageName("SIT Trucks - Confirm Arrival");
+
+            function getQueryParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+            const lorryNumberFromUrl = getQueryParam("LorryNumber");
+            if (lorryNumberFromUrl) {
+                localStorage.setItem("ExpectedTruckNumber", lorryNumberFromUrl.trim().toUpperCase());
+            }
+
+            const grnId = getQueryParam("GRNID");
+            const grnIdList = getQueryParam("GRNIDList");
+           // alert(grnId);
+
+            if (grnId) {
+                $("#hdnGRNID").val(grnId);
+            }
+
+            if (grnIdList) {
+                $("#hdnGRNIDList").val(grnIdList);
+            }
+
+
+            $("#ddlMissingReasons").kendoDropDownList({
+                optionLabel: "Select Reason...",
+                dataTextField: "MissingReason",   // Displayed text
+                dataValueField: "MTRID",          // Value to submit
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/api/PlantTruck/GetMissingTruckReasons",
+                            dataType: "json",
+                            data: function () {
+                                const data = {};
+                                const missingType = getQueryParam("OriginalMissingType");
+                                const mtrid = getQueryParam("MTRID");
+
+                                if (missingType) data.OriginalMissingType = missingType;
+                                if (mtrid !== null && mtrid !== "null") data.IncludeMTRID = mtrid;
+
+                                return data;
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+
+
+        function HideShowNotification(param) {
+            if (param == 'HIDE') {
+                $("#dvWarning").hide();
+                $("#dvImageMessage").empty();
+                $("#dvAwayMessage").empty();
+                $("#dvTruckNumberMessage").empty();
+                $("#dvTruckNoOverrideMessage").empty();
+            }
+            else {
+                $("#dvWarning").show();
+            }
+        }
+
+
+        function CreateRecordAfterImageCapture() {
+            var vhdnPlantTruckID = $("#hdnPlantTruckID").val();            
+            var vCreatedBy = localStorage.getItem("userID");
+            var vTruckNumber = $("#txtTruckNumber").val().replace(/\s+/g, '');
+            var vTruckPhotoBase64 = $("#hdnFileBase64").val();
+            var vTruckPhotoFileName = "1" + ($("#hdnFileExtension").val() || "jpg");
+            const queryParams = new URLSearchParams(window.location.search);
+            const vDANumber = queryParams.get("DANo");
+            const vSourceDepotID = queryParams.get("SourceDepotID");
+            const vDestinationDepotID = queryParams.get("DestinationDepotID");
+            const vGRNID = $("#hdnGRNID").val();
+            const vGRNIDList = $("#hdnGRNIDList").val();
+            
+            // alert(vCreatedBy);
+            var verifyOrderParam = {
+                PlantTruckID: vhdnPlantTruckID,               
+                CreatedBy: vCreatedBy,
+                TruckPhotoBase64: vTruckPhotoBase64,
+                TruckPhotoFileName: vTruckPhotoFileName,
+                TruckNumber: vTruckNumber,
+                DANumber: vDANumber,
+                SourceDepotID:vSourceDepotID,
+                DestinationDepotID: vDestinationDepotID,
+                GRNID: vGRNID,
+                GRNIDList: vGRNIDList,
+            }
+            //   alert(verifyOrderParam);
+            $.ajax({
+                url: "/api/PlantTruck/CreateRecordAfterImageCapture",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(verifyOrderParam),
+                success: function (response) {
+                    //alert(response.PlantTruckID);
+                    console.log("API Response:", response);
+
+                    if (response?.PlantTruckID) {
+                        $("#hdnPlantTruckID").val(response.PlantTruckID);
+                        $("#dvbtnTruckNoOverride").show();
+                        $("#btnTruckNoOverride").show();
+                        $("#btnTruckNoOverrideRefresh").hide();
+                        const detectedNumber = $("#txtTruckNumber").val()?.replace(/\s+/g, '').toUpperCase();
+                        const expectedNumber = localStorage.getItem("ExpectedTruckNumber")?.replace(/\s+/g, '').toUpperCase();
+                        if (expectedNumber && detectedNumber && detectedNumber !== expectedNumber) {
+                            alert(`Truck Number does not match.`);
+                            $("#btnSubmit").removeClass("submit").addClass("disabled").attr("disabled", true);
+
+                            // return;
+                        }
+                        else {
+                            $("#btnSubmit").removeClass("disabled").addClass("submit").removeAttr("disabled");
+                        }
+                    }
+                   
+                },
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText);
+                    alert("Error occurred: " + xhr.responseText);
+                    //$btn.prop('disabled', false).text('Verify Order');
+                }
+            });
+        }
+
+        //function resetButton($btn) {
+        //    $btn.prop('disabled', false).text('Verify Order');
+        //}
+
+        //function updateIcons(index, res) {
+        //    const salesOrderVerified = res[`SalesOrderVerified${index}`];
+        //    const stockVerified = res[`StockVerified${index}`];
+
+        //    const productIconSpan = document.getElementById(`product${index}-check`);
+        //    const quantityIconSpan = document.getElementById(`quantity${index}-check`);
+
+        //    if (!productIconSpan || !quantityIconSpan) return;
+
+        //    productIconSpan.innerHTML = "";
+        //    quantityIconSpan.innerHTML = "";
+
+        //    productIconSpan.style.display = "flex";
+        //    productIconSpan.style.alignItems = "center";
+        //    quantityIconSpan.style.display = "flex";
+        //    quantityIconSpan.style.alignItems = "center";
+
+        //    if (salesOrderVerified === false) {
+        //        productIconSpan.innerHTML = `<span class="red-cross">❌</span>`;
+        //    }
+
+        //    if (salesOrderVerified === true && stockVerified === true) {
+        //        quantityIconSpan.innerHTML = `<span class="green-tick">✔</span>`;
+        //    }
+
+        //    if (stockVerified === false) {
+        //        quantityIconSpan.innerHTML = `<span class="red-cross">❌</span>`;
+        //    }
+
+        //    console.log(`Updated: product${index}, quantity${index}`);
+        //}
+
+        function fnSubmit() {
+            var grnId = $("#hdnGRNIDList").val();
+            var mtrid = $("#ddlMissingReasons").data("kendoDropDownList").value(); 
+            var notes = $("#txtMTNotes").val(); 
+            var plantTruckID = $("#hdnPlantTruckID").val();
+          //  alert(grnId)
+            if (!mtrid) {
+                alert("Please select a reason");
+                return;
+            }
+
+            var dataToSend = {
+                GRNID: grnId,
+                MTRID: parseInt(mtrid),
+                MTNotes: notes,
+                ArrTime: new Date().toISOString(),
+                ActionTime: new Date().toISOString(),
+                PlantTruckID: parseInt(plantTruckID),
+            };
+            //alert(JSON.stringify(dataToSend));
+            $.ajax({
+                url: "/api/PlantTruck/SaveMissingTruckComment", 
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    alert("Submitted successfully!");
+                    window.location.href = "SITTrucks.html";
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Submission error:", xhr.responseText);
+                    alert("Failed to submit: " + xhr.responseText);
+                }
+            });
+        }
+
+
+
+    </script>
+</body>
+</html>

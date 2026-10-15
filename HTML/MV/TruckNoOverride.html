@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Truck No Override</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kendo UI -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+
+    <!-- Toastr -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="css/materia.css?v=1.55" rel="stylesheet" />
+</head>
+<body class="bg-gray">
+    <div class="container-fluid">
+        <div id="header">
+            <script src="Scripts/header.js?v=1.3"></script>
+        </div>
+        <div style="margin:2px">
+            <div class="form-container">
+                <div class="info-pair">
+                    <strong>Type: <span id="lblTranType"></span></strong>
+                </div>
+                <div class="info-pair">
+                    <strong id="lblDynamicLabel"></strong> <span id="lblDAOrSoldTo"></span>
+                </div>
+
+                <div class="image-container text-left mb-3">
+                    <img id="truckImage" src="" alt="Truck"
+                         class="img-thumbnail zoomable-image"
+                         style="width: 90%; height: 430px; object-fit: fill;" />
+                </div>
+
+                <div class="truck-entry-group">
+                    <label for="truckNumber" class="truck-entry-label">Truck Number</label>
+                    <input type="text" id="truckNumber" maxlength="15" class="form-control" placeholder="Truck No" />
+                </div>
+                <div class="button-row">
+                    <button id="btnSaveTruck" class="button submit">SUBMIT</button>
+                    <button onclick="window.history.back();" class="btn btn-secondary">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        toastr.options = {
+            closeButton: false,
+            timeOut: 3000,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+            preventDuplicates: true
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get("taskId");
+        const tranId = urlParams.get("tranId");
+        const userId = urlParams.get("userId");
+        const tranType = urlParams.get("tranType");
+        const daOrSoldTo = urlParams.get("DAOrSoldTo");
+        const truckPhotoFileName = urlParams.get("TruckPhotoFileName");
+        const TruckNumber = urlParams.get("TruckNumber");
+        const status = urlParams.get("Status");
+
+        $(document).ready(function () {
+            fnSetPageName("User Task");
+
+            if (!taskId || !tranId || !userId) {
+                alert("Missing parameters in URL.");
+                return;
+            }
+
+            $("#lblTranType").text(tranType || "-");
+            $("#lblDAOrSoldTo").text(daOrSoldTo || "-");
+
+            if (tranType?.toLowerCase().includes("dealer")) {
+                $("#lblDynamicLabel").text("Sold To:");
+            } else if (tranType?.toLowerCase().includes("plant")) {
+                $("#lblDynamicLabel").text("DA No:");
+            } else {
+                $("#lblDynamicLabel").text("Info:");
+            }
+
+            if (truckPhotoFileName) {
+                let baseUrl = tranType?.toLowerCase().includes("dealer")
+                    ? "https://m24.materiatractus.com/Uploads/Mobile/SaleRequest/"
+                    : "https://m24.materiatractus.com/Uploads/Mobile/PlantTruck/";
+                const fullUrl = baseUrl + encodeURIComponent(truckPhotoFileName);
+                $("#truckImage").attr("src", fullUrl);
+            }
+
+            // Prefill truck number from query param if provided
+            const initialTruckNumber =
+                (TruckNumber && TruckNumber.toLowerCase() !== 'null' && TruckNumber.toLowerCase() !== 'undefined')
+                    ? TruckNumber : '';
+            if (initialTruckNumber) {
+                $('#truckNumber').val(initialTruckNumber);
+            }
+
+            // If Status = "Completed" -> make textbox read-only and HIDE the submit button
+            if (status && status.trim().toLowerCase() === "completed") {
+                $('#truckNumber').prop('readonly', true);
+                $('#btnSaveTruck').prop('disabled', true).hide(); // invisible when completed
+            } else {
+                // Ensure editable/visible otherwise
+                $('#truckNumber').prop('readonly', false);
+                $('#btnSaveTruck').prop('disabled', false).show();
+            }
+
+            $('#btnSaveTruck').click(function () {
+                // Guard: if hidden/disabled (e.g., Completed), do nothing
+                if ($('#btnSaveTruck').is(':disabled') || !$('#btnSaveTruck').is(':visible')) {
+                    return;
+                }
+
+                const truckNo = $('#truckNumber').val().trim();
+
+                if (!truckNo) {
+                    $('#truckNumber').addClass('is-invalid');
+                    toastr.warning("Truck number is required.");
+                    return;
+                } else {
+                    $('#truckNumber').removeClass('is-invalid');
+                }
+
+                $.ajax({
+                    url: '/api/TruckOverride/UpdateTruckNumber',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        TaskID: parseInt(taskId),
+                        TranID: parseInt(tranId),
+                        UserID: parseInt(userId),
+                        TruckNumber: truckNo,
+                        TaskType: (tranType || "").includes("Plant") ? "Plant" : "Sales",
+                        DAOrSoldTo: daOrSoldTo,
+                        TruckPhotoFileName: truckPhotoFileName
+                    }),
+                    success: function () {
+                        toastr.success("Truck number updated successfully.");
+                        setTimeout(() => {
+                            window.location.href = 'UserTask.html';
+                        }, 1000);
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to update truck number.";
+                        if (xhr.responseJSON?.message) {
+                            msg += " " + xhr.responseJSON.message;
+                        }
+                        toastr.error(msg);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <div id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login Page</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Kendo UI CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+    <link href="css/login.css" rel="stylesheet" />    
+
+</head>
+<body>
+
+    <div class="login-container">
+        <center>
+            <img src="https://www.vaidworld.com/images/vaid_logo.jpg" style="width:60%;" />
+        </center>
+        <h2 class="text-center mt-4">Materia Mobile</h2>
+
+        <form id="loginForm">
+            <div class="mb-3 mt-4">
+                <input type="text" class="form-control" id="username" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <button type="button"
+                    class="btn btn-outline-danger w-100 mt-3"
+                    onclick="resetPWA()">
+                🔄 Refresh App
+            </button>
+        </form>
+    </div>
+
+    <!-- Depot Popup -->
+    <div id="kwDepotSelection" style="display:none;">
+        <input id="depotSelector" style="width: 100%;" />
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <script>
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+
+            var loginData = {
+                LoginName: $("#username").val(),
+                Password: $("#password").val()
+            };
+
+            $.ajax({
+                url: '/api/login/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginData),
+                success: function (res) {
+                    console.log(res);
+                  //  alert(JSON.stringify(localStorage.getItem("roleID")));
+                    if (res && res.Depots && res.Depots.length > 0) {
+                        // Store token and UserID
+                        localStorage.setItem("authToken", res.Token);
+                        localStorage.setItem("userID", res.UserID);
+                        localStorage.setItem("roleID", res.RoleID);
+                        localStorage.setItem("Name", res.Name);
+                        localStorage.setItem("IsAllowedDedicatedTruckStatusChange", res.IsAllowedDedicatedTruckStatusChange);
+                        localStorage.setItem("IsAllowedSAP_SIT_Download", res.IsAllowedSAP_SIT_Download);
+                        localStorage.setItem("IsAllowedSAP_PendingOrder_Download", res.IsAllowedSAP_PendingOrder_Download);
+                        localStorage.setItem("IsAllowedSAP_Stock_Download", res.IsAllowedSAP_Stock_Download);
+                        localStorage.setItem("IsAllowedSAP_Fresh_Download", res.IsAllowedSAP_Fresh_Download);
+                        //alert(res.IsAllowedSAP_SIT_Download);
+                        localStorage.setItem("DepotList", JSON.stringify(res.Depots));
+                        if (res.Depots.length === 1) {
+                            const depot = res.Depots[0];
+                            saveDepotAndRedirect(depot);
+                        } else {
+                            showDepotSelection(res.Depots);
+                        }
+                    } else {
+                        alert("No depot access found.");
+                    }
+                },
+                error: function (err) {
+                    console.error("Login failed", err);
+                    alert("Invalid login credentials or server error.");
+                }
+            });
+        });
+
+        function showDepotSelection(depotList) {
+            // Get device/screen height
+            var deviceHeight = $(window).height(); // or window.innerHeight
+
+            // Set dropdown height as a percentage of screen height, e.g., 80%
+            var dropdownHeight = deviceHeight * 0.9;
+            $("#depotSelector").kendoMultiColumnComboBox({
+                dataSource: depotList,
+                dataTextField: "DepotName",
+                dataValueField: "DepotID",
+                height: dropdownHeight,
+                filter: "contains",
+                filtering: function (e) {
+                    var filter = e.filter;
+                    if (filter) {
+                        var filters = [
+                            { field: "DepotName", operator: "contains", value: filter.value },
+                            { field: "State", operator: "contains", value: filter.value }
+                        ];
+                        e.sender.dataSource.filter({
+                            logic: "or",
+                            filters: filters
+                        });
+                        e.preventDefault();
+                    }
+                },
+                columns: [
+                    { field: "DepotName"},
+                    { field: "State"}
+                ],
+                placeholder: "Select Depot",
+                change: function (e) {
+                    var selected = this.dataItem();
+                   
+                    if (selected) {
+                        $("#kwDepotSelection").data("kendoWindow").close();
+                        saveDepotAndRedirect(selected);
+                    }
+                },
+                open: function () {
+                    // Hide the header row once dropdown opens
+                    this.list.find(".k-table-thead").hide();
+                }
+            });
+
+            $("#depotSelector").data("kendoMultiColumnComboBox").wrapper.css({
+                "width": "99%"
+            });
+            // **Reset previous selection every time popup opens**
+            var combo = $("#depotSelector").data("kendoMultiColumnComboBox");
+            combo.value("");   // Clear selected value
+            combo.text("");    // Clear display text
+            combo.wrapper.find(".k-clear-value").hide();
+
+
+            //combo.open();
+
+            // Initialize the window and store the object
+            var windowObj = $("#kwDepotSelection").kendoWindow({
+                width: "97%",
+                title: "",
+                modal: true,
+                visible: false,
+                actions: []
+            }).data("kendoWindow");
+
+            // Bind activate event BEFORE opening the window
+            windowObj.bind("activate", function () {
+                combo.open();  // opens the ComboBox after the window is visible
+            });
+
+            // Center and open the window
+            windowObj.center().open();
+
+
+            $(".k-window-titlebar").hide(); 
+            var wnd = $("#kwDepotSelection").closest(".k-window");
+            wnd.css({
+                "top": "10px",       // Fixed 10px from top of browser
+                "margin-top": "0"    // Remove any extra margin
+            });
+
+        }
+
+        function saveDepotAndRedirect(depot) {
+           // alert(depot.SAPDepotID);
+            localStorage.setItem("DepotID", depot.DepotID);
+            localStorage.setItem("DepotName", depot.DepotName);
+            localStorage.setItem("SAPDepotID", depot.SAPDepotID);
+            localStorage.setItem("DepotHandlingType", depot.DepotHandlingType);
+            alert(depot.DepotHandlingType);
+
+            if (depot.DepotLongitude != null && depot.DepotLatitude != null) {
+                localStorage.setItem("DepotLongitude", depot.DepotLongitude);
+                localStorage.setItem("DepotLatitude", depot.DepotLatitude);
+            } else {
+                localStorage.removeItem("DepotLongitude");
+                localStorage.removeItem("DepotLatitude");
+            }
+            window.location.href = "dashboard.html";
+        }
+        async function resetPWA() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (const key of keys) {
+                        await caches.delete(key);
+                    }
+                }
+
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of regs) {
+                        await reg.unregister();
+                    }
+                }
+                alert("App refreshed successfully.");
+                location.href = location.pathname + '?v=' + Date.now();
+            } catch (e) {
+                location.reload();
+            }
+        }
+
+    </script>
+
+</body>
+</html>

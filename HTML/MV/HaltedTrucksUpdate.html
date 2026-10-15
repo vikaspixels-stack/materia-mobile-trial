@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <link href="css/materia.css?v=1.23" rel="stylesheet" />
+  
+    <link rel="manifest" href="/manifest.json">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+
+    <meta name="theme-color" content="#7952b3">
+   
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+</head>
+<body class="bg-gray">
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+        <main>
+            <div class="bg-warning" id="dvWarning" style="padding:5px;min-height:80px;display:none">
+                <div id="dvMessage" style="display:none">
+                </div>
+
+            </div>
+            <div class="container" style="margin-top: 20px;padding-top:10px;width: 100% !important; background-color: white !important; ">
+
+
+                <div class="form-group">
+                    <div style="background-color:#fff !important; border: solid 3px #E0E0E0;padding:5px">
+                        <p><strong>Status:</strong> <span id="spnType"></span></p>
+                        <p><strong>Plant Truck No:</strong> <span id="spnTruckNo"></span></p>
+                        <p><strong>Driver :</strong> <span id="spnDriver"></span></p>
+                        <p><strong>Transporter:</strong> <span id="spnTransporter"></span></p>
+                        <p><strong>Product:</strong> <span id="spnProduct"></span></p>
+                        <p>
+                            <strong>DA:</strong> <span id="spnDANumber"></span> &nbsp;&nbsp;
+                            <strong>Bal. MT:</strong> <span id="spnBalMT"></span>&nbsp;&nbsp;
+                            <strong>Bags :</strong> <span id="spnBags"></span>
+                        </p>
+                        <p><strong>Truck In Time:</strong> <span id="spnTruckInTime"> </span></p>
+                        <p><strong>Last GRN Date:</strong> <span id="spnLastGRNDate"></span></p>
+
+                        <p></p>
+                    </div>
+
+                    <table class="clsDealer" border="0" cellpadding="5" cellspacing="5" width="100%">
+                        <tbody>
+                            <tr><td></td></tr>
+
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12" style="margin-bottom: 10px;">Reason:</div>
+                                        <select id="ddlMissingReasons" style="margin-top:5px;"> </select>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Notes : </div>
+                                        <textarea id="txtMTNotes" rows="4" style="padding:13px;border:none;height:96%;width:100%;resize: vertical;"></textarea>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:100%;">
+                                    <div class="container12">
+                                        <div class="label12">Notes Log:</div>
+                                        <textarea id="txtNotesLog" rows="8" readonly="readonly" style="padding:13px;border:none;height:80px;width:100%;resize: vertical;"></textarea>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp;</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="button-group" style="display: flex; justify-content: center;padding:10px">
+                        <button class="button submit" id="btnSubmit" onclick="fnSubmit()">SUBMIT</button>
+                        <button class="btn btn-secondary ms-3" onclick="window.history.back();">CANCEL</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+    </div>
+
+
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+
+
+
+
+    <script>
+
+        $(document).ready(function () {
+            fnSetPageName("Truck Status");
+
+
+            const grnId = getQueryParam("GRNID");
+
+
+            if (grnId) {
+                // $("#hdnGRNID").val(grnId);
+                bindGRNDetails(grnId);
+            }
+
+            //if (grnIdList) {
+            //    $("#hdnGRNIDList").val(grnIdList);
+            //}
+
+
+            $("#ddlMissingReasons").kendoDropDownList({
+                optionLabel: "Select Reason...",
+                dataTextField: "MissingReason",   // Displayed text
+                dataValueField: "MTRID",          // Value to submit
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/api/PlantTruck/GetMissingTruckReasons",
+                            dataType: "json",
+                            data: function () {
+                                const data = {};
+                                const OriginalMissingType = getQueryParam("OriginalMissingType");
+                                const MTRID = 0;
+                                // alert(MTRID);
+                                if (OriginalMissingType) data.OriginalMissingType = OriginalMissingType;
+                                if (MTRID !== null && MTRID !== "null") data.MTRID = MTRID;
+
+                                return data;
+                            }
+                        }
+                    }
+                }
+            });
+
+
+        });
+
+
+
+        function fnSubmit() {
+            const GRNIDList = getQueryParam("GRNIDList");
+            const mtrid = $("#ddlMissingReasons").data("kendoDropDownList").value();
+            const notes = $("#txtMTNotes").val();
+            const userId = getUserID();
+
+            if (!GRNIDList) {
+                alert("GRNIDList is missing in the URL.");
+                return;
+            }
+
+            if (!mtrid) {
+                alert("Please select a reason.");
+                return;
+            }
+
+            if (!userId) {
+                // getUserID() already shows alert
+                return;
+            }
+
+            const dataToSend = {
+                GRNIDList: GRNIDList,
+                MTRID: parseInt(mtrid),
+                MTNotes: notes,
+                UserId: userId
+            };
+
+            $.ajax({
+                url: `/api/PlantTruck/SaveHaltedTruckStatus`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    alert("Submitted successfully!");
+                    window.location.href = "HaltedTruck.html";
+                },
+                error: function (xhr) {
+                    console.error("Error submitting:", xhr.responseText);
+                    alert("Submission failed: " + xhr.responseText);
+                }
+            });
+        }
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+
+        function bindGRNDetails(grnId) {
+            if (!grnId) return;
+
+            $.ajax({
+                url: '/api/PlantTruck/GetMissingTruckByGRNID?GRNID=' + grnId,
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    if (!data) return;
+
+                    const statusFromUrl = getQueryParam("Status");
+                    $("#spnType").text(statusFromUrl || "");
+                    $("#spnTruckNo").text(data.LorryNumber || "");
+                    $("#spnTransporter").text(data.TransporterName || "");
+                    $("#spnProduct").text(data.ProductID || "");
+                    $("#spnDANumber").text(data.DANo || "");
+                    $("#spnBalMT").text(data.QtyMT || "");
+                    $("#spnLastGRNDate").text(formatDateTime(data.LastGRNDate) || "");
+                    $("#spnTruckInTime").text(formatDateTime(data.TruckInTime) || "");
+                    $("#txtNotesLog").text(data.Notes || "");
+                    $("#spnBags").text(data.QtyMTBags || "");
+                    $("#spnDriver").text((data.DriverName || '') + ' ' + (data.DriverMobileNumber || ''));
+
+
+
+
+                },
+                error: function (xhr) {
+                    console.error("Error fetching truck details:", xhr.responseText);
+                }
+            });
+        }
+
+        function getDepotID() {
+            return localStorage.getItem("DepotID").toString();
+        }
+        function getUserID() {
+            return localStorage.getItem("userID").toString();
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return "";
+
+            const date = new Date(dateString);
+            if (isNaN(date)) return "";
+
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0'); // January = 0
+            const yyyy = date.getFullYear();
+
+            const hh = String(date.getHours()).padStart(2, '0');
+            const min = String(date.getMinutes()).padStart(2, '0');
+
+            return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+        }
+
+    </script>
+</body>
+</html>

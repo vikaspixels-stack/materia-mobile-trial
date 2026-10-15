@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>    
+    <link href="css/materia.css?v=1.22" rel="stylesheet"  />
+    <style>
+        .k-listview .item {
+            border: none;
+            border-bottom: 3px solid #fff;
+            /*border-radius: 5px;*/
+            padding: 4px;
+            background-color: #e0e0e0; /*
+           background-color: #f8f8f8;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;*/
+        }
+
+            .k-listview .item:hover {
+                background-color: aliceblue;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                cursor:pointer;
+            }
+
+            .k-listview .item p {
+                margin:1px 0;
+                color: #333;
+            }
+            .k-listview .item:last-child {
+                border-bottom: none;
+            }
+
+        /* Adding padding and text alignment */
+        .item p {
+           
+            line-height: 1.6;
+        }
+
+        /* Additional responsive styling */
+        @media (max-width: 768px) {
+            .k-listview .item {
+                padding: 12px;
+            }
+
+                
+
+                .k-listview .item p {
+                    font-size: 16px;
+                }
+        }
+        .btn-primary {
+            background-color: #6FA3E8;
+            color: #fff;
+            font-size: 15px;
+            width: 150px;
+            font-weight: bold;
+            white-space: nowrap;
+            padding: 10px 5px;
+        }
+
+            .btn-primary:hover {
+                background-color: #5a8ad6;
+                border-color: #5a8ad6;
+            }
+
+        
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <!-- Add your main content here -->
+            <div class="container mt-3 mb-9" >
+                <div class="row">
+                    <div class="col">
+                        <table>
+                            <tr><td><b>Dealer</b></td><td>: &nbsp;</td><td>Dealer Name</td></tr>
+                            <tr><td><b>Sale Truck No.</b></td><td>: &nbsp;</td><td>TN-1902983</td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col">
+                        <div id="repeater"></div>
+                    </div>
+                </div>
+                <div class="row mt-5" style="margin-bottom:20px;text-align:center">
+                    <div class="col">
+                        <div class="button-group">
+                            <button type="submit" class="button submit">
+                                Print
+                            </button>
+                        
+                            <button type="submit" class="button btn-cancel">Cancel</button>
+                        </div>
+                    </div>
+                    </div>
+
+
+            </div>
+        </main>
+    </div>
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+    <script>
+        $(document).ready(function () {
+            fnSetDepoPageName();
+            // Sample data
+            var data = [
+                { product: "abc", qty: 1, recommendedHandling: "Transhipment", daweekno: "ABCD" },
+                { product: "xyz", qty: 2, recommendedHandling: "Loading", daweekno: "10" },
+                { product: "456", qty: 3, recommendedHandling: "Transhipment", daweekno: "ABCD" }
+            ];
+
+            // Initialize the Kendo ListView
+            $("#repeater").kendoListView({
+                dataSource: {
+                    data: data
+                },
+                template: `
+                                             <div class="item">
+                                                 <p><b>Product</b>: #=product #</p>
+                                                 <p><b>Quantity</b>: #= qty #</p>
+                                                 <p><b>Operation</b>: #=recommendedHandling #</p>
+                                                 # if (recommendedHandling === "Transhipment") { #
+                                                     <p><b>DA</b>: </strong>#= daweekno #</p>
+                                                 # } else if (recommendedHandling === "Loading") { #
+                                                     <p><b>Week No.</b>: </strong>#= daweekno #</p>
+                                                 # } #
+                                             </div>
+                                         `
+            });
+        });
+        function fnSetDepoPageName() {
+            $("#spDepoName").html("Adoor");
+            $("#spPageName").html("Loading Slip");
+        }
+    </script>
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

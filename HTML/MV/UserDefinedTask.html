@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- jQuery (keep one; 3.7.0 matches your Kendo include below) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <link href="css/materia.css?v=1.23" rel="stylesheet" />
+    <!-- If your manifest.json isn’t present locally, you can remove this line to avoid 404 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7952b3">
+
+    <!-- Kendo CSS/Fonts -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@progress/kendo-font-icons/dist/index.css" />
+
+    <!-- Kendo JS + License (kept same as your template) -->
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+    <style>
+        body.bg-off-white {
+            background: #f8fafc;
+        }
+
+        .card-like {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            padding: 16px;
+        }
+
+        .form-label {
+            font-weight: 600;
+        }
+
+        .required::after {
+            content: " *";
+            color: #d9534f;
+        }
+
+        .k-textbox, .k-dropdownlist, .k-multiselect, .k-upload {
+            width: 100%;
+        }
+
+        .actions .k-button {
+            margin-right: .5rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: .5rem;
+            margin-top: 2.6rem;
+        }
+    </style>
+</head>
+<body class="bg-off-white">
+    <!-- Kendo toast host (must exist before we initialize it) -->
+    <div id="taskToast"></div>
+
+    <div class="container-fluid">
+        <!-- HEADER (kept intact) -->
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <!-- Form card -->
+            <div class="card-like">
+                <form id="taskForm" class="row g-3">
+                    <!-- Task Title -->
+                    <div class="col-12">
+                        <label for="taskTitle" class="form-label required">Task Title</label>
+                        <input id="taskTitle" class="k-textbox" type="text" placeholder="Enter task title" required />
+                    </div>
+
+                    <!-- Task Notes -->
+                    <div class="col-12">
+                        <label for="taskNotes" class="form-label">Task Notes</label>
+                        <textarea id="taskNotes" class="k-textbox" rows="4" placeholder="Add task notes"></textarea>
+                    </div>
+
+                    <!-- Attach File (Kendo Upload) -->
+                    <div class="col-12">
+                        <label for="fileUpload" class="form-label">Attach File</label>
+                        <input id="fileUpload" name="files" type="file" />
+                    </div>
+
+                    <!-- State (Drop down) -->
+                    <div class="col-3">
+                        <label for="ddlState" class="form-label required">State</label>
+                        <input id="ddlState" />
+                    </div>
+
+                    <!-- District (Drop down) -->
+                    <div class="col-4">
+                        <label for="ddlDistrict" class="form-label required">District</label>
+                        <input id="ddlDistrict" />
+                    </div>
+
+                    <!-- Depot (Drop down) -->
+                    <div class="col-5">
+                        <label for="ddlDepot" class="form-label required">Depot</label>
+                        <input id="ddlDepot" />
+                    </div>
+
+                    <!-- User (multi select kendo) -->
+                    <div class="col-12 col-md-6">
+                        <label for="msUsers" class="form-label required">Assign User</label>
+                        <select id="msUsers" multiple="multiple"></select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-row">
+                        <button id="btnSaveTruck" type="button" class="button submit">SUBMIT</button>
+                        <button type="button" onclick="window.history.back();" class="btn btn-secondary">CANCEL</button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="height:30px;"></div>
+        </main>
+    </div>
+
+    <!-- FOOTER (kept intact) -->
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+    <script>
+        // Make taskToast visible to other handlers
+        var taskToast;
+        const TASK_LIST_URL = "UserTask.html"; // change if your list page differs
+
+        $(document).ready(function () {
+            // Optional: header title
+            if (typeof fnSetPageName === "function") {
+                fnSetPageName("User Defined Task");
+            }
+            // Make State/District/Depot optional: drop the red asterisk on their labels
+            $('label[for="ddlState"], label[for="ddlDistrict"], label[for="ddlDepot"]').removeClass('required');
+
+            // Initialize Kendo Notification AFTER #taskToast exists
+            taskToast = $("#taskToast").kendoNotification({
+                stacking: "down",
+                autoHideAfter: 3000,
+                position: { pinned: true, top: 20, right: 20 },
+                templates: [
+                    { type: "success", template: "<div class='k-notification-wrap'><span class='k-icon k-i-check'></span> #= message #</div>" },
+                    { type: "error", template: "<div class='k-notification-wrap'><span class='k-icon k-i-warning'></span> #= message #</div>" }
+                ]
+            }).data("kendoNotification");
+
+            // Kendo Upload (attach file)
+            $("#fileUpload").kendoUpload({
+                async: { autoUpload: false },   // keep file in input; we post it with FormData
+                multiple: false,
+                showFileList: true,
+                validation: {
+                    allowedExtensions: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".png", ".jpg", ".jpeg"]
+                }
+            });
+
+            // ------------------- DataSources (read from your controller) -------------------
+            const stateDS = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/UserDefinedTask/States",
+                        dataType: "json",
+                        data: function () { return { stateId: 0, type: "S", regionId: 0 }; }
+                    }
+                },
+                schema: { model: { id: "StateID", fields: { StateID: { type: "number" }, State: { type: "string" } } } },
+                sort: { field: "State", dir: "asc" }
+            });
+
+            const districtDS = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/UserDefinedTask/Districts",
+                        dataType: "json",
+                        data: function () {
+                            const st = $("#ddlState").data("kendoDropDownList")?.value() || 0;
+                            return { stateId: st || 0 };
+                        }
+                    }
+                },
+                schema: { model: { id: "DistrictID", fields: { DistrictID: { type: "number" }, District: { type: "string" } } } },
+                sort: { field: "District", dir: "asc" }
+            });
+
+            const depotDS = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/UserDefinedTask/Depots",
+                        dataType: "json",
+                        data: function () {
+                            const st = $("#ddlState").data("kendoDropDownList")?.value() || 0;
+                            const dst = $("#ddlDistrict").data("kendoDropDownList")?.value() || 0;
+                            return { districtId: dst || 0, stateId: st || 0, excludeRL: "N", onlyRL: "N", excludeDepotId: 0 };
+                        }
+                    }
+                },
+                schema: { model: { id: "DepotID", fields: { DepotID: { type: "number" }, Depot: { type: "string" } } } },
+                sort: { field: "Depot", dir: "asc" }
+            });
+
+            const usersDS = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "/api/UserDefinedTask/Users",
+                        dataType: "json",
+                        data: function () {
+                            const st = $("#ddlState").data("kendoDropDownList")?.value() || 0;
+                            const dst = $("#ddlDistrict").data("kendoDropDownList")?.value() || 0;
+                            const dp = $("#ddlDepot").data("kendoDropDownList")?.value() || 0;
+                            return { stateId: st || 0, districtId: dst || 0, depotId: dp || 0 };
+                        }
+                    }
+                },
+                schema: { model: { id: "UserId", fields: { UserId: { type: "number" }, Name: { type: "string" } } } },
+                sort: { field: "Name", dir: "asc" }
+            });
+
+            // ------------------- Widgets -------------------
+            const ddlState = $("#ddlState").kendoDropDownList({
+                optionLabel: "Select state...",
+                dataTextField: "State",
+                dataValueField: "StateID",
+                dataSource: stateDS,
+                change: function () {
+                    districtDS.read(); depotDS.read(); usersDS.read();
+                    $("#ddlDistrict").data("kendoDropDownList").value("");
+                    $("#ddlDepot").data("kendoDropDownList").value("");
+                    $("#msUsers").data("kendoMultiSelect").value([]);
+                }
+            }).data("kendoDropDownList");
+
+            const ddlDistrict = $("#ddlDistrict").kendoDropDownList({
+                optionLabel: "Select district...",
+                dataTextField: "District",
+                dataValueField: "DistrictID",
+                dataSource: districtDS,
+                change: function () {
+                    depotDS.read(); usersDS.read();
+                    $("#ddlDepot").data("kendoDropDownList").value("");
+                    $("#msUsers").data("kendoMultiSelect").value([]);
+                }
+            }).data("kendoDropDownList");
+
+            const ddlDepot = $("#ddlDepot").kendoDropDownList({
+                optionLabel: "Select depot...",
+                dataTextField: "Depot",
+                dataValueField: "DepotID",
+                dataSource: depotDS,
+                change: function () {
+                    usersDS.read();
+                    $("#msUsers").data("kendoMultiSelect").value([]);
+                }
+            }).data("kendoDropDownList");
+
+            const msUsers = $("#msUsers").kendoMultiSelect({
+                placeholder: "Select users...",
+                dataTextField: "Name",
+                dataValueField: "UserId",
+                dataSource: usersDS,
+                autoClose: false,
+                tagMode: "single"
+            }).data("kendoMultiSelect");
+
+            // --- Select All for #msUsers only ---
+            (function () {
+                const ms = $("#msUsers").data("kendoMultiSelect");
+                if (!ms) return;
+
+                const popup = ms.popup.element;
+
+                ms.bind("open", function () {
+                    if (!popup.find(".ms-select-all").length) {
+                        const selectAllHtml = `
+          <div class="ms-select-all"
+               style="padding:6px 8px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:flex-start;white-space:nowrap;">
+            <label for="msUsersSelectAll" style="display:flex;align-items:center;gap:2px;white-space:nowrap;margin:0;">
+              <input type="checkbox" id="msUsersSelectAll" style="margin:0;">
+              <span style="margin:0;">Select All</span>
+            </label>
+          </div>`;
+                        popup.prepend(selectAllHtml);
+
+                        popup.on("change", "#msUsersSelectAll", function () {
+                            const checked = this.checked;
+                            const view = ms.dataSource.view();
+                            const valueField = ms.options.dataValueField;
+
+                            if (checked) {
+                                const allValues = view.map(item => item[valueField]);
+                                ms.value(allValues);
+                            } else {
+                                ms.value([]);
+                            }
+                        });
+                    }
+                    setTimeout(syncSelectAllCheckbox, 0);
+                });
+
+                ms.bind("dataBound", syncSelectAllCheckbox);
+                ms.bind("change", syncSelectAllCheckbox);
+
+                function syncSelectAllCheckbox() {
+                    const view = ms.dataSource.view();
+                    const valueField = ms.options.dataValueField;
+                    const selected = (ms.value() || []).map(String);
+                    const allInView = view.map(it => String(it[valueField]));
+                    const allSelected = allInView.length > 0 && allInView.every(v => selected.includes(v));
+                    popup.find("#msUsersSelectAll").prop("checked", allSelected);
+                }
+            })();
+
+            // FIRST LOAD: load all lists
+            $.when(stateDS.read()).then(function () {
+                return $.when(districtDS.read(), depotDS.read(), usersDS.read());
+            });
+
+            // Submit handler
+            $("#btnSaveTruck").on("click", function () {
+                const title = $("#taskTitle").val()?.trim();
+                const notes = $("#taskNotes").val()?.trim();
+                const stateId = $("#ddlState").data("kendoDropDownList")?.value() || 0;
+                const districtId = $("#ddlDistrict").data("kendoDropDownList")?.value() || 0;
+                const depotId = $("#ddlDepot").data("kendoDropDownList")?.value() || 0;
+                const selectedUsers = $("#msUsers").data("kendoMultiSelect")?.value() || [];
+
+                if (!title) return kendo.alert("Please enter Task Title.");
+               // if (!stateId) return kendo.alert("Please select a State.");
+                //if (!districtId) return kendo.alert("Please select a District.");
+                //if (!depotId) return kendo.alert("Please select a Depot.");
+                if (!selectedUsers.length) return kendo.alert("Please select at least one User.");
+
+                const createdBy = parseInt(localStorage.getItem("userID") || "0", 10);
+                if (!createdBy) return kendo.alert("Missing current user id.");
+
+                const fd = new FormData();
+                fd.append("TaskTitle", title);
+                fd.append("TaskNotes", notes || "");
+                fd.append("StateID", stateId);
+                fd.append("DistrictID", districtId);
+                fd.append("DepotID", depotId);
+                fd.append("CreatedBy", createdBy);
+                fd.append("UserIdsCsv", selectedUsers.join(","));
+
+                const kUpload = $("#fileUpload").data("kendoUpload");
+                const fileInputEl = kUpload ? kUpload.wrapper.find("input[type='file']")[0] : document.getElementById("fileUpload");
+                if (fileInputEl && fileInputEl.files && fileInputEl.files.length > 0) {
+                    fd.append("Attachment", fileInputEl.files[0]);
+                }
+
+                $.ajax({
+                    url: "/api/UserDefinedTask/Create",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (resp) {
+                        taskToast.show({ message: "Task created successfully. ID: " + resp.taskId }, "success");
+                        setTimeout(function () { window.location.href = TASK_LIST_URL; }, 1200);
+                    },
+                    error: function (xhr) {
+                        const msg = (xhr.responseJSON && xhr.responseJSON.title) ? xhr.responseJSON.title :
+                            (xhr.responseText || xhr.statusText || "Failed to create task.");
+                        taskToast.show({ message: "Error: " + msg }, "error");
+                        console.error(xhr);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

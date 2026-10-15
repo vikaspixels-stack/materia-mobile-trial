@@ -1,0 +1,434 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <style>
+
+        html {
+            height: -webkit-fill-available;
+            /*overscroll-behavior: none;*/
+        }
+
+
+        body {
+            background-color: #FAF9F6;
+            /*overscroll-behavior: none;*/
+        }
+
+        .camera-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #openCameraButton {
+            padding: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            #openCameraButton:focus {
+                outline: none;
+            }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 99%;
+            min-height: 120px;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        #preview {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 8px;
+            margin-top: 1px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+
+        a.no-underline {
+            text-decoration: none;
+        }
+
+            a.no-underline:hover {
+                color: #007bff;
+            }
+
+        .company {
+            color: #808080;
+            font-size: 14px;
+        }
+
+        .mouseover {
+            background-color: #f0f0f0; /* Change this to your desired background color */
+            cursor: pointer; /* Change this to your desired cursor style */
+        }
+    </style>
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <meta name="theme-color" content="#7952b3">
+    <style>
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .photo-btn {
+            padding: 10px;
+            background: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .truck-image {
+            max-width: 50%;
+            height: auto;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: bold;
+            }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button {
+            width: 48%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .verify {
+            background: #4285F4;
+            color: white;
+        }
+
+        .submit {
+            background: #34A853;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+        }
+    </style>
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        #logoRow {
+            padding: 0px;
+            margin: 0px;
+            /* background-color: #ededed !important; */
+            height: auto !important;
+            background-size: cover;
+            border: none;
+            /* height: 78px !important; */
+        }
+
+        .user-image {
+            border-radius: 50%;
+        }
+
+        .custom-img {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .container-fluid {
+            width: 100%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .container-fluid-inner {
+            width: 95%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: #6FA3E8;
+            margin: 10px;
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .box {
+            display: inline-block;
+            background-color: #f8f9fa;
+            color: #111;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #999;
+            text-align: center;
+            min-height: 105px;
+            min-width: 88px;
+        }
+
+        .box-text {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+    </style>
+
+    <style>
+
+        .clsDealer > tbody > tr {
+            padding-bottom: 10px !important;
+            display: flex !important;
+        }
+
+        .container12 {
+            position: relative;
+            width: 100%;
+            height: 2.5em;
+            border-bottom: 1px solid rgb(204, 204, 204);
+            margin-bottom: 10px !important;
+        }
+
+        .label12 {
+            position: absolute;
+            top: -20px;
+            /*left: 10px;*/
+            background-color: #fff;
+            padding: 0px 5px;
+            font-weight: 600;
+        }
+
+
+        .clsProduct {
+            padding: 5px;
+            white-space: nowrap;
+            width: 100%;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            background-color: white;
+            height: 35px;
+            max-width: 230px !important;
+        }
+
+        .container13 {
+            position: relative;
+            width: 100%;
+            /*height: 2.5em;*/
+            border: 1px solid rgb(204, 204, 204);
+        }
+
+        .clsbtnProduct {
+            display: none;
+        }
+
+        input[type=text]:focus {
+            border: 3px solid blue;
+        }
+
+        .clsTable {
+            background-color: #E0E0E0 !important;
+            ;
+        }
+
+        .clsTableCell {
+            white-space: nowrap !important;
+            padding: 5px 10px;
+        }
+
+        .clsTableFirstCell {
+            min-width: 220px !important;
+        }
+    </style>
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+</head>
+<body>
+
+    <!--<input id="ddlProduct1" style="width: 100%;" />-->
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.06" defer></script>
+        </header>
+
+        <main>
+            <div class="container" style="margin-bottom:10px;">
+                <!--Date : <p id="demo"></p>-->
+                <div style="display:table-cell;padding: 5px 10px;"><strong>Date: </strong></div>
+                <div id="dvDate" style="display:table-cell;padding: 5px 10px;"></div>
+                <script>
+                    document.getElementById("dvDate").innerHTML = kendo.toString(new Date(), "dd/MMMM/yyyy");
+                </script>
+            </div>
+
+
+            <div class="container">
+                <div class="form-group">
+                    <div id="lstSaleInvoice" style="border:none;"></div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="button btn-cancel">Cancel</button>
+            </div>
+        </main>
+    </div>
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+
+    <script type="text/kendo-x-tmpl" id="tmpSaleInvoice">
+        <div class="clsTable" style="margin-bottom:5px;padding:5px;">
+            <div class="clsTableRow" style="display:table-row;">
+                <div class="clsTableCell" style="display:table-cell;"><strong>Dealer: </strong>#: data.SoldToParty #</div>
+            </div>
+            <div class="clsTableRow" style="display:table-row;">
+                <div style="display:table-caption;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>LS No: </strong>#: data.LSNO #</div>
+                    <div class="clsTableCell clsTableSecondCell" style="display:table-cell;"><strong>Trk No: </strong>#: data.DepotLorryNo #</div>
+                </div>
+            </div>
+
+            <div class="clsTableRow" style="display:table-row;">
+                <div style="display:table-caption;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>Driver: </strong>#: data.DriverName #</div>
+                    <div class="clsTableCell clsTableSecondCell" style="display:table-cell;"><strong>Invoice: </strong>#: data.InvoiceNo #</div>
+                </div>
+            </div>
+            <div class="clsTableRow" style="display:table-row;">
+                <div style="display:table-caption;">
+                    <div class="clsTableCell clsTableFirstCell" style="display:table-cell;"><strong>Product: </strong>#: data.ProductID #</div>
+                    <div class="clsTableCell clsTableSecondCell" style="display:table-cell;"><strong>Quantity: </strong>#: data.TotalQty #</div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            fnSetDepoPageName();         
+
+            $("#lstSaleInvoice").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/SaleInvoice',
+                            dataType: "json"
+                        }
+                    }, sort: { field: "SoldToParty", dir: "asc" }
+                },
+                template: kendo.template($("#tmpSaleInvoice").html()),
+                selectable: "single",
+                change: function (e) {
+
+                }
+            });
+        });
+
+        function fnSetDepoPageName() {
+            $("#spDepoName").html("Adoor");
+            $("#spPageName").html("Sale Invoice");
+        }
+    </script>
+
+
+</body>
+</html>

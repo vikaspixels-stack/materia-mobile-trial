@@ -1,0 +1,876 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Materia Mobile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Font Awesome CSS from CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <style>
+
+        html {
+            height: -webkit-fill-available;
+            /*overscroll-behavior: none;*/
+        }
+
+
+        body {
+            background-color: #FAF9F6;
+            /*overscroll-behavior: none;*/
+        }
+
+        .camera-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #openCameraButton {
+            padding: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            #openCameraButton:focus {
+                outline: none;
+            }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 99%;
+            min-height: 120px;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        #preview {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 8px;
+            margin-top: 1px;
+        }
+
+        #result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+
+        a.no-underline {
+            text-decoration: none;
+        }
+
+            a.no-underline:hover {
+                color: #007bff;
+            }
+
+        .company {
+            color: #808080;
+            font-size: 14px;
+        }
+
+        .mouseover {
+            background-color: #f0f0f0; /* Change this to your desired background color */
+            cursor: pointer; /* Change this to your desired cursor style */
+        }
+    </style>
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <meta name="theme-color" content="#7952b3">
+    <style>
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .photo-btn {
+            padding: 10px;
+            background: #4285F4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .truck-image {
+            max-width: 50%;
+            height: auto;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+            .form-group label {
+                display: block;
+                font-weight: bold;
+            }
+
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button {
+            width: 48%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .verify {
+            background: #4285F4;
+            color: white;
+        }
+
+        .submit {
+            background: #34A853;
+            color: white;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+        }
+    </style>
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        #logoRow {
+            padding: 0px;
+            margin: 0px;
+            /* background-color: #ededed !important; */
+            height: auto !important;
+            background-size: cover;
+            border: none;
+            /* height: 78px !important; */
+        }
+
+        .user-image {
+            border-radius: 50%;
+        }
+
+        .custom-img {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .container-fluid {
+            width: 100%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .container-fluid-inner {
+            width: 95%;
+            padding-right: 0px;
+            padding-left: 0px;
+            margin-right: auto;
+            margin-left: auto;
+            background-color: #6FA3E8;
+            margin: 10px;
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .box {
+            display: inline-block;
+            background-color: #f8f9fa;
+            color: #111;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #999;
+            text-align: center;
+            min-height: 105px;
+            min-width: 88px;
+        }
+
+        .box-text {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+    </style>
+
+    <style>
+
+        .clsDealer > tbody > tr {
+            padding-bottom: 10px !important;
+            display: flex !important;
+        }
+
+        .container12 {
+            position: relative;
+            width: 100%;
+            height: 2.5em;
+            border-bottom: 1px solid rgb(204, 204, 204);
+            margin-bottom:10px!important;
+        }
+
+        .label12 {
+            position: absolute;
+            top: -20px;
+            /*left: 10px;*/
+            background-color: #fff;
+            padding: 0px 5px;
+            font-weight: 600;
+        }
+
+
+        .clsProduct {
+            padding: 5px;
+            white-space: nowrap;
+            width: 100%;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            background-color: white;
+            height: 35px;
+            max-width: 230px !important;
+        }
+
+        .container13 {
+            position: relative;
+            width: 100%;
+            /*height: 2.5em;*/
+            border: 1px solid rgb(204, 204, 204);
+        }
+
+        .clsbtnProduct {
+            display:none;
+        }
+
+        input[type=text]:focus {
+            border: 3px solid blue;
+        }
+    </style>
+
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <!--<script src="https://kendo.cdn.telerik.com/2025.1.211/js/kendo.all.min.js"></script>-->
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>
+
+</head>
+<body>
+
+    <!--<input id="ddlProduct1" style="width: 100%;" />-->
+
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#eee;">
+            <div class="container">
+                <div class="d-flex align-items-center" style="text-align: left;">
+                    <img src="img/logo_small.png" style="width:30px; margin-right: 10px;" />
+                    <span>Materia Mobile</span>
+                </div>
+                <div class="user-info ml-auto">
+                    <span class="username" id="spUserName">Depo : </span><span style="color:green">Adoor </span>
+                </div>
+                <div class="user-info ml-auto">
+                    <span class="username" id="spUserName">Sales Request </span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <table style="width:100%">
+                <tr>
+                    <td valign="middle">
+                        <div class="camera-container" style="margin-top:5px">
+                            <button id="openCameraButton">Capture Truck Photo</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="image-container">
+                            <img id="preview" src="" alt="Image">
+                        </div>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div>
+                            <div class="data-container" style="display:none" id="dvResult">
+                                <p><strong>🚗 Registration No:</strong> <span id="registration_number">N/A</span></p>
+                                <!--<p><strong>📍 GPS Latitude:</strong> <span id="gps_latitude">N/A</span></p>
+                             <p><strong>📍 GPS Longitude:</strong> <span id="gps_longitude">N/A</span></p>-->
+                                <p><strong>🌍 Distance from depot km:</strong> <span id="distance_from_depot_km"></span></p>
+                                <!--<p><strong>🌍 Location Name Using JS:</strong> <span id="location_namenew">N/A</span></p>-->
+                                <p><strong>📅 Date & Time :</strong> <span id="image_date_time">N/A</span></p>
+                            </div>
+                            <p id="result"></p>
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div class="container">
+
+
+            <div class="form-group">
+                <table class="clsDealer" border="0" cellpadding="5" cellspacing="5" width="100%">
+                    <tbody>
+                        <tr>
+
+                            <td style="width:100%;">
+                                <div class="container12">
+                                    <div class="label12">Dealer Name : </div>
+                                    <div style="width:100%;">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td id="dvDealerName" style="width:95%;height:40px;">
+                                                        <div id="dvDealer" style="padding:5px 10px;min-width:330px; max-width: 330px!important; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                    </td>
+                                                    <td style="width: 5%; padding-right: 5px; padding-left: 10px;">
+                                                        <button class="clsbtnProduct clsbtnDealer" style="border:none;background-color:transparent;" onclick="_clearCombobox(this,'dvDealer');">
+                                                            <i class="fa fa-remove" style="font-size:14px"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:100%;">
+                                <div class="container12">
+                                    <div class="label12">Driver Name : </div>
+                                    <input type="text" style="padding:13px;border:none;height:96%;" maxlength="250" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:100%;">
+                                <div class="container12">
+                                    <div class="label12">Driver Mobile : </div>
+                                    <input id="txtDriverMobile" type="number" style="border:none;padding:0px 10px;height:100%;" maxlength="10" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:100%;">
+                                <div class="container12">
+                                    <div class="label12">Transporter Type :</div>
+                                    <div style="padding-top:13px;padding-left:10px;">
+                                        <div style="display: inline-block; margin-right: 20px;">
+                                            <label>
+                                                <input type="radio" name="rdUserGroup" value="D" style="width:auto!important;" checked="checked">
+                                                Self
+                                            </label>
+                                        </div>
+                                        <div style="display:inline-block;">
+                                            <label>
+                                                <input type="radio" name="rdUserGroup" value="M" style="width:auto!important;">
+                                                Market Truck
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="background-color:aliceblue;width:100%;">
+                                <table border="1px" cellpadding="5" cellspacing="5" width="100%" style="border-color:darkseagreen">
+                                    <tr>
+                                        <td width="65%" align="center">
+                                            Product Name
+                                        </td>
+                                        <td width="35%" align="center">
+                                            Quantity
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+
+                                            <div class="container13">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td id="dvProductTouch1">
+                                                                <div id="dvProduct1" class="clsProduct" style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                            </td>
+                                                            <td style="width: 5%; padding-right: 5px; padding-left: 10px;">
+                                                                <button class="clsbtnProduct clsbtnProduct1" style="border:none;background-color:transparent;" onclick="_clearCombobox(this,'dvProduct1');">
+                                                                    <i class="fa fa-remove" style="font-size:14px"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!--<div id="dvProductTouch1" class="container13">
+                                            <div id="dvProduct1" class="clsProduct">
+                                            </div>
+                                        </div>-->
+                                        </td>
+                                        <td>
+                                            <input type="text" id="txtQuantity1" placeholder="Quantity">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <!--<div id="dvProductTouch2" class="container13">
+                                            <div id="dvProduct2" class="clsProduct">
+                                            </div>
+                                        </div>-->
+
+                                            <div class="container13">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td id="dvProductTouch2">
+                                                                <div id="dvProduct2" class="clsProduct" style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                            </td>
+                                                            <td style="width: 5%; padding-right: 5px; padding-left: 10px;">
+                                                                <button class="clsbtnProduct clsbtnProduct2" style="border:none;background-color:transparent;" onclick="_clearCombobox(this,'dvProduct2');">
+                                                                    <i class="fa fa-remove" style="font-size:14px"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="txtQuantity2" placeholder="Quantity">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <!--<div id="dvProductTouch3" class="container13">
+                                            <div id="dvProduct3" class="clsProduct">
+                                            </div>
+                                        </div>-->
+
+                                            <div class="container13">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td id="dvProductTouch3">
+                                                                <div id="dvProduct3" class="clsProduct" style="padding:5px 10px; overflow-x: hidden; white-space: nowrap; text-overflow: ellipsis !important;"></div>
+                                                            </td>
+                                                            <td style="width: 5%; padding-right: 5px; padding-left: 10px;">
+                                                                <button class="clsbtnProduct clsbtnProduct3" style="border:none;background-color:transparent;" onclick="_clearCombobox(this,'dvProduct3');">
+                                                                    <i class="fa fa-remove" style="font-size:14px"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="txtQuantity3" placeholder="Quantity">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="error-message">Not Verified</p>
+
+            <div class="button-group">
+                <button class="button verify">VERIFY ORDER</button>
+                <button class="button submit" onclick="fnSubmit()">SUBMIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:inline-block;"><br /><br /><br /><br /><br /><br /></div>
+
+    <div style="display: flex; align-items: center; justify-content: space-around; position: fixed; bottom: 0px; left: 0; right: 0; background-color: #21338E;color:#fff; border-top: solid 1px #999; z-index: 1000; padding:10px 5px 4px 10px; height: 50px; font-size:12px; width: 100%;">
+        <span style="margin: 5px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="UserTabClik('Home');">
+            <i class="fas fa-home" style="font-size: 20px;"></i>
+            <div>Home</div>
+        </span>
+        <span style="margin: 5px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="UserTabClik('Call');">
+            <i class="fas fa-phone" style="font-size: 20px;"></i>
+            <div>Call</div>
+        </span>
+        <span style="margin: 5px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="UserTabClik('TaskList');">
+            <i class="fas fa-list" style="font-size: 20px;"></i>
+            <div>Task List</div>
+        </span>
+        <span style="margin: 5px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center;" onclick="UserTabClik('Search');">
+            <i class="fas fa-search" style="font-size: 20px;"></i>
+            <div>Search</div>
+        </span>
+    </div>
+
+    <div id="kwDealerName" style="display:none;">
+        <div id="lstDealerName"></div>
+    </div>
+
+    <div id="kwProduct1" style="display:none;">
+        <div id="lstProduct1"></div>
+    </div>
+
+    <div id="kwProduct2" style="display:none;">
+        <div id="lstProduct2"></div>
+    </div>
+
+    <div id="kwProduct3" style="display:none;">
+        <div id="lstProduct3"></div>
+    </div>
+
+    <script type="text/kendo-x-tmpl" id="tmpDealer">
+        <div style="border-bottom: 1px solid lightgrey;padding:5px;">
+            <div style="display:table-cell;padding: 5px 10px;width:85px;">#: data.SoldToPt #</div>
+            <div style="display:table-cell;padding: 5px 10px;">#: data.Customer #</div>
+        </div>
+    </script>
+
+    <script type="text/kendo-x-tmpl" id="tmpProduct">
+        <div style="border-bottom: 1px solid lightgrey;padding:5px;">
+            <div style="display:table-cell;padding: 5px 10px;width:140px;">#: data.ProductID #</div>
+            <div style="display:table-cell;padding: 5px 10px;">#: data.ProductDesc #</div>
+        </div>
+    </script>
+
+    <script>
+        
+        $(document).ready(function () {
+
+
+
+
+            $("#dvDealerName").kendoTouch({
+                tap: function (e) {
+                    $("#kwDealerName").data("kendoWindow").open();
+                }
+            });
+
+            $("#dvProductTouch1").kendoTouch({
+                tap: function (e) {
+                    DealerData = undefined
+                    $("#kwProduct1").data("kendoWindow").open();
+                }
+            });
+
+            $("#dvProductTouch2").kendoTouch({
+                tap: function (e) {
+                    DealerData = undefined
+                    $("#kwProduct2").data("kendoWindow").open();
+                }
+            });
+
+            $("#dvProductTouch3").kendoTouch({
+                tap: function (e) {
+                    DealerData = undefined
+                    $("#kwProduct3").data("kendoWindow").open();
+                }
+            });
+
+            $("#lstDealerName").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/Mob_RetrieveDealersFromDepotCustomerMap?GodownID=40',
+                            dataType: "json"
+                        }
+                    }, sort: { field: "Customer", dir: "asc" }
+                },
+                template: kendo.template($("#tmpDealer").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstDealerName").data("kendoListView").dataItem(selectedItems);
+                    $(".clsbtnDealer").show();
+                    $('#dvDealer').html(dataItem.SoldToParty);
+                    $("#kwDealerName").data("kendoWindow").close();
+                }
+            });
+
+            $("#lstProduct1").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/DealerMob',
+                            dataType: "json"
+                        }
+                    }, sort: { field: "ProductID", dir: "asc" }
+                },
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct1").data("kendoListView").dataItem(selectedItems);
+                    $(".clsbtnProduct1").show();
+                    $('#dvProduct1').html(dataItem.ProductIDwithDesc);
+                    $("#kwProduct1").data("kendoWindow").close();
+                }
+            });
+
+            $("#lstProduct2").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/DealerMob',
+                            dataType: "json"
+                        }
+                    }, sort: { field: "ProductID", dir: "asc" }
+                },
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct2").data("kendoListView").dataItem(selectedItems);
+                    $(".clsbtnProduct2").show();
+                    $('#dvProduct2').html(dataItem.ProductIDwithDesc);
+                    $("#kwProduct2").data("kendoWindow").close();
+                }
+            });
+
+            $("#lstProduct3").kendoListView({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: '../api/DealerMob',
+                            dataType: "json"
+                        }
+                    }, sort: { field: "ProductID", dir: "asc" }
+                },
+                template: kendo.template($("#tmpProduct").html()),
+                selectable: "single",
+                change: function (e) {
+                    // get ListView selection
+                    var selectedItems = e.sender.select();
+                    var dataItem = $("#lstProduct3").data("kendoListView").dataItem(selectedItems);
+                    $(".clsbtnProduct3").show();
+                    $('#dvProduct3').html(dataItem.ProductIDwithDesc);
+                    $("#kwProduct3").data("kendoWindow").close();
+                }
+            });
+
+            $("#kwDealerName").kendoWindow({
+                width: "90vw",
+                height: "90vh",
+                //title: "About Alvar Aalto",
+                visible: false,
+                modal: true
+            }).data("kendoWindow").center();
+            $("#kwDealerName").attr("style", "padding:0px!important;");
+            $("#kwDealerName").closest("div.k-window").find("div.k-window-titlebar").find("span.k-window-title").html("");
+
+            $("#kwProduct1").kendoWindow({
+                width: "90vw",
+                height: "90vh",
+                //title: "About Alvar Aalto",
+                visible: false,
+                modal: true
+            }).data("kendoWindow").center();
+            $("#kwProduct1").attr("style", "padding:0px!important;");
+            $("#kwProduct1").closest("div.k-window").find("div.k-window-titlebar").find("span.k-window-title").html("");
+
+            $("#kwProduct2").kendoWindow({
+                width: "90vw",
+                height: "90vh",
+                visible: false,
+                modal: true
+            }).data("kendoWindow").center();
+            $("#kwProduct2").attr("style", "padding:0px!important;");
+            $("#kwProduct2").closest("div.k-window").find("div.k-window-titlebar").find("span.k-window-title").html("");
+
+            $("#kwProduct3").kendoWindow({
+                width: "90vw",
+                height: "90vh",
+                visible: false,
+                modal: true
+            }).data("kendoWindow").center();
+            $("#kwProduct3").attr("style", "padding:0px!important;");
+            $("#kwProduct3").closest("div.k-window").find("div.k-window-titlebar").find("span.k-window-title").html("");
+
+        });
+
+        function _clearCombobox(e,param) {
+            if (param == 'dvDealer') {
+                $("#lstDealerName").data("kendoListView").clearSelection();
+                $("#dvDealer").html('');
+                $(e).hide();
+            } else if (param == 'dvProduct1') {
+                $("#lstProduct1").data("kendoListView").clearSelection();
+                $("#dvProduct1").html('');
+                $(e).hide();
+            } else if (param == 'dvProduct2') {
+                $("#lstProduct2").data("kendoListView").clearSelection();
+                $("#dvProduct2").html('');
+                $(e).hide();
+            } else if (param == 'dvProduct3') {
+                $("#lstProduct3").data("kendoListView").clearSelection();
+                $("#dvProduct3").html('');
+                $(e).hide();
+            }
+        }
+    
+        document.getElementById("openCameraButton").addEventListener("click", function () {
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+            fileInput.capture = "environment";
+
+            fileInput.addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const base64DataUrl = e.target.result;
+                        const preview = document.getElementById("preview");
+                        preview.src = base64DataUrl;
+                        uploadImage(base64DataUrl);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            fileInput.click();
+        });
+
+        async function uploadImage(imageData = null) {
+            if (!imageData) {
+                alert("Please capture an image first.");
+                return;
+            }
+
+            const formData = new FormData();
+            const blob = await fetch(imageData).then(r => r.blob());
+            formData.append("image", blob, "captured_image.jpg");
+
+            try {
+                document.getElementById("result").innerText = "Processing...";
+
+                const response = await fetch("/api/extract3/license-plate", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                //document.getElementById("result").innerText = " " + data.registration_number;
+                // Update HTML with extracted data
+                $("#registration_number").text(data.registration_number || "N/A");
+                //$("#gps_latitude").text(data.gps_latitude !== null ? data.gps_latitude : "N/A");
+                //$("#gps_longitude").text(data.gps_longitude !== null ? data.gps_longitude : "N/A");
+                const distance = calculateDistance(data.depotLatitude, data.depotLongitude, data.gps_latitude, data.gps_longitude);
+                $("#distance_from_depot_km").text(distance);
+                $("#image_date_time").text(data.extraction_timestamp || "N/A");
+
+                document.getElementById("result").innerText = "";
+
+                document.getElementById("dvResult").style.display = "block";
+                //await waitForGPSData();
+                //getLocationName();
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("result").innerText = "Error extracting registration number.";
+            }
+        }
+        function calculateDistance(depotLat, depotLon, lat, lon) {
+            const earthRadiusKm = 6371.0; // Radius of the Earth in KM
+
+            const dLat = degreesToRadians(lat - depotLat);
+            const dLon = degreesToRadians(lon - depotLon);
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(degreesToRadians(depotLat)) * Math.cos(degreesToRadians(lat)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return (earthRadiusKm * c).toFixed(2); // Returns distance in KM rounded to 2 decimal places
+        }
+
+        // Function to convert degrees to radians
+        function degreesToRadians(degrees) {
+            return degrees * (Math.PI / 180);
+        }
+
+        function fnSubmit() {
+            window.location.href = "MobSaleRequestDetails.html";
+        }
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,369 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Materia Mobile</title>
+    <!-- Bootstrap CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Additional CSS -->
+    <link href="https://v24.vaidworld.com/Kendo/default-main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/@@progress/kendo-font-icons/dist/index.css" />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/kendo.all.min.js"></script>
+    <script src="https://v24.vaidworld.com/Kendo/telerik-license.js"></script>    
+    <link href="css/materia.css" rel="stylesheet"  />
+
+    <style>
+        .k-listview .item {
+            border: none;
+            border-bottom: 3px solid #fff;
+            /*border-radius: 5px;*/
+            padding: 4px;
+            background-color: #e0e0e0; /*
+           background-color: #f8f8f8;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;*/
+        }
+
+            .k-listview .item:hover {
+                background-color: aliceblue;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                cursor:pointer;
+            }
+
+            .k-listview .item p {
+                margin:1px 0;
+                color: #333;
+            }
+            .k-listview .item:last-child {
+                border-bottom: none;
+            }
+
+        /* Adding padding and text alignment */
+        .item p {
+           
+            line-height: 1.6;
+        }
+
+        /* Additional responsive styling */
+        @media (max-width: 768px) {
+            .k-listview .item {
+                padding: 12px;
+            }
+
+                
+
+                .k-listview .item p {
+                    font-size: 16px;
+                }
+        }
+        .btn-primary {
+            background-color: #6FA3E8;
+            color: #fff;
+            font-size: 15px;
+            width: 150px;
+            font-weight: bold;
+            white-space: nowrap;
+            padding: 10px 5px;
+        }
+
+            .btn-primary:hover {
+                background-color: #5a8ad6;
+                border-color: #5a8ad6;
+            }
+
+        .btn-cancel {
+            background-color: #ffcc00;
+            font-size: 15px;
+            width:150px;
+            font-weight: bold;
+            padding: 10px 5px;
+           align-items: center;
+        }
+
+            .btn-cancel:hover {
+                background-color: #ffcc00;
+               /* border-color: #dc3545;*/
+            }
+
+
+        .clsTable {
+            background-color: #E0E0E0 !important;
+        }
+
+        .clsTableCell {
+            white-space: nowrap !important;
+            padding: 5px 10px;
+        }
+
+        .clsTableFirstCell {
+            min-width: 220px !important;
+        }
+
+        .clsFirstDiv {
+            font-size: 16px;
+            font-family: arial;
+            font-weight: 500;
+            margin-right:5px;
+        }
+
+        .clsSecondDiv {
+            font-size: 14px;
+            font-family: arial;
+        }
+
+       
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <header id="header">
+            <script src="Scripts/header.js?v=1.3"></script>
+        </header>
+
+        <main>
+
+            <div class="container" style="background-color:#fff !important; border: solid 3px #E0E0E0">
+                <div style="margin-bottom:20px">
+                    <div style=" margin: 10px 0px; font-size: 22px; font-family: arial; font-weight: 500;"><strong>Sale Invoice</strong></div>
+                    <div style="padding:5px;">
+                        <div class="clsFirstDiv" style="display:inline-block;"><strong>Invoice Number: </strong> </div><div class="clsSecondDiv" id="dvInvoiceNo" style="display:inline-block;"></div>
+                        <div class="clsFirstDiv" style="display:inline-block;"><strong>&nbsp;Printed: </strong> </div><div class="clsSecondDiv" id="dvPrinted" style="display:inline-block;"></div>
+                    </div>
+                    <div style="padding:5px;"><div class="clsFirstDiv" style="display:inline-block;"><strong>Date: </strong></div><div class="clsSecondDiv"  id="dvInvoiceDate" style="display:inline-block;"></div></div>
+                    <div style="padding:5px;"><div class="clsFirstDiv" style="display:inline-block;"><strong>Dealer: </strong></div><div class="clsSecondDiv"  id="dvDealer" style="display:inline-block;"></div></div>
+                    <div style="padding:5px;">
+                        <div class="clsFirstDiv" style="display:inline-block;"><strong>Product: </strong></div><div class="clsSecondDiv" id="dvProduct" style="display:inline-block;"></div>
+                        <div class="clsFirstDiv" style="display:inline-block;"><strong>Quantity: </strong></div>
+                        <div class="clsSecondDiv" id="dvQuantity" style="display:inline-block;"></div>
+
+                    </div>
+                   
+                </div>
+                <div class="form-group" style="position:absolute;">
+                    <div style="margin: 5px 0px 20px 0px;"><button id="btnPrintSaleinvoice" class="button submit" style="width:100%;font-weight:600;" disabled>Print Sales Invoice</button></div>
+                    <div style="margin: 5px 0px 20px 0px;">
+                        <div style="display:inline-block;margin-right:20px;"><button id="camDriverPhoto" class="button submit" style="width: 200px; font-weight: 600;" onclick="PhotoClick('dvDriverPhoto');">Driver Photo</button></div>
+                        <div style="display:inline-block;height:150px;width:150px;border:.8px solid lightgrey;vertical-align:middle;">
+                            <img id="dvDriverPhoto" style="width:100%;height:100%;" />
+                        </div>
+                    </div>
+                    <!--<div style="margin:5px 0px;"><button type="submit" class="btn btn-cancel" style="width:200px;">Signed Invoice Photo</button></div>-->
+                    <div style="margin: 5px 0px;">
+                        <div style="display: inline-block; margin-right: 20px;"><button id="camSignedInvoicePhoto" class="button submit" style="width: 200px; font-weight: 600;" onclick="PhotoClick('dvSignedInvoicePhoto');">Signed Invoice Photo</button></div>
+                        <div style="display:inline-block;height:150px;width:150px;border:.8px solid lightgrey;vertical-align:middle;">
+                            <img id="dvSignedInvoicePhoto" style="width:100%;height:100%;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer id="footer">
+        <script src="Scripts/footer3.js?v1.25" defer></script>
+        <script src="Scripts/depotselection2.js?v6"></script>
+    </footer>
+
+   
+
+    <script>
+        $(document).ready(function () {
+            fnSetPageName("Sale Invoice Print");
+
+            $.ajax({
+                url: '../api/SaleInvoicePrint?LSID='+getParameter("LSID"),
+                type: 'GET',
+                dataType: 'json',
+                async: false,
+                success: function (dataSource) {
+                   // alert(dataSource.IsPrinted);
+                    $("#dvInvoiceNo").html(dataSource.InvoiceNo);
+                    var count = dataSource.IsPrinted;
+                    var displayText = "";
+
+                    if (count === 0) {
+                        displayText = "No";
+                    } else {
+                        displayText = count + (count === 1 ? " time" : " times");
+                    }
+
+                    $("#dvPrinted").html(displayText);
+                    $("#dvInvoiceDate").html(dataSource.InvoiceDate);
+                    $("#dvDealer").html(dataSource.SoldToParty);
+                    $("#dvProduct").html(dataSource.ProductID);
+                    $("#dvQuantity").html(dataSource.TotalQty);
+                    document.getElementById("dvDriverPhoto").src = "/Uploads/Mobile/SaleInvoicePrint/DriverPhoto/"+dataSource.DriverPhoto;
+                    document.getElementById("dvSignedInvoicePhoto").src = "/Uploads/Mobile/SaleInvoicePrint/SignedInvoicePhoto/" + dataSource.SignedInvoicePhoto;
+
+                    if (dataSource.InvoiceFileName !== "") {
+                        $("#btnPrintSaleinvoice").removeAttr("disabled");
+                        //$("#btnPrintSaleinvoice").attr("onclick", "viewFile('" + dataSource.LSID + "." + dataSource.InvoiceFileName + "'," + dataSource.LSID + ")");
+                        $("#btnPrintSaleinvoice").attr("onclick", "viewFile('"+dataSource.InvoiceFileName + "'," + dataSource.LSID + ")");
+                    }
+
+                }
+            });
+
+            
+        });
+
+        //function viewFile(FileName,LSID) {
+        //    updateIsPrinted(LSID);
+        //    const saleInvoiceFileUrl = "https://materiatractus.com/Uploads/MobileLoadingUnloadingSlip/Invoice/"+FileName;
+        //    window.open(saleInvoiceFileUrl, "_blank");
+        function viewFile(FileName, LSID) {
+            updateIsPrinted(LSID);
+
+            const url = `https://materiatractus.com/Uploads/MobileLoadingUnloadingSlip/Invoice/${FileName}`;
+
+            const iframe = document.createElement("iframe");
+            iframe.style.position = "absolute";
+            iframe.style.left = "-9999px";
+            iframe.src = url;
+            document.body.appendChild(iframe);
+
+            iframe.onload = () => {
+                setTimeout(() => {
+                    try {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    } catch {
+                        window.open(url, "_blank");
+                    }
+                }, 500);
+            };
+        }
+
+
+
+
+        function getParameter(name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            return (results != null ? results[1] || 0 : '');
+        }
+
+        //function PhotoClick(appenddiv) {
+        //    //document.getElementById(CameraelemntID).addEventListener("click", function () {
+
+        //    //});
+
+        //    const fileInput = document.createElement("input");
+        //    fileInput.type = "file";
+        //    fileInput.accept = "image/*";
+        //    fileInput.capture = "environment";
+
+        //    fileInput.addEventListener("change", function (event) {
+        //        const file = event.target.files[0];
+        //        if (file) {
+
+        //            const blob = new Blob([file], { type: file.type });
+        //            const blobUrl = URL.createObjectURL(blob);
+
+
+        //            $("#"+appenddiv).attr("src", blobUrl);
+        //            //link.css({
+        //            //    "height": "200px",
+        //            //    "width": "300px"
+        //            //});
+        //            //link.download = "example.txt"; // Optional, specify a filename for download
+        //            //link.textContent = "Download File";
+        //            //document.body.appendChild(link);
+        //            document.getElementById(appenddiv).appendChild(link);
+        //        }
+        //    });
+
+        //    fileInput.click();
+        //}
+        function PhotoClick(appenddiv) {
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+            fileInput.capture = "environment";
+
+            fileInput.addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const base64String = e.target.result;
+                        document.getElementById(appenddiv).src = base64String;
+                        const lsid = getParameter("LSID");
+                        const extension = file.name.split('.').pop();
+                        const customFileName = `${lsid}.${extension}`;
+                        if (appenddiv == "dvDriverPhoto") {
+                            uploadBase64ToServerDriverPhoto(base64String, customFileName, lsid);
+                        }
+                        else {
+                            uploadBase64ToServerInvoicePhoto(base64String, customFileName, lsid);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            fileInput.click();
+        }
+
+        function uploadBase64ToServerDriverPhoto(base64String, fileName,lsid) {
+            $.ajax({
+                url: '/api/SaleInvoicePrint/SaveDriverPhoto',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    base64: base64String,
+                    fileName: fileName,
+                    lsid: lsid
+                }),
+                success: function (response) {
+                    console.log("Saved successfully:", response);
+                },
+                error: function (error) {
+                    console.error("Error saving:", error);
+                }
+            });
+        }
+        function uploadBase64ToServerInvoicePhoto(base64String, fileName, lsid) {
+            $.ajax({
+                url: '/api/SaleInvoicePrint/SaveSignedInvoicePhoto',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    base64: base64String,
+                    fileName: fileName,
+                    lsid: lsid
+                }),
+                success: function (response) {
+                    console.log("Saved successfully:", response);
+                },
+                error: function (error) {
+                    console.error("Error saving:", error);
+                }
+            });
+        }
+        function updateIsPrinted(lsid) {
+            $.ajax({
+                url: '/api/SaleInvoicePrint/UpdateIsPrinted',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(lsid),
+                success: function (response) {
+                    console.log("IsPrinted updated successfully for LSID:", lsid);
+                    console.log(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error updating IsPrinted:", error);
+                    alert("Failed to update print status. Please try again.");
+                }
+            });
+        }
+
+
+    </script>
+    <!-- Bootstrap JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

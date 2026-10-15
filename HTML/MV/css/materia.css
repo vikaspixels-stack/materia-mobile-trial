@@ -1,0 +1,726 @@
+﻿html {
+    height: -webkit-fill-available;
+}
+
+body {
+    background-color: #fff;
+    font-family: Tahoma;
+    color:#000000;
+}
+
+  
+
+main {
+    height: calc(85vh);
+    overflow-y: auto;
+}
+
+
+/* Buttons */
+.button,
+.btn-primary,
+.btn-cancel {
+    padding: 10px 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    border: none;
+    border-radius: 8px;
+}
+
+.button {
+    width: 48%;
+}
+
+.submit {
+    background: #34A853;
+    color: white;
+}
+
+.verify {
+    background: #4285F4;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #6FA3E8;
+    color: #fff;
+    width: 150px;
+}
+
+    .btn-primary:hover {
+        background-color: #5a8ad6;
+        border-color: #5a8ad6;
+    }
+
+.btn-cancel {
+    background-color: #ffcc00;
+    color: black;
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-cancel:hover {
+        background-color: #ffcc00;
+        /* border-color: #dc3545;*/
+    }
+
+
+.error-message {
+    color: red;
+    font-size: 12px;
+}
+
+/* ListView Items */
+.k-listview .item {
+    background-color: #fff !important;
+    border-bottom: 3px solid #fff;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    --kendo-color-surface-alt: transparent;
+}
+
+
+    .k-listview .item:hover {
+        background-color: aliceblue;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .k-listview .item p {
+        margin: 1px 0;
+        color:#080808;
+        line-height: 1;
+    }
+
+    .k-listview .item:last-child {
+        border-bottom: none;
+    }
+
+.item p {
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .k-listview .item {
+        padding: 12px;
+    }
+
+        .k-listview .item p {
+            font-size: 16px;
+        }
+}
+
+/* Table Styling */
+.clsTable {
+    background-color: #fff !important;
+    border-radius: 10px;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.clsTableCell {
+    white-space: nowrap !important;
+    padding: 3px;
+}
+
+.clsTableFirstCell {
+    min-width: 220px !important;
+}
+body.bg-gray {
+    background-color: #E0E0E0 !important;
+}
+/*warm off-white*/
+body.bg-off-white{
+    background-color: #FAF9F6;
+}
+/* For WebKit browsers like Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Track (background) */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5); /* Thumb */
+    border-radius: 10px;
+}
+
+    /* Optional: on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(100, 100, 100, 0.7);
+    }
+:root {
+    --kendo-color-surface-alt: #E0E0E0;
+}
+.clsTable,
+.clsTableCell,
+.clsTableFirstCell,
+.clsTableSecondCell,
+.clsTable  {
+    color: #000000; 
+    font-weight:500;
+
+}
+    .clsTable,
+    .clsTableCell,
+    .clsTableFirstCell,
+    .clsTableSecondCell,
+    .clsTable strong {
+        color: #000000;
+    }
+/***/
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+    }
+
+select, input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+}
+
+input[type=text]:focus {
+    border: 3px solid blue;
+}
+
+p {
+    margin-bottom: 5px;
+}
+
+
+
+.camera-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/*    #openCameraButton {
+                    padding: 5px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                    #openCameraButton:focus {
+                        outline: none;
+                    }
+        */
+
+
+
+
+
+#result {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+a.no-underline {
+    text-decoration: none;
+}
+
+    a.no-underline:hover {
+        color: #007bff;
+    }
+
+.company {
+    color: #808080;
+    font-size: 14px;
+}
+
+#txtDriverName {
+    background-color: transparent;
+    transition: none !important;
+}
+
+.mouseover {
+    background-color: #f0f0f0; /* Change this to your desired background color */
+    cursor: pointer; /* Change this to your desired cursor style */
+}
+
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.photo-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.photo-btn {
+    padding: 10px;
+    background: #4285F4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.truck-image {
+    max-width: 50%;
+    height: auto;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+
+select, input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+    }
+}
+
+#logoRow {
+    padding: 0px;
+    margin: 0px;
+    /* background-color: #ededed !important; */
+    height: auto !important;
+    background-size: cover;
+    border: none;
+    /* height: 78px !important; */
+}
+
+.user-image {
+    border-radius: 50%;
+}
+
+.custom-img {
+    width: 100%;
+    max-width: 250px;
+}
+
+
+.box {
+    display: inline-block;
+    background-color: #f8f9fa;
+    color: #111;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #999;
+    text-align: center;
+    min-height: 105px;
+    min-width: 88px;
+}
+
+.box-text {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+
+.clsDealer > tbody > tr {
+    padding-bottom: 10px !important;
+    display: flex !important;
+}
+
+.container12 {
+    position: relative;
+    width: 100%;
+    height: 2.5em;
+    border-bottom: 1px solid rgb(204, 204, 204);
+    margin-bottom: 10px !important;
+}
+
+.label12 {
+    position: absolute;
+    top: -20px;
+    /*left: 10px;*/
+    background-color: #fff;
+    padding: 0px 5px;
+    font-weight: 600;
+}
+
+#lstProduct3, #lstProduct2, #lstProduct1 {
+    text-transform: uppercase;
+}
+
+.clsProduct {
+    padding: 5px;
+    white-space: nowrap;
+    width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    background-color: white;
+    height: 35px;
+    min-width: 230px !important;
+    max-width: 230px !important;
+}
+
+
+
+.clsbtnProduct {
+    display: none;
+}
+
+input[type=text]:focus {
+    border: 3px solid blue;
+}
+
+
+
+
+/*    #openCameraButton {
+                    padding: 5px;
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                }
+
+                    #openCameraButton:focus {
+                        outline: none;
+                    }
+        */
+
+
+
+#preview {
+    max-width: 100%;
+    max-height: 380px;
+    border-radius: 8px;
+    margin-top: 1px;
+}
+
+
+.company {
+    color: #808080;
+    font-size: 14px;
+}
+
+#txtDriverName {
+    background-color: transparent;
+    transition: none !important;
+}
+
+.mouseover {
+    background-color: #f0f0f0; /* Change this to your desired background color */
+    cursor: pointer; /* Change this to your desired cursor style */
+}
+
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.photo-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.photo-btn {
+    padding: 10px;
+    background: #4285F4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.truck-image {
+    max-width: 50%;
+    height: auto;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+
+select, input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+    }
+}
+
+#logoRow {
+    padding: 0px;
+    margin: 0px;
+    /* background-color: #ededed !important; */
+    height: auto !important;
+    background-size: cover;
+    border: none;
+    /* height: 78px !important; */
+}
+
+.user-image {
+    border-radius: 50%;
+}
+
+.custom-img {
+    width: 100%;
+    max-width: 250px;
+}
+
+.container-fluid {
+    width: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.container-fluid-inner {
+    width: 95%;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-right: auto;
+    margin-left: auto;
+    background-color: #6FA3E8;
+    margin: 10px;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+.box {
+    display: inline-block;
+    background-color: #f8f9fa;
+    color: #111;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #999;
+    text-align: center;
+    min-height: 105px;
+    min-width: 88px;
+}
+
+.box-text {
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+
+.clsDealer > tbody > tr {
+    padding-bottom: 10px !important;
+    display: flex !important;
+}
+
+.container12 {
+    position: relative;
+    width: 100%;
+    height: 2.5em;
+    border-bottom: 1px solid rgb(204, 204, 204);
+    margin-bottom: 10px !important;
+}
+
+.label12 {
+    position: absolute;
+    top: -20px;
+    /*left: 10px;*/
+    background-color: #fff;
+    padding: 0px 5px;
+    font-weight: 600;
+}
+
+#lstProduct3, #lstProduct2, #lstProduct1 {
+    text-transform: uppercase;
+}
+
+.clsProduct {
+    padding: 5px;
+    white-space: nowrap;
+    width: 100%;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    background-color: white;
+    height: 35px;
+    min-width: 230px !important;
+    max-width: 230px !important;
+}
+
+
+
+.clsbtnProduct {
+    display: none;
+}
+
+
+.red-cross {
+    color: #ff0047;
+    font-size: 1em; /* Make cross bigger */
+    margin-right: 0px; /* Push left if needed */
+    display: inline-block;
+}
+
+.green-tick {
+    color: green;
+    font-size: 1.2em; /* You can increase this as needed */
+    font-weight: bold;
+    margin-left: 2px; /* To push it slightly right */
+}
+
+
+.form-container {
+    max-width: 460px;
+    margin: auto;
+    background-color: #fff;
+    padding: 15px 15px 40px; /* reduced bottom padding from 80px to 40px */
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-pair {
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.zoomable-image {
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+    .zoomable-image:hover {
+        transform: scale(2.5);
+        z-index: 999;
+        position: relative;
+    }
+
+.truck-entry-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.truck-entry-label {
+    font-weight: bold;
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+.truck-entry-group input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.button-row {
+    display: flex;
+    justify-content: center; /* center the buttons */
+    gap: 10px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+    .button-row button {
+        max-width: 130px;
+        flex: 1;
+    }
+
+
+#toast-container {
+    top: 1rem;
+    right: 1rem;
+    left: auto;
+    transform: none;
+}
+
+@media (max-width: 500px) {
+    .truck-entry-group {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+
+
